@@ -1,0 +1,53 @@
+:root {
+	color-scheme: dark;
+
+	/* Palette */
+	--bg-deep: #0a0a0a;
+	--bg-surface: #111110;
+	--bg-card: #181816;
+	--bg-card-hover: #1e1e1b;
+	--border-subtle: #2a2a26;
+	--border-accent: #c9a84c;
+
+	--text-headline: #f5f0e8;
+	--text-body: #b8b4aa;
+	--text-muted: #6e6b62;
+	--text-accent: #c9a84c;
+	--text-accent-hover: #dfc06a;
+
+	/* Typography */
+	--font-display: 'Playfair Display Variable', 'Georgia', serif;
+	--font-body: 'Source Sans 3 Variable', 'Helvetica Neue', sans-serif;
+
+	/* Spacing */
+	--page-max: 1060px;
+	--page-gutter: 2rem;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+}
+
+body {
+	background-color: var(--bg-deep);
+	color: var(--text-body);
+	font-family: var(--font-body);
+	font-size: 16px;
+	line-height: 1.6;
+	min-height: 100vh;
+}
+
+::selection {
+	background-color: var(--border-accent);
+	color: var(--bg-deep);
+}
