@@ -7,6 +7,7 @@ declare global {
 		interface Locals {
 			user?: User;
 			session?: Session;
+			theme: 'dark' | 'light' | null;
 		}
 
 		// interface Error {}

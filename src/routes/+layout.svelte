@@ -1,6 +1,6 @@
 <script lang="ts">
-	import '@fontsource-variable/playfair-display';
-	import '@fontsource-variable/source-sans-3';
+	import '@fontsource-variable/fraunces';
+	import '@fontsource-variable/outfit';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 

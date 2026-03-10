@@ -63,6 +63,7 @@
 		"@fontsource-variable/source-sans-3": "^5.2.9",
 		"@fontsource-variable/space-grotesk": "^5.2.10",
 		"@fontsource/bodoni-moda": "^5.2.7",
-		"@fontsource/courier-prime": "^5.2.8"
+		"@fontsource/courier-prime": "^5.2.8",
+		"valibot": "^1.2.0"
 	}
 }

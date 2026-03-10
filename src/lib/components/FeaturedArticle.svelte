@@ -1,24 +1,12 @@
 <script lang="ts">
-	interface Article {
-		title: string;
-		source: string;
-		published_at: string;
-		summary: string;
-		url: string;
-		category: string;
-	}
+	import type { Article } from '$lib/schemas';
+	import ArticleMeta from '$lib/components/ArticleMeta.svelte';
 
 	let { article, index }: { article: Article; index: number } = $props();
 </script>
 
 <article class="featured" style:--i={index}>
-	<div class="featured-meta">
-		<span class="category">{article.category}</span>
-		<span class="meta-dot">&middot;</span>
-		<span class="source">{article.source}</span>
-		<span class="meta-dot">&middot;</span>
-		<time class="time">{article.published_at}</time>
-	</div>
+	<ArticleMeta category={article.category} items={[article.source, article.published_at]} />
 	<h2 class="featured-headline">{article.title}</h2>
 	<div class="featured-body">
 		<p class="featured-summary">{article.summary}</p>
@@ -33,26 +21,6 @@
 		padding: 2rem 0 2.5rem;
 		animation: fade-up 0.8s ease-out both;
 		animation-delay: calc(var(--i, 0) * 120ms + 200ms);
-	}
-
-	.featured-meta {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin-bottom: 1.25rem;
-		font-size: 0.72rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--muted);
-	}
-
-	.featured-meta .category {
-		color: var(--accent);
-		font-weight: 600;
-	}
-
-	.meta-dot {
-		color: var(--rule);
 	}
 
 	.featured-headline {
@@ -122,17 +90,6 @@
 
 	.read-link:hover::after {
 		width: 100%;
-	}
-
-	@keyframes fade-up {
-		from {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
 	}
 
 	@media (max-width: 768px) {

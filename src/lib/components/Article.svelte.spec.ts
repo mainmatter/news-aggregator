@@ -9,6 +9,7 @@ const MAX_OFFSET = 20;
 function make_article(summary: string) {
 	return {
 		article: {
+			id: 1,
 			title: 'Test Article',
 			source: 'Test Source',
 			published_at: '2026-03-09',

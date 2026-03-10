@@ -1,29 +1,41 @@
+/* ===== Editorial Design Tokens ===== */
 :root {
-	color-scheme: dark;
-
-	/* Palette */
-	--bg-deep: #0a0a0a;
-	--bg-surface: #111110;
-	--bg-card: #181816;
-	--bg-card-hover: #1e1e1b;
-	--border-subtle: #2a2a26;
-	--border-accent: #c9a84c;
-
-	--text-headline: #f5f0e8;
-	--text-body: #b8b4aa;
-	--text-muted: #6e6b62;
-	--text-accent: #c9a84c;
-	--text-accent-hover: #dfc06a;
-
-	/* Typography */
-	--font-display: 'Playfair Display Variable', 'Georgia', serif;
-	--font-body: 'Source Sans 3 Variable', 'Helvetica Neue', sans-serif;
-
-	/* Spacing */
-	--page-max: 1060px;
-	--page-gutter: 2rem;
+	--bg: #f8f5f0;
+	--fg: #1a1a18;
+	--accent: #c4453c;
+	--muted: #6b6860;
+	--paper: #ece7df;
+	--rule: #d4cfc6;
+	--card-hover: rgba(0, 0, 0, 0.02);
+	--font-display: 'Fraunces Variable', 'Georgia', serif;
+	--font-body: 'Outfit Variable', 'Helvetica Neue', sans-serif;
 }
 
+/* System dark preference (only if user hasn't explicitly chosen light) */
+@media (prefers-color-scheme: dark) {
+	:root:not(.light) {
+		--bg: #1a1a18;
+		--fg: #ece7df;
+		--accent: #d4605a;
+		--muted: #9a948a;
+		--paper: #252420;
+		--rule: #3a3830;
+		--card-hover: rgba(255, 255, 255, 0.03);
+	}
+}
+
+/* Explicit dark mode */
+:root.dark {
+	--bg: #1a1a18;
+	--fg: #ece7df;
+	--accent: #d4605a;
+	--muted: #9a948a;
+	--paper: #252420;
+	--rule: #3a3830;
+	--card-hover: rgba(255, 255, 255, 0.03);
+}
+
+/* ===== Reset ===== */
 *,
 *::before,
 *::after {
@@ -39,15 +51,52 @@ html {
 }
 
 body {
-	background-color: var(--bg-deep);
-	color: var(--text-body);
+	background: var(--bg);
+	color: var(--fg);
 	font-family: var(--font-body);
 	font-size: 16px;
 	line-height: 1.6;
 	min-height: 100vh;
+	position: relative;
+	transition:
+		background 0.5s ease,
+		color 0.5s ease;
+}
+
+/* Paper texture overlay */
+body::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+	pointer-events: none;
+	z-index: 0;
 }
 
 ::selection {
-	background-color: var(--border-accent);
-	color: var(--bg-deep);
+	background-color: var(--accent);
+	color: var(--bg);
+}
+
+/* ===== Shared Animations ===== */
+@keyframes fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fade-down {
+	from {
+		opacity: 0;
+		transform: translateY(-12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }

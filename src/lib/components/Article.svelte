@@ -1,16 +1,12 @@
 <script lang="ts">
+	import type { Article } from '$lib/schemas';
+	import ArticleMeta from '$lib/components/ArticleMeta.svelte';
+
 	let {
 		article,
 		index
 	}: {
-		article: {
-			title: string;
-			source: string;
-			published_at: string;
-			summary: string;
-			url: string;
-			category: string;
-		};
+		article: Article;
 		index: number;
 	} = $props();
 
@@ -25,11 +21,7 @@
 
 <article class="grid-article" style:--i={index}>
 	<span class="article-number">{String(index + 1).padStart(2, '0')}</span>
-	<div class="grid-meta">
-		<span class="category">{article.category}</span>
-		<span class="meta-dot">&middot;</span>
-		<time class="time">{article.published_at}</time>
-	</div>
+	<ArticleMeta category={article.category} items={[article.published_at]} />
 	<h3 class="grid-headline">
 		<a href={article.url} target="_blank" rel="noopener noreferrer">
 			{article.title}
@@ -79,30 +71,6 @@
 
 	.grid-article:hover .article-number {
 		color: var(--accent);
-	}
-
-	.grid-meta {
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-		margin-bottom: 0.6rem;
-		font-size: 0.68rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--muted);
-	}
-
-	.category {
-		font-weight: 600;
-		color: var(--accent);
-	}
-
-	.meta-dot {
-		color: var(--rule);
-	}
-
-	.time {
-		color: var(--muted);
 	}
 
 	.grid-headline {
@@ -174,17 +142,6 @@
 
 	.read-link-small:hover::after {
 		width: 100%;
-	}
-
-	@keyframes fade-up {
-		from {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
 	}
 
 	@media (max-width: 768px) {
