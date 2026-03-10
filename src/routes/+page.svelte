@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Article from '$lib/components/Article.svelte';
+	import FeaturedArticle from '$lib/components/FeaturedArticle.svelte';
 	import EditorialDesign from '$lib/EditorialDesign.svelte';
 
 	const featured_article = {
@@ -21,7 +22,7 @@
 <EditorialDesign></EditorialDesign>
 
 <section style="max-width: 960px; margin: 3rem auto; padding: 0 1.5rem;">
-	<Article article={featured_article} index={0} featured />
+	<FeaturedArticle article={featured_article} index={0} />
 
 	<Article article={featured_article} index={1} />
 </section>

@@ -3,6 +3,7 @@
 	import '@fontsource-variable/outfit';
 	import { articles, today } from '$lib/articles';
 	import Article from '$lib/components/Article.svelte';
+	import FeaturedArticle from '$lib/components/FeaturedArticle.svelte';
 
 	let dark = $state(true);
 </script>
@@ -75,7 +76,7 @@
 		<main class="content">
 			{#each articles as article, i (article.id)}
 				{#if i === 0}
-					<Article {article} index={i} featured />
+					<FeaturedArticle {article} index={i} />
 				{/if}
 			{/each}
 
