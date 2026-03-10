@@ -1,10 +1,16 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLAnchorAttributes } from 'svelte/elements';
 
-	let { href, children }: { href: string; children: Snippet } = $props();
+	type Props = {
+		href: string;
+		children: Snippet;
+	} & Omit<HTMLAnchorAttributes, 'href'>;
+
+	let { href, children, ...rest }: Props = $props();
 </script>
 
-<a {href} class="nav-link">
+<a {href} class={['nav-link', rest.class]} {...rest}>
 	{@render children()}
 </a>
 
