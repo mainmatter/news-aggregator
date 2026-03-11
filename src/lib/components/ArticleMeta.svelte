@@ -14,8 +14,8 @@
 	.article-meta {
 		display: flex;
 		align-items: center;
-		gap: 0.4rem;
-		font-size: 0.68rem;
+		gap: var(--s-1);
+		font-size: var(--text-xs);
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: var(--muted);

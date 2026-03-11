@@ -34,27 +34,16 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 0.75rem 0;
-		border-top: 1px solid var(--rule);
-		border-bottom: 1px solid var(--rule);
+		padding: var(--s-3) 0;
+		border-top: var(--s-px) solid var(--rule);
+		border-bottom: var(--s-px) solid var(--rule);
 	}
 
 	.story-count {
-		font-size: 0.75rem;
+		font-size: var(--text-sm);
 		font-weight: 400;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: var(--muted);
-	}
-
-	@keyframes fade-down {
-		from {
-			opacity: 0;
-			transform: translateY(-20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
 	}
 </style>

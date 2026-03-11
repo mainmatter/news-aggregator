@@ -38,8 +38,9 @@
 
 <style>
 	.grid-article {
-		padding: 2rem 2rem 2rem 0;
-		border-bottom: 1px solid var(--rule);
+		--_pad: var(--s-6);
+		padding: var(--_pad) var(--_pad) var(--_pad) 0;
+		border-bottom: var(--s-px) solid var(--rule);
 		animation: fade-up 0.6s ease-out both;
 		animation-delay: calc(var(--i, 0) * 100ms + 200ms);
 		transition: background 0.3s ease;
@@ -48,9 +49,9 @@
 
 	/* Vertical rule between columns */
 	.grid-article:nth-child(even) {
-		padding-left: 2rem;
+		padding-left: var(--_pad);
 		padding-right: 0;
-		border-left: 1px solid var(--rule);
+		border-left: var(--s-px) solid var(--rule);
 	}
 
 	.grid-article:hover {
@@ -65,7 +66,7 @@
 		font-variation-settings: 'opsz' 72;
 		line-height: 1;
 		color: var(--rule);
-		margin-bottom: 0.75rem;
+		margin-bottom: var(--s-3);
 		transition: color 0.3s ease;
 	}
 
@@ -79,7 +80,7 @@
 		font-weight: 500;
 		font-variation-settings: 'opsz' 32;
 		line-height: 1.3;
-		margin-bottom: 0.6rem;
+		margin-bottom: var(--s-2);
 	}
 
 	.grid-headline a {
@@ -93,10 +94,10 @@
 	}
 
 	.grid-summary {
-		font-size: 0.88rem;
+		font-size: var(--text-base);
 		line-height: 1.65;
 		color: var(--muted);
-		margin-bottom: 1rem;
+		margin-bottom: var(--s-4);
 	}
 
 	.fade-out {
@@ -109,9 +110,9 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding-top: 0.75rem;
-		border-top: 1px solid var(--rule);
-		font-size: 0.72rem;
+		padding-top: var(--s-3);
+		border-top: var(--s-px) solid var(--rule);
+		font-size: var(--text-xs);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 	}
@@ -126,7 +127,7 @@
 		text-decoration: none;
 		font-weight: 500;
 		position: relative;
-		padding-bottom: 2px;
+		padding-bottom: var(--s-2px);
 	}
 
 	.read-link-small::after {
@@ -135,23 +136,12 @@
 		left: 0;
 		bottom: 0;
 		width: 0;
-		height: 1px;
+		height: var(--s-px);
 		background: var(--accent);
 		transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 	}
 
 	.read-link-small:hover::after {
 		width: 100%;
-	}
-
-	@media (max-width: 768px) {
-		.grid-article:nth-child(even) {
-			padding-left: 0;
-			border-left: none;
-		}
-
-		.grid-article {
-			padding-right: 0;
-		}
 	}
 </style>

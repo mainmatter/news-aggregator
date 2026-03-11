@@ -9,7 +9,7 @@
 
 <style>
 	footer {
-		padding-bottom: 2rem;
+		padding-bottom: var(--s-6);
 		text-align: center;
 		animation: fade-up 0.6s ease-out both;
 		animation-delay: 1s;
@@ -17,16 +17,16 @@
 
 	.tagline {
 		font-family: var(--font-display);
-		font-size: 1.2rem;
+		font-size: var(--text-lg);
 		font-weight: 400;
 		font-style: italic;
 		font-variation-settings: 'opsz' 32;
 		color: var(--fg);
-		margin-bottom: 0.4rem;
+		margin-bottom: var(--s-1);
 	}
 
 	.subtitle {
-		font-size: 0.78rem;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		letter-spacing: 0.03em;
 	}

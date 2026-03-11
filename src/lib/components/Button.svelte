@@ -16,19 +16,21 @@
 	button {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.4rem;
+		gap: var(--s-1);
 		font-family: var(--font-body);
-		font-size: 0.72rem;
+		font-size: var(--text-xs);
 		font-weight: 500;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		padding: 0.4rem 0.9rem;
+		padding: var(--s-1) var(--s-3);
 		background: var(--paper);
 		color: var(--muted);
-		border: 1px solid var(--rule);
+		border: var(--s-px) solid var(--rule);
 		border-radius: 0;
 		cursor: pointer;
-		transition: all 0.3s ease;
+		transition:
+			color 0.3s ease,
+			border-color 0.3s ease;
 	}
 
 	button:hover {
@@ -46,9 +48,9 @@
 		flex: 1;
 		background: var(--fg);
 		color: var(--bg);
-		border: 1px solid var(--fg);
+		border: var(--s-px) solid var(--fg);
 		letter-spacing: 0.1em;
-		padding: 0.85rem 1rem;
+		padding: var(--s-3) var(--s-4);
 	}
 
 	.btn-primary:hover {
@@ -60,9 +62,9 @@
 		flex: 1;
 		background: var(--paper);
 		color: var(--muted);
-		border: 1px solid var(--rule);
+		border: var(--s-px) solid var(--rule);
 		letter-spacing: 0.1em;
-		padding: 0.85rem 1rem;
+		padding: var(--s-3) var(--s-4);
 	}
 
 	.btn-secondary:hover {

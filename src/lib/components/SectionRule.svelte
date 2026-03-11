@@ -2,9 +2,9 @@
 
 <style>
 	hr {
-		height: 1px;
+		height: var(--s-px);
 		background: var(--rule);
-		margin: 2rem 0;
+		margin: var(--s-6) 0;
 		border: none;
 	}
 </style>

@@ -20,7 +20,7 @@
 <style>
 	.field-error {
 		color: var(--accent);
-		font-size: 0.78rem;
-		margin: 0.3rem 0 0;
+		font-size: var(--text-sm);
+		margin: var(--s-1) 0 0;
 	}
 </style>

@@ -28,6 +28,6 @@
 		color: var(--muted);
 		font-family: var(--font-display);
 		font-style: italic;
-		font-size: 1.1rem;
+		font-size: var(--text-md);
 	}
 </style>

@@ -33,8 +33,8 @@
 
 	.mode-toggle-wrapper {
 		position: fixed;
-		top: 1.25rem;
-		right: 1.5rem;
+		top: var(--s-4);
+		right: var(--s-5);
 		z-index: 1000;
 	}
 </style>

@@ -56,12 +56,13 @@
 		z-index: 1;
 		max-width: 1100px;
 		margin: 0 auto;
-		padding: 3rem 2.5rem 4rem;
+		padding: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-4), 4vw, var(--s-6))
+			clamp(var(--s-8), 6vw, var(--s-10));
 	}
 
 	.grid {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
 		gap: 0;
 	}
 
@@ -71,7 +72,7 @@
 
 	.sign-out-btn {
 		font-family: var(--font-body);
-		font-size: 0.72rem;
+		font-size: var(--text-xs);
 		font-weight: 500;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
@@ -80,22 +81,12 @@
 		border: none;
 		cursor: pointer;
 		padding: 0;
-		transition: all 0.3s ease;
+		transition: color 0.3s ease;
 	}
 
 	.sign-out-btn:hover {
 		color: var(--accent);
 		text-decoration: underline;
 		text-underline-offset: 0.2em;
-	}
-
-	@media (max-width: 768px) {
-		.page-container {
-			padding: 2rem 1.25rem 3rem;
-		}
-
-		.grid {
-			grid-template-columns: 1fr;
-		}
 	}
 </style>

@@ -76,7 +76,7 @@
 	.login-page {
 		max-width: 480px;
 		margin: 0 auto;
-		padding: 4rem 1.5rem 3rem;
+		padding: var(--s-10) var(--s-5) var(--s-8);
 	}
 
 	.login-header {
@@ -86,10 +86,10 @@
 	.tagline {
 		text-align: center;
 		font-family: var(--font-display);
-		font-size: 1.1rem;
+		font-size: var(--text-md);
 		font-style: italic;
 		color: var(--muted);
-		margin-bottom: 2.5rem;
+		margin-bottom: var(--s-6);
 	}
 
 	.form-section {
@@ -97,17 +97,17 @@
 	}
 
 	.field {
-		margin-bottom: 1.25rem;
+		margin-bottom: var(--s-4);
 	}
 
 	.field-label {
 		display: block;
-		font-size: 0.72rem;
+		font-size: var(--text-xs);
 		font-weight: 500;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
 		color: var(--muted);
-		margin-bottom: 0.4rem;
+		margin-bottom: var(--s-1);
 	}
 
 	.optional {
@@ -118,13 +118,13 @@
 
 	.field input {
 		width: 100%;
-		padding: 0.75rem;
+		padding: var(--s-3);
 		background: var(--paper);
 		color: var(--fg);
-		border: 1px solid var(--rule);
+		border: var(--s-px) solid var(--rule);
 		border-radius: 0;
 		font-family: var(--font-body);
-		font-size: 0.95rem;
+		font-size: var(--text-base);
 		transition: border-color 0.3s ease;
 	}
 
@@ -141,26 +141,26 @@
 	.error-message {
 		color: var(--accent);
 		text-align: center;
-		font-size: 0.85rem;
-		margin-bottom: 1.25rem;
+		font-size: var(--text-sm);
+		margin-bottom: var(--s-4);
 	}
 
 	.button-row {
 		display: flex;
-		gap: 0.75rem;
-		margin-top: 0.5rem;
+		gap: var(--s-3);
+		margin-top: var(--s-2);
 	}
 
 	.footer-tagline {
 		text-align: center;
-		font-size: 0.8rem;
+		font-size: var(--text-sm);
 		color: var(--muted);
-		margin-top: 2rem;
+		margin-top: var(--s-6);
 	}
 
 	form :global(.google) {
 		width: 100%;
-		padding: 0.85rem 1rem;
+		padding: var(--s-3) var(--s-4);
 		letter-spacing: 0.1em;
 		justify-content: center;
 	}

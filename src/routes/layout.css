@@ -1,5 +1,6 @@
 /* ===== Editorial Design Tokens ===== */
 :root {
+	/* --- Colors --- */
 	--bg: #f8f5f0;
 	--fg: #1a1a18;
 	--accent: #c4453c;
@@ -7,8 +8,27 @@
 	--paper: #ece7df;
 	--rule: #d4cfc6;
 	--card-hover: rgba(0, 0, 0, 0.02);
+
+	/* --- Typography --- */
 	--font-display: 'Fraunces Variable', 'Georgia', serif;
 	--font-body: 'Outfit Variable', 'Helvetica Neue', sans-serif;
+	--text-xs: 0.7rem;
+	--text-sm: 0.75rem;
+	--text-base: 0.9rem;
+	--text-md: 1.05rem;
+	--text-lg: 1.2rem;
+
+	/* --- Spacing --- */
+	--s-px: 1px;
+	--s-2px: 2px;
+	--s-1: 0.25rem;
+	--s-2: 0.5rem;
+	--s-3: 0.75rem;
+	--s-4: 1rem;
+	--s-5: 1.5rem;
+	--s-6: 2rem;
+	--s-8: 3rem;
+	--s-10: 4rem;
 }
 
 /* System dark preference (only if user hasn't explicitly chosen light) */
@@ -82,7 +102,7 @@ body::before {
 @keyframes fade-up {
 	from {
 		opacity: 0;
-		transform: translateY(20px);
+		transform: translateY(var(--s-6));
 	}
 	to {
 		opacity: 1;
@@ -93,7 +113,7 @@ body::before {
 @keyframes fade-down {
 	from {
 		opacity: 0;
-		transform: translateY(-12px);
+		transform: translateY(calc(-1 * var(--s-3)));
 	}
 	to {
 		opacity: 1;

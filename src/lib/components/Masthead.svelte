@@ -22,13 +22,14 @@
 <style>
 	.header-top {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
-		gap: 1rem;
-		margin-bottom: 1.5rem;
+		gap: clamp(var(--s-2), 2vw, var(--s-4));
+		margin-bottom: var(--s-5);
 	}
 
 	.header-label {
-		font-size: 0.72rem;
+		font-size: var(--text-xs);
 		font-weight: 500;
 		letter-spacing: 0.14em;
 		text-transform: uppercase;
@@ -38,13 +39,14 @@
 
 	.header-rule {
 		flex: 1;
-		height: 1px;
+		height: var(--s-px);
 		background: var(--rule);
+		min-width: var(--s-6);
 	}
 
 	.masthead {
 		text-align: center;
-		padding: 2rem 0 1.75rem;
+		padding: clamp(var(--s-4), 4vw, var(--s-6)) 0;
 	}
 
 	.masthead h1 {
@@ -56,20 +58,5 @@
 		line-height: 1;
 		letter-spacing: -0.03em;
 		color: var(--fg);
-	}
-
-	@media (max-width: 480px) {
-		.masthead {
-			padding: 1.25rem 0 1.25rem;
-		}
-
-		.header-top {
-			flex-wrap: wrap;
-			gap: 0.5rem;
-		}
-
-		.header-rule {
-			display: none;
-		}
 	}
 </style>

@@ -16,15 +16,17 @@
 
 <style>
 	.nav-link {
-		font-size: 0.75rem;
+		font-size: var(--text-sm);
 		font-weight: 500;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
 		color: var(--muted);
 		text-decoration: none;
-		padding-bottom: 2px;
-		border-bottom: 1px solid transparent;
-		transition: all 0.3s ease;
+		padding-bottom: var(--s-2px);
+		border-bottom: var(--s-px) solid transparent;
+		transition:
+			color 0.3s ease,
+			border-bottom-color 0.3s ease;
 	}
 
 	.nav-link:hover {

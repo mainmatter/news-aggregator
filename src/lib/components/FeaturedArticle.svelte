@@ -18,12 +18,13 @@
 
 <style>
 	.featured {
-		padding: 2rem 0 2.5rem;
+		padding: var(--s-6) 0 var(--s-6);
 		animation: fade-up 0.8s ease-out both;
 		animation-delay: calc(var(--i, 0) * 120ms + 200ms);
 	}
 
 	.featured-headline {
+		--_indent: clamp(var(--s-4), 3vw, var(--s-5));
 		font-family: var(--font-display);
 		font-size: clamp(2rem, 5vw, 3.25rem);
 		font-weight: 400;
@@ -32,20 +33,21 @@
 		letter-spacing: -0.02em;
 		color: var(--fg);
 		max-width: 800px;
-		margin-bottom: 1.5rem;
+		margin-bottom: var(--s-5);
 		border-left: 3px solid var(--accent);
-		padding-left: 1.25rem;
+		padding-left: var(--_indent);
 	}
 
 	.featured-body {
+		--_indent: clamp(var(--s-4), 3vw, var(--s-5));
 		max-width: 600px;
-		margin-left: 1.25rem;
-		padding-left: 1.25rem;
-		border-left: 1px solid var(--rule);
+		margin-left: var(--_indent);
+		padding-left: var(--_indent);
+		border-left: var(--s-px) solid var(--rule);
 	}
 
 	.featured-summary {
-		font-size: 1.05rem;
+		font-size: var(--text-md);
 		line-height: 1.75;
 		color: var(--muted);
 	}
@@ -65,16 +67,16 @@
 
 	.read-link {
 		display: inline-block;
-		margin-top: 1.5rem;
-		margin-left: 2.5rem;
-		font-size: 0.78rem;
+		margin-top: var(--s-5);
+		margin-left: clamp(var(--s-4), 6vw, var(--s-6));
+		font-size: var(--text-sm);
 		font-weight: 500;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
 		color: var(--accent);
 		text-decoration: none;
 		position: relative;
-		padding-bottom: 4px;
+		padding-bottom: var(--s-1);
 	}
 
 	.read-link::after {
@@ -83,29 +85,12 @@
 		left: 0;
 		bottom: 0;
 		width: 0;
-		height: 1px;
+		height: var(--s-px);
 		background: var(--accent);
 		transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 	}
 
 	.read-link:hover::after {
 		width: 100%;
-	}
-
-	@media (max-width: 768px) {
-		.featured-body {
-			margin-left: 0;
-			padding-left: 1rem;
-		}
-
-		.read-link {
-			margin-left: 1rem;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.featured-headline {
-			padding-left: 1rem;
-		}
 	}
 </style>
