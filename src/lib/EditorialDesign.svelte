@@ -5,15 +5,9 @@
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
-	import ModeToggle from '$lib/components/ModeToggle.svelte';
 	import NavLink from '$lib/components/NavLink.svelte';
+	import { sign_out } from '$lib/auth.remote';
 </script>
-
-<div class="red-rule"></div>
-
-<div class="mode-toggle-wrapper">
-	<ModeToggle />
-</div>
 
 <div class="page-container">
 	<PageHeader
@@ -24,6 +18,9 @@
 	>
 		{#snippet nav()}
 			<NavLink href="/sources">Manage Sources</NavLink>
+			<form {...sign_out} class="sign-out-form">
+				<button class="sign-out-btn" type="submit">Sign Out</button>
+			</form>
 		{/snippet}
 	</PageHeader>
 
@@ -54,23 +51,6 @@
 </div>
 
 <style>
-	.red-rule {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		height: 3px;
-		background: var(--accent);
-		z-index: 100;
-	}
-
-	.mode-toggle-wrapper {
-		position: fixed;
-		top: 1.25rem;
-		right: 1.5rem;
-		z-index: 1000;
-	}
-
 	.page-container {
 		position: relative;
 		z-index: 1;
@@ -83,6 +63,30 @@
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 0;
+	}
+
+	.sign-out-form {
+		display: inline;
+	}
+
+	.sign-out-btn {
+		font-family: var(--font-body);
+		font-size: 0.72rem;
+		font-weight: 500;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--muted);
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+		transition: all 0.3s ease;
+	}
+
+	.sign-out-btn:hover {
+		color: var(--accent);
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
 	}
 
 	@media (max-width: 768px) {

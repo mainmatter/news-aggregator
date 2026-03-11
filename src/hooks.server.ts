@@ -19,13 +19,6 @@ const handle_theme: Handle = async ({ event, resolve }) => {
 };
 
 const handle_better_auth: Handle = async ({ event, resolve }) => {
-	const session = await auth.api.getSession({ headers: event.request.headers });
-
-	if (session) {
-		event.locals.session = session.session;
-		event.locals.user = session.user;
-	}
-
 	return svelteKitHandler({ event, resolve, auth, building });
 };
 

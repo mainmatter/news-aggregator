@@ -1,0 +1,6 @@
+{
+	"$schema": "https://raw.githubusercontent.com/sveltejs/ai-tools/refs/heads/main/packages/opencode/schema.json",
+	"skills": {
+		"enabled": ["svelte-core-bestpractices"]
+	}
+}
