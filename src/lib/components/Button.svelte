@@ -3,15 +3,14 @@
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 
 	type Props = {
-		onclick: () => void;
 		children: Snippet;
-		variant?: 'default' | 'ghost';
-	} & Omit<HTMLButtonAttributes, 'onclick'>;
+		variant?: 'default' | 'ghost' | 'primary' | 'secondary';
+	} & HTMLButtonAttributes;
 
-	let { onclick, children, variant = 'default', ...rest }: Props = $props();
+	let { children, variant = 'default', ...rest }: Props = $props();
 </script>
 
-<button {onclick} class={['btn', `btn-${variant}`]} {...rest}>{@render children()}</button>
+<button class={['btn', `btn-${variant}`]} {...rest}>{@render children()}</button>
 
 <style>
 	button {
@@ -41,5 +40,33 @@
 		background: none;
 		border: none;
 		padding: 0;
+	}
+
+	.btn-primary {
+		flex: 1;
+		background: var(--fg);
+		color: var(--bg);
+		border: 1px solid var(--fg);
+		letter-spacing: 0.1em;
+		padding: 0.85rem 1rem;
+	}
+
+	.btn-primary:hover {
+		background: var(--accent);
+		border-color: var(--accent);
+	}
+
+	.btn-secondary {
+		flex: 1;
+		background: var(--paper);
+		color: var(--muted);
+		border: 1px solid var(--rule);
+		letter-spacing: 0.1em;
+		padding: 0.85rem 1rem;
+	}
+
+	.btn-secondary:hover {
+		color: var(--fg);
+		border-color: var(--fg);
 	}
 </style>

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { get_user, login_or_register, sign_in_google } from '$lib/auth.remote';
+	import Button from '$lib/components/Button.svelte';
 	import FieldErrors from '$lib/components/FieldErrors.svelte';
+	import Masthead from '$lib/components/Masthead.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
 
 	await get_user(true);
@@ -12,14 +14,7 @@
 
 <div class="login-page">
 	<header class="login-header">
-		<div class="header-top">
-			<span class="header-label">Members Only</span>
-			<span class="header-rule"></span>
-			<span class="header-label">Est. 2026</span>
-		</div>
-		<div class="masthead">
-			<h1>Your News</h1>
-		</div>
+		<Masthead top_left="Members Only" top_right="Est. 2026" title="Your News" />
 		<p class="tagline">All the news that fits your interests</p>
 	</header>
 
@@ -58,19 +53,19 @@
 			{/if}
 
 			<div class="button-row">
-				<button class="btn-primary" {...login_or_register.fields.action.as('submit', 'login')}>
+				<Button variant="primary" {...login_or_register.fields.action.as('submit', 'login')}>
 					Sign In
-				</button>
-				<button class="btn-secondary" {...login_or_register.fields.action.as('submit', 'register')}>
+				</Button>
+				<Button variant="secondary" {...login_or_register.fields.action.as('submit', 'register')}>
 					Create Account
-				</button>
+				</Button>
 			</div>
 		</form>
 
 		<SectionRule />
 
 		<form {...sign_in_google}>
-			<button class="btn-google" type="submit"> Continue with Google </button>
+			<Button class="google" type="submit">Continue with Google</Button>
 		</form>
 
 		<p class="footer-tagline">Quality journalism, curated for you.</p>
@@ -86,44 +81,6 @@
 
 	.login-header {
 		animation: fade-down 0.7s ease-out;
-	}
-
-	.header-top {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.header-label {
-		font-size: 0.72rem;
-		font-weight: 500;
-		letter-spacing: 0.14em;
-		text-transform: uppercase;
-		color: var(--muted);
-		white-space: nowrap;
-	}
-
-	.header-rule {
-		flex: 1;
-		height: 1px;
-		background: var(--rule);
-	}
-
-	.masthead {
-		text-align: center;
-		padding: 2rem 0 1rem;
-	}
-
-	.masthead h1 {
-		font-family: var(--font-display);
-		font-size: clamp(3rem, 10vw, 5rem);
-		font-weight: 300;
-		font-style: italic;
-		font-variation-settings: 'opsz' 72;
-		line-height: 1;
-		letter-spacing: -0.03em;
-		color: var(--fg);
 	}
 
 	.tagline {
@@ -194,56 +151,6 @@
 		margin-top: 0.5rem;
 	}
 
-	.btn-primary,
-	.btn-secondary,
-	.btn-google {
-		font-family: var(--font-body);
-		font-size: 0.72rem;
-		font-weight: 500;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-		padding: 0.85rem 1rem;
-		border-radius: 0;
-		cursor: pointer;
-		transition: all 0.3s ease;
-	}
-
-	.btn-primary {
-		flex: 1;
-		background: var(--fg);
-		color: var(--bg);
-		border: 1px solid var(--fg);
-	}
-
-	.btn-primary:hover {
-		background: var(--accent);
-		border-color: var(--accent);
-	}
-
-	.btn-secondary {
-		flex: 1;
-		background: var(--paper);
-		color: var(--muted);
-		border: 1px solid var(--rule);
-	}
-
-	.btn-secondary:hover {
-		color: var(--fg);
-		border-color: var(--fg);
-	}
-
-	.btn-google {
-		width: 100%;
-		background: var(--paper);
-		color: var(--muted);
-		border: 1px solid var(--rule);
-	}
-
-	.btn-google:hover {
-		color: var(--fg);
-		border-color: var(--fg);
-	}
-
 	.footer-tagline {
 		text-align: center;
 		font-size: 0.8rem;
@@ -251,14 +158,10 @@
 		margin-top: 2rem;
 	}
 
-	.loading-state {
-		display: flex;
+	form :global(.google) {
+		width: 100%;
+		padding: 0.85rem 1rem;
+		letter-spacing: 0.1em;
 		justify-content: center;
-		align-items: center;
-		min-height: 60vh;
-		color: var(--muted);
-		font-family: var(--font-display);
-		font-style: italic;
-		font-size: 1.1rem;
 	}
 </style>
