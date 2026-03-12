@@ -1,4 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
+
+test.use({ auto_register_user: false });
 
 test('login page has expected h1', async ({ page }) => {
 	await page.goto('/');

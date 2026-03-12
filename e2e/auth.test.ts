@@ -1,10 +1,13 @@
-import { expect, test } from '@playwright/test';
-
-// Use a unique suffix per test run to avoid email collisions across runs
-const uid = Date.now();
+import { expect, register_user, sign_in_user, test, test_user } from './test';
 
 test.describe('unauthenticated', () => {
-	test('login page renders with expected elements', async ({ page }) => {
+	test.use({ auto_register_user: false });
+
+	test('login page renders with expected elements', async ({ page, db, schema }) => {
+		const users = await db.select().from(schema.user).all();
+
+		expect(users).toHaveLength(0);
+
 		await page.goto('/');
 
 		// Masthead
@@ -31,61 +34,48 @@ test.describe('unauthenticated', () => {
 	});
 });
 
-test.describe('registration and login flow', () => {
-	const test_email = `test-${uid}@example.com`;
-	const test_password = 'TestPassword123!';
-
-	test('can register a new account and get redirected to /news', async ({ page }) => {
-		await page.goto('/');
-
-		await page.locator('input#email').fill(test_email);
-		await page.locator('input#password').fill(test_password);
-		await page.locator('input#name').fill('Test User');
-		await page.getByRole('button', { name: 'Create Account' }).click();
-
-		// Should redirect to /news after successful registration
-		await expect(page).toHaveURL('/news', { timeout: 10_000 });
-		await expect(page.locator('h1')).toHaveText('Your News');
-	});
-
+test.describe('authenticated', () => {
 	test('authenticated user on / gets redirected to /news', async ({ page }) => {
-		// First, log in
-		await page.goto('/');
-		await page.locator('input#email').fill(test_email);
-		await page.locator('input#password').fill(test_password);
-		await page.getByRole('button', { name: 'Sign In' }).click();
-		await expect(page).toHaveURL('/news', { timeout: 10_000 });
-
-		// Now navigate to / — should be redirected back to /news
 		await page.goto('/');
 		await expect(page).toHaveURL('/news', { timeout: 10_000 });
 	});
 
 	test('can sign out and get redirected to /', async ({ page }) => {
-		// First, log in
-		await page.goto('/');
-		await page.locator('input#email').fill(test_email);
-		await page.locator('input#password').fill(test_password);
-		await page.getByRole('button', { name: 'Sign In' }).click();
-		await expect(page).toHaveURL('/news', { timeout: 10_000 });
-
-		// Click sign out
 		await page.getByRole('button', { name: /sign out/i }).click();
 
-		// Should redirect to login page
 		await expect(page).toHaveURL('/', { timeout: 10_000 });
 		await expect(page.locator('input#email')).toBeVisible();
 	});
+});
+
+test.describe('registration and login flow', () => {
+	test.use({ auto_register_user: false });
+
+	test('can register a new account and get redirected to /news', async ({ page }) => {
+		await register_user(page);
+		await expect(page.locator('h1')).toHaveText('Your News');
+	});
 
 	test('shows error for invalid login', async ({ page }) => {
+		await register_user(page);
+
+		await page.context().clearCookies();
 		await page.goto('/');
 
-		await page.locator('input#email').fill('nonexistent@example.com');
+		await page.locator('input#email').fill(test_user.email);
 		await page.locator('input#password').fill('WrongPassword!');
 		await page.getByRole('button', { name: 'Sign In' }).click();
 
-		// Should stay on / and show an error
 		await expect(page).toHaveURL('/');
 		await expect(page.locator('.error-message')).toBeVisible({ timeout: 10_000 });
+	});
+
+	test('can sign in after registering an account', async ({ page }) => {
+		await register_user(page);
+
+		await page.context().clearCookies();
+
+		await sign_in_user(page);
+		await expect(page.locator('h1')).toHaveText('Your News');
 	});
 });
