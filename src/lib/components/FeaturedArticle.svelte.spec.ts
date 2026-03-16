@@ -5,14 +5,22 @@ import FeaturedArticle from './FeaturedArticle.svelte';
 
 function make_article() {
 	return {
-		id: 1,
+		id: 'edition-article-featured',
+		article_id: 'article-featured',
+		canonical_url: 'https://example.com/climate',
 		title: 'Global Climate Summit Reaches Historic Agreement',
 		source: 'Reuters',
 		published_at: '2026-03-09',
 		summary:
 			'World leaders have agreed to ambitious new emissions targets, pledging a 60% reduction by 2035.',
 		url: 'https://example.com/climate',
-		category: 'World'
+		category: 'World',
+		position: 1,
+		section: 'Global Affairs',
+		reason: null,
+		custom_title: null,
+		custom_summary: null,
+		custom_category: null
 	};
 }
 

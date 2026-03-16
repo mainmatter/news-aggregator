@@ -9,13 +9,21 @@ const MAX_OFFSET = 20;
 function make_article(summary: string) {
 	return {
 		article: {
-			id: 1,
+			id: 'edition-article-test',
+			article_id: 'article-test',
+			canonical_url: 'https://example.com',
 			title: 'Test Article',
 			source: 'Test Source',
 			published_at: '2026-03-09',
 			summary,
 			url: 'https://example.com',
-			category: 'Tech'
+			category: 'Tech',
+			position: 1,
+			section: null,
+			reason: null,
+			custom_title: null,
+			custom_summary: null,
+			custom_category: null
 		},
 		index: 0
 	};
