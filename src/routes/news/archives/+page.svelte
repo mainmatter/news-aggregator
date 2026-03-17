@@ -67,76 +67,68 @@
 	<title>Archives — Editorial</title>
 </svelte:head>
 
-<svelte:boundary>
-	<div class="page-container">
-		<header class="page-header">
-			<Masthead top_left="Archives" top_right="All Editions" title="Past Editions" />
-			<div class="header-nav">
-				<span class="edition-total">{editions.length} Editions</span>
-				<NavLink href="/news">&larr; Back to Today</NavLink>
-			</div>
-		</header>
-
-		<SectionRule />
-
-		<main class="content">
-			{#each grouped as group, gi (group.label)}
-				{#if gi > 0}
-					<div class="month-divider"></div>
-				{/if}
-
-				<section class="month-group" style:--gi={gi}>
-					<h2 class="month-label">{group.label}</h2>
-
-					<ul class="edition-list">
-						{#each group.editions as edition, ei (edition.id)}
-							{@const date_info = format_edition_date(edition.edition_date)}
-							{@const today = is_today(edition.edition_date)}
-							<li class="edition-row" style:--ei={ei}>
-								<a href="/news/{edition.edition_date}" class="edition-link">
-									<span class="edition-day-col">
-										<span class="edition-day-number">{date_info.day}</span>
-										<span class="edition-weekday">{date_info.weekday}</span>
-										{#if today}
-											<span class="today-indicator">Today</span>
-										{/if}
-									</span>
-
-									<span class="edition-detail-col">
-										{#if edition.title}
-											<span class="edition-title">{edition.title}</span>
-										{/if}
-										{#if edition.summary}
-											<span class="edition-summary">{edition.summary}</span>
-										{/if}
-									</span>
-
-									<span class="edition-meta-col">
-										<span class="edition-stories">{edition.article_count} stories</span>
-										<span class="edition-arrow">&rarr;</span>
-									</span>
-								</a>
-							</li>
-						{/each}
-					</ul>
-				</section>
-			{/each}
-		</main>
-
-		<SectionRule />
-
-		<PageFooter
-			tagline="Every edition, preserved."
-			subtitle="Browse through your curated news history."
-		/>
-	</div>
-
-	{#snippet failed()}
-		<div class="loading-state">
-			<p>Loading&hellip;</p>
+<div class="page-container">
+	<header class="page-header">
+		<Masthead top_left="Archives" top_right="All Editions" title="Past Editions" />
+		<div class="header-nav">
+			<span class="edition-total">{editions.length} Editions</span>
+			<NavLink href="/news">&larr; Back to Today</NavLink>
 		</div>
-	{/snippet}
-</svelte:boundary>
+	</header>
+
+	<SectionRule />
+
+	<main class="content">
+		{#each grouped as group, gi (group.label)}
+			{#if gi > 0}
+				<div class="month-divider"></div>
+			{/if}
+
+			<section class="month-group" style:--gi={gi}>
+				<h2 class="month-label">{group.label}</h2>
+
+				<ul class="edition-list">
+					{#each group.editions as edition, ei (edition.id)}
+						{@const date_info = format_edition_date(edition.edition_date)}
+						{@const today = is_today(edition.edition_date)}
+						<li class="edition-row" style:--ei={ei}>
+							<a href="/news/{edition.edition_date}" class="edition-link">
+								<span class="edition-day-col">
+									<span class="edition-day-number">{date_info.day}</span>
+									<span class="edition-weekday">{date_info.weekday}</span>
+									{#if today}
+										<span class="today-indicator">Today</span>
+									{/if}
+								</span>
+
+								<span class="edition-detail-col">
+									{#if edition.title}
+										<span class="edition-title">{edition.title}</span>
+									{/if}
+									{#if edition.summary}
+										<span class="edition-summary">{edition.summary}</span>
+									{/if}
+								</span>
+
+								<span class="edition-meta-col">
+									<span class="edition-stories">{edition.article_count} stories</span>
+									<span class="edition-arrow">&rarr;</span>
+								</span>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/each}
+	</main>
+
+	<SectionRule />
+
+	<PageFooter
+		tagline="Every edition, preserved."
+		subtitle="Browse through your curated news history."
+	/>
+</div>
 
 <style>
 	.page-container {
@@ -317,17 +309,6 @@
 
 	.edition-link:hover .edition-title {
 		color: var(--accent);
-	}
-
-	.loading-state {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		min-height: 60vh;
-		color: var(--muted);
-		font-family: var(--font-display);
-		font-style: italic;
-		font-size: var(--text-md);
 	}
 
 	/* Mobile: stack the columns */

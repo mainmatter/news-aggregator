@@ -14,18 +14,10 @@
 	<title>Your News — Editorial</title>
 </svelte:head>
 
-<svelte:boundary>
-	<div class="page-wrapper">
-		<EditionsList {editions} />
-	</div>
-	<EditorialDesign date={page.params.date} />
-
-	{#snippet failed()}
-		<div class="loading-state">
-			<p>Loading…</p>
-		</div>
-	{/snippet}
-</svelte:boundary>
+<div class="page-wrapper">
+	<EditionsList {editions} />
+</div>
+<EditorialDesign date={page.params.date} />
 
 <style>
 	.page-wrapper {
@@ -34,16 +26,5 @@
 		max-width: var(--page-max-width);
 		margin: 0 auto;
 		padding: var(--s-5) clamp(var(--s-4), 4vw, var(--s-6)) 0;
-	}
-
-	.loading-state {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		min-height: 60vh;
-		color: var(--muted);
-		font-family: var(--font-display);
-		font-style: italic;
-		font-size: var(--text-md);
 	}
 </style>
