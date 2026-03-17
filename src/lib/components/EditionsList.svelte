@@ -2,37 +2,94 @@
 	import type { DailyEditionSummary } from '$lib/editions.remote';
 	import { page } from '$app/state';
 
-	let { editions, max = 10 }: { editions: DailyEditionSummary[]; max?: number } = $props();
+	const day_in_ms = 86400000;
 
-	let visible_editions = $derived(editions.slice(0, max));
-	let has_more = $derived(editions.length > max);
+	let { editions, max = 15 }: { editions: DailyEditionSummary[]; max?: number } = $props();
+
+	function parse_date(date_str: string) {
+		const [y, m, d] = date_str.split('-').map(Number);
+		return new Date(Date.UTC(y, m - 1, d));
+	}
+
+	function format_date(date: Date) {
+		return date.toISOString().slice(0, 10);
+	}
+
+	function offset_date(date_str: string, offset: number) {
+		return format_date(new Date(parse_date(date_str).getTime() + offset * day_in_ms));
+	}
+
+	function get_today_date() {
+		return new Date().toISOString().slice(0, 10);
+	}
+
+	const today_date = get_today_date();
+	let current_date = $derived(page.params.date || today_date);
+
+	let editions_by_date = $derived.by(() => {
+		const by_date: Record<string, DailyEditionSummary> = {};
+
+		for (const edition of editions) {
+			by_date[edition.edition_date] = edition;
+		}
+
+		return by_date;
+	});
+
+	let visible_days = $derived.by(() => {
+		const visible_date_strs = [];
+		const later_slots = Math.min(2, Math.max(max - 1, 0));
+
+		for (let index = later_slots; index > 0; index -= 1) {
+			const date_str = offset_date(current_date, index);
+
+			if (date_str <= today_date) {
+				visible_date_strs.push(date_str);
+			}
+		}
+
+		visible_date_strs.push(current_date);
+
+		for (let index = 1; visible_date_strs.length < max; index += 1) {
+			visible_date_strs.push(offset_date(current_date, -index));
+		}
+
+		return visible_date_strs.map((date_str) => ({
+			date_str,
+			edition: editions_by_date[date_str]
+		}));
+	});
+
+	let visible_date_strs = $derived(visible_days.map(({ date_str }) => date_str));
+	let has_more = $derived(
+		editions.some((edition) => !visible_date_strs.includes(edition.edition_date))
+	);
 
 	function format_pill_label(date_str: string) {
-		const [y, m, d] = date_str.split('-').map(Number);
-		const date = new Date(y, m - 1, d);
-		const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
-		return `${weekday} ${d}`;
+		const date = parse_date(date_str);
+		const weekday = date.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
+		return `${weekday} ${date.getUTCDate()}`;
 	}
 
 	function format_full_date(date_str: string) {
-		const [y, m, d] = date_str.split('-').map(Number);
-		return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+		return parse_date(date_str).toLocaleDateString('en-US', {
 			weekday: 'long',
 			month: 'long',
-			day: 'numeric'
+			day: 'numeric',
+			timeZone: 'UTC'
 		});
 	}
 
 	function is_today(date_str: string) {
-		return date_str === new Date().toISOString().slice(0, 10);
+		return date_str === today_date;
 	}
 
 	function is_active(date_str: string) {
-		const current_date = page.params.date;
-		if (!current_date) {
+		const route_date = page.params.date;
+		if (!route_date) {
 			return is_today(date_str);
 		}
-		return current_date === date_str;
+		return route_date === date_str;
 	}
 </script>
 
@@ -40,21 +97,37 @@
 	<span class="editions-label">Editions</span>
 
 	<ul class="editions-row">
-		{#each visible_editions as edition (edition.id)}
-			{@const active = is_active(edition.edition_date)}
-			{@const today = is_today(edition.edition_date)}
+		{#each visible_days as item (item.date_str)}
+			{@const active = is_active(item.date_str)}
+			{@const today = is_today(item.date_str)}
 			<li>
-				<a
-					href="/news/{edition.edition_date}"
-					class={['edition-pill', { active }]}
-					aria-current={active ? 'page' : undefined}
-					title="{format_full_date(edition.edition_date)} — {edition.article_count} stories"
-				>
-					{#if today}
-						<span class="today-dot" aria-label="Today"></span>
-					{/if}
-					<span class="pill-text">{format_pill_label(edition.edition_date)}</span>
-				</a>
+				{#if item.edition}
+					<a
+						href="/news/{item.date_str}"
+						class={['edition-pill', { active }]}
+						style:view-transition-name="edition-pill-{item.date_str}"
+						aria-current={active ? 'page' : undefined}
+						title="{format_full_date(item.date_str)} — {item.edition.article_count} stories"
+					>
+						{#if today}
+							<span class="today-dot" aria-label="Today"></span>
+						{/if}
+						<span class="pill-text">{format_pill_label(item.date_str)}</span>
+					</a>
+				{:else}
+					<span
+						class={['edition-pill', 'disabled', { active }]}
+						style:view-transition-name="edition-pill-{item.date_str}"
+						aria-current={active ? 'page' : undefined}
+						aria-disabled="true"
+						title="{format_full_date(item.date_str)} — no edition available"
+					>
+						{#if today}
+							<span class="today-dot" aria-label="Today"></span>
+						{/if}
+						<span class="pill-text">{format_pill_label(item.date_str)}</span>
+					</span>
+				{/if}
 			</li>
 		{/each}
 	</ul>
@@ -120,7 +193,8 @@
 		transition:
 			color 0.15s ease,
 			background 0.15s ease,
-			border-color 0.15s ease;
+			border-color 0.15s ease,
+			opacity 0.15s ease;
 	}
 
 	.edition-pill:hover {
@@ -143,6 +217,21 @@
 			height: var(--s-2px);
 			background: var(--accent);
 		}
+	}
+
+	.edition-pill.disabled {
+		cursor: default;
+		opacity: 0.5;
+	}
+
+	.edition-pill.disabled:hover {
+		color: var(--muted);
+		background: transparent;
+	}
+
+	.edition-pill.disabled.active {
+		color: var(--fg);
+		opacity: 1;
 	}
 
 	.today-dot {
