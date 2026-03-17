@@ -4,6 +4,9 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import ModeToggle from '$lib/components/ModeToggle.svelte';
+	import { setupViewTransition } from 'sveltekit-view-transition';
+
+	setupViewTransition();
 
 	let { children } = $props();
 </script>

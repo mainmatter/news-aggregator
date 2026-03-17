@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { articles, today } from '$lib/articles';
+	import { articles } from '$lib/articles';
 	import Article from '$lib/components/Article.svelte';
 	import FeaturedArticle from '$lib/components/FeaturedArticle.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
@@ -7,12 +7,30 @@
 	import SectionRule from '$lib/components/SectionRule.svelte';
 	import NavLink from '$lib/components/NavLink.svelte';
 	import { sign_out } from '$lib/auth.remote';
+
+	let { date }: { date?: string | undefined } = $props();
+
+	const date_options: Intl.DateTimeFormatOptions = {
+		weekday: 'long',
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric'
+	};
+
+	let display_date = $derived.by(() => {
+		if (date) {
+			// Parse YYYY-MM-DD without timezone shift
+			const [y, m, d] = date.split('-').map(Number);
+			return new Date(y, m - 1, d).toLocaleDateString('en-US', date_options);
+		}
+		return new Date().toLocaleDateString('en-US', date_options);
+	});
 </script>
 
 <div class="page-container">
 	<PageHeader
 		edition_label="Daily Edition"
-		date={today}
+		date={display_date}
 		title="Your News"
 		article_count={articles.length}
 	>
@@ -54,7 +72,7 @@
 	.page-container {
 		position: relative;
 		z-index: 1;
-		max-width: 1100px;
+		max-width: var(--page-max-width);
 		margin: 0 auto;
 		padding: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-4), 4vw, var(--s-6))
 			clamp(var(--s-8), 6vw, var(--s-10));
@@ -74,7 +92,7 @@
 		font-family: var(--font-body);
 		font-size: var(--text-xs);
 		font-weight: 500;
-		letter-spacing: 0.1em;
+		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
 		color: var(--muted);
 		background: none;

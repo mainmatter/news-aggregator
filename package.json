@@ -66,6 +66,7 @@
 		"@fontsource-variable/space-grotesk": "^5.2.10",
 		"@fontsource/bodoni-moda": "^5.2.7",
 		"@fontsource/courier-prime": "^5.2.8",
+		"sveltekit-view-transition": "^0.5.3",
 		"valibot": "^1.2.0"
 	}
 }

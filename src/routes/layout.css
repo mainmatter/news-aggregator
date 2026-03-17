@@ -1,9 +1,16 @@
+@media (prefers-reduced-motion: no-preference) {
+	@view-transition {
+		navigation: auto;
+	}
+}
+
 /* ===== Editorial Design Tokens ===== */
 :root {
 	/* --- Colors --- */
 	--bg: #f8f5f0;
 	--fg: #1a1a18;
 	--accent: #c4453c;
+	--accent-soft: color-mix(in srgb, var(--accent) 4%, transparent);
 	--muted: #6b6860;
 	--paper: #ece7df;
 	--rule: #d4cfc6;
@@ -17,6 +24,13 @@
 	--text-base: 0.9rem;
 	--text-md: 1.05rem;
 	--text-lg: 1.2rem;
+	--tracking-1: 0.02em;
+	--tracking-2: 0.04em;
+	--tracking-3: 0.06em;
+	--tracking-4: 0.08em;
+	--tracking-5: 0.1em;
+	--tracking-6: 0.12em;
+	--tracking-7: 0.14em;
 
 	/* --- Spacing --- */
 	--s-px: 1px;
@@ -29,6 +43,9 @@
 	--s-6: 2rem;
 	--s-8: 3rem;
 	--s-10: 4rem;
+
+	/* --- Layout --- */
+	--page-max-width: 1100px;
 }
 
 /* System dark preference (only if user hasn't explicitly chosen light) */
