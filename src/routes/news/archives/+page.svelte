@@ -235,7 +235,7 @@
 
 	.edition-day-number {
 		font-family: var(--font-display);
-		font-size: 1.6rem;
+		font-size: var(--text-2xl);
 		font-weight: 300;
 		font-style: italic;
 		font-variation-settings: 'opsz' 48;

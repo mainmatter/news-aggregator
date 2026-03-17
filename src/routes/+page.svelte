@@ -104,7 +104,7 @@
 		display: block;
 		font-size: var(--text-xs);
 		font-weight: 500;
-		letter-spacing: 0.1em;
+		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
 		color: var(--muted);
 		margin-bottom: var(--s-1);
@@ -161,7 +161,7 @@
 	form :global(.google) {
 		width: 100%;
 		padding: var(--s-3) var(--s-4);
-		letter-spacing: 0.1em;
+		letter-spacing: var(--tracking-5);
 		justify-content: center;
 	}
 </style>

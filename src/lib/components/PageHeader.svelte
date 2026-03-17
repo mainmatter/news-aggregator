@@ -42,7 +42,7 @@
 	.story-count {
 		font-size: var(--text-sm);
 		font-weight: 400;
-		letter-spacing: 0.08em;
+		letter-spacing: var(--tracking-4);
 		text-transform: uppercase;
 		color: var(--muted);
 	}

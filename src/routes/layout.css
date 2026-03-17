@@ -24,6 +24,16 @@
 	--text-base: 0.9rem;
 	--text-md: 1.05rem;
 	--text-lg: 1.2rem;
+	--text-xl: 1.35rem;
+	--text-2xl: 1.6rem;
+	--text-3xl: 2rem;
+	--text-4xl: 2.5rem;
+	--text-5xl: 3.25rem;
+	--text-6xl: 3.5rem;
+	--text-7xl: 6.5rem;
+	--text-fluid-xl: clamp(var(--text-md), 2vw, var(--text-xl));
+	--text-fluid-5xl: clamp(var(--text-3xl), 5vw, var(--text-5xl));
+	--text-fluid-7xl: clamp(var(--text-6xl), 10vw, var(--text-7xl));
 	--tracking-1: 0.02em;
 	--tracking-2: 0.04em;
 	--tracking-3: 0.06em;

@@ -20,7 +20,7 @@
 		font-family: var(--font-body);
 		font-size: var(--text-xs);
 		font-weight: 500;
-		letter-spacing: 0.06em;
+		letter-spacing: var(--tracking-3);
 		text-transform: uppercase;
 		padding: var(--s-1) var(--s-3);
 		background: var(--paper);
@@ -49,7 +49,7 @@
 		background: var(--fg);
 		color: var(--bg);
 		border: var(--s-px) solid var(--fg);
-		letter-spacing: 0.1em;
+		letter-spacing: var(--tracking-5);
 		padding: var(--s-3) var(--s-4);
 	}
 
@@ -63,7 +63,7 @@
 		background: var(--paper);
 		color: var(--muted);
 		border: var(--s-px) solid var(--rule);
-		letter-spacing: 0.1em;
+		letter-spacing: var(--tracking-5);
 		padding: var(--s-3) var(--s-4);
 	}
 

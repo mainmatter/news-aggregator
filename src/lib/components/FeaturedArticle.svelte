@@ -26,7 +26,7 @@
 	.featured-headline {
 		--_indent: clamp(var(--s-4), 3vw, var(--s-5));
 		font-family: var(--font-display);
-		font-size: clamp(2rem, 5vw, 3.25rem);
+		font-size: var(--text-fluid-5xl);
 		font-weight: 400;
 		font-variation-settings: 'opsz' 48;
 		line-height: 1.15;
@@ -34,7 +34,7 @@
 		color: var(--fg);
 		max-width: 800px;
 		margin-bottom: var(--s-5);
-		border-left: 3px solid var(--accent);
+		border-left: var(--s-2px) solid var(--accent);
 		padding-left: var(--_indent);
 	}
 
@@ -71,7 +71,7 @@
 		margin-left: clamp(var(--s-4), 6vw, var(--s-6));
 		font-size: var(--text-sm);
 		font-weight: 500;
-		letter-spacing: 0.1em;
+		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
 		color: var(--accent);
 		text-decoration: none;

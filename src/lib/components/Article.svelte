@@ -61,7 +61,7 @@
 	.article-number {
 		display: block;
 		font-family: var(--font-display);
-		font-size: 2.5rem;
+		font-size: var(--text-4xl);
 		font-weight: 300;
 		font-variation-settings: 'opsz' 72;
 		line-height: 1;
@@ -76,7 +76,7 @@
 
 	.grid-headline {
 		font-family: var(--font-display);
-		font-size: clamp(1.1rem, 2vw, 1.35rem);
+		font-size: var(--text-fluid-xl);
 		font-weight: 500;
 		font-variation-settings: 'opsz' 32;
 		line-height: 1.3;
@@ -114,7 +114,7 @@
 		border-top: var(--s-px) solid var(--rule);
 		font-size: var(--text-xs);
 		text-transform: uppercase;
-		letter-spacing: 0.06em;
+		letter-spacing: var(--tracking-3);
 	}
 
 	.grid-footer .source {

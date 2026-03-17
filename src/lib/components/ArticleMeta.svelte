@@ -16,7 +16,7 @@
 		align-items: center;
 		gap: var(--s-1);
 		font-size: var(--text-xs);
-		letter-spacing: 0.08em;
+		letter-spacing: var(--tracking-4);
 		text-transform: uppercase;
 		color: var(--muted);
 	}

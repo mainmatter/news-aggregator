@@ -147,8 +147,8 @@
 
 	.today-dot {
 		display: block;
-		width: 5px;
-		height: 5px;
+		width: var(--s-1);
+		height: var(--s-1);
 		border-radius: 50%;
 		background: var(--accent);
 		flex-shrink: 0;

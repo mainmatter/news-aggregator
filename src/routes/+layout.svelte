@@ -29,7 +29,7 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		height: 3px;
+		height: var(--s-1);
 		background: var(--accent);
 		z-index: 100;
 	}

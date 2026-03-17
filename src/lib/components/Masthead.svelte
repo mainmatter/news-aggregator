@@ -31,7 +31,7 @@
 	.header-label {
 		font-size: var(--text-xs);
 		font-weight: 500;
-		letter-spacing: 0.14em;
+		letter-spacing: var(--tracking-7);
 		text-transform: uppercase;
 		color: var(--muted);
 		white-space: nowrap;
@@ -51,7 +51,7 @@
 
 	.masthead h1 {
 		font-family: var(--font-display);
-		font-size: clamp(3.5rem, 10vw, 6.5rem);
+		font-size: var(--text-fluid-7xl);
 		font-weight: 300;
 		font-style: italic;
 		font-variation-settings: 'opsz' 72;
