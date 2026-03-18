@@ -174,6 +174,16 @@
 
 								<div class="source-fields">
 									<div class="field field-inline">
+										<label class="field-label" for="url-{source.user_source_id}">Feed URL</label>
+										<input
+											{...edit.fields.canonical_url.as('url')}
+											id="url-{source.user_source_id}"
+											placeholder="https://..."
+										/>
+										<FieldErrors field={edit.fields.canonical_url} />
+									</div>
+
+									<div class="field field-inline">
 										<label class="field-label" for="name-{source.user_source_id}"
 											>Display Name</label
 										>
@@ -185,18 +195,10 @@
 										<FieldErrors field={edit.fields.display_name} />
 									</div>
 
-									<div class="field field-inline field-wide">
-										<label class="field-label" for="url-{source.user_source_id}">URL</label>
-										<input
-											{...edit.fields.canonical_url.as('url')}
-											id="url-{source.user_source_id}"
-											placeholder="https://..."
-										/>
-										<FieldErrors field={edit.fields.canonical_url} />
-									</div>
-
 									<div class="field field-inline">
-										<label class="field-label" for="label-{source.user_source_id}">Label</label>
+										<label class="field-label" for="label-{source.user_source_id}"
+											>Label (optional)</label
+										>
 										<input
 											{...edit.fields.label.as('text')}
 											id="label-{source.user_source_id}"
@@ -299,8 +301,10 @@
 
 	.add-form-actions {
 		margin-top: var(--s-4);
-		display: flex;
-		justify-content: flex-end;
+		& :global(button) {
+			display: block;
+			margin-left: auto;
+		}
 	}
 
 	/* --- Fields --- */
@@ -381,12 +385,17 @@
 		border-color: var(--fg);
 	}
 
+	.source-edit-form {
+		display: flex;
+		flex-direction: column;
+		gap: var(--s-4);
+	}
+
 	.source-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: flex-start;
 		gap: var(--s-3);
-		margin-bottom: var(--s-3);
 	}
 
 	.source-identity {
@@ -443,17 +452,8 @@
 	/* --- Source fields (inline edit) --- */
 	.source-fields {
 		display: grid;
-		grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.8fr) minmax(0, 1fr);
-		gap: var(--s-3);
-	}
-
-	.field-wide {
-		min-width: 0;
-	}
-
-	.field-inline input:not([type='hidden']):not([type='checkbox']) {
-		padding: var(--s-2);
-		font-size: var(--text-sm);
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: var(--s-4);
 	}
 
 	/* --- Source actions --- */
