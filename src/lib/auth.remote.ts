@@ -3,6 +3,7 @@ import { form, query, getRequestEvent } from '$app/server';
 import { redirect } from '@sveltejs/kit';
 import { auth } from '$lib/server/auth';
 import { APIError } from 'better-auth/api';
+import type { User } from 'better-auth';
 
 /**
  * Get the current user. Resolves the session on demand (not in hooks).
@@ -20,7 +21,10 @@ export const get_user = query(v.optional(v.boolean(), false), async (is_login_pa
 		if (session?.user) {
 			redirect(302, '/news');
 		}
-		return null;
+		// we are just returning null here on the login page but we will not use the return value
+		// the rest of the cases we will either return user or redirect so we cheat TS here
+		// to avoid null checking the rest of the cases
+		return null as unknown as User;
 	}
 
 	if (!session?.user) {

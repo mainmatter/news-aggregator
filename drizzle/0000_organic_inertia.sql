@@ -67,7 +67,6 @@ CREATE UNIQUE INDEX `daily_edition_article_daily_edition_id_position_unique` ON 
 CREATE TABLE `source` (
 	`id` text PRIMARY KEY NOT NULL,
 	`canonical_url` text NOT NULL,
-	`display_name` text NOT NULL,
 	`source_kind` text,
 	`last_visited_at` integer,
 	`last_success_at` integer,
@@ -108,6 +107,7 @@ CREATE TABLE `user_source` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
 	`source_id` text NOT NULL,
+	`display_name` text NOT NULL,
 	`label` text,
 	`is_active` integer DEFAULT true NOT NULL,
 	`created_at` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL,

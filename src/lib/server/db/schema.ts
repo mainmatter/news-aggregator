@@ -25,7 +25,6 @@ export const source = sqliteTable(
 	{
 		id: create_id(),
 		canonical_url: text('canonical_url').notNull(),
-		display_name: text('display_name').notNull(),
 		source_kind: text('source_kind'),
 		last_visited_at: integer('last_visited_at', { mode: 'timestamp_ms' }),
 		last_success_at: integer('last_success_at', { mode: 'timestamp_ms' }),
@@ -44,6 +43,7 @@ export const user_source = sqliteTable(
 		source_id: text('source_id')
 			.notNull()
 			.references(() => source.id, { onDelete: 'cascade' }),
+		display_name: text('display_name').notNull(),
 		label: text('label'),
 		is_active: integer('is_active', { mode: 'boolean' }).default(true).notNull(),
 		...create_timestamps()
