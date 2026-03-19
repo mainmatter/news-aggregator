@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { get_user } from '$lib/auth.remote';
-	import { get_daily_editions } from '$lib/editions.remote';
+	import { get_editions } from '$lib/editions.remote';
 	import EditorialDesign from '$lib/EditorialDesign.svelte';
 	import EditionsList from '$lib/components/EditionsList.svelte';
 	import { page } from '$app/state';
 
 	await get_user();
 
-	const editions = await get_daily_editions();
+	const editions = await get_editions();
 </script>
 
 <svelte:head>

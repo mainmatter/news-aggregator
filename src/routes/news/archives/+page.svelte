@@ -1,23 +1,23 @@
 <script lang="ts">
 	import { get_user } from '$lib/auth.remote';
-	import { get_daily_editions, type DailyEditionSummary } from '$lib/editions.remote';
 	import Masthead from '$lib/components/Masthead.svelte';
 	import NavLink from '$lib/components/NavLink.svelte';
-	import SectionRule from '$lib/components/SectionRule.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
-	import { SvelteMap } from 'svelte/reactivity';
+	import SectionRule from '$lib/components/SectionRule.svelte';
+	import { get_editions, type EditionSummary } from '$lib/editions.remote';
 
 	await get_user();
 
-	const editions = await get_daily_editions();
+	const editions = await get_editions();
 
 	type MonthGroup = {
 		label: string;
-		editions: DailyEditionSummary[];
+		editions: EditionSummary[];
 	};
 
 	let grouped = $derived.by(() => {
-		const groups = new SvelteMap<string, DailyEditionSummary[]>();
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
+		const groups = new Map<string, EditionSummary[]>();
 
 		for (const edition of editions) {
 			const [y, m] = edition.edition_date.split('-').map(Number);
@@ -72,7 +72,10 @@
 		<Masthead top_left="Archives" top_right="All Editions" title="Past Editions" />
 		<div class="header-nav">
 			<span class="edition-total">{editions.length} Editions</span>
-			<NavLink href="/news">&larr; Back to Today</NavLink>
+			<div class="header-nav-links">
+				<NavLink href="/editions">Manage Editions</NavLink>
+				<NavLink href="/news">&larr; Back to Today</NavLink>
+			</div>
 		</div>
 	</header>
 
@@ -159,6 +162,12 @@
 		letter-spacing: var(--tracking-4);
 		text-transform: uppercase;
 		color: var(--muted);
+	}
+
+	.header-nav-links {
+		display: flex;
+		align-items: center;
+		gap: var(--s-4);
 	}
 
 	.content {

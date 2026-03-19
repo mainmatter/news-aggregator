@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { DailyEditionSummary } from '$lib/editions.remote';
+	import type { EditionSummary } from '$lib/editions.remote';
 	import { page } from '$app/state';
 
 	const day_in_ms = 86400000;
 
-	let { editions, max = 15 }: { editions: DailyEditionSummary[]; max?: number } = $props();
+	let { editions, max = 15 }: { editions: EditionSummary[]; max?: number } = $props();
 
 	function parse_date(date_str: string) {
 		const [y, m, d] = date_str.split('-').map(Number);
@@ -27,7 +27,7 @@
 	let current_date = $derived(page.params.date || today_date);
 
 	let editions_by_date = $derived.by(() => {
-		const by_date: Record<string, DailyEditionSummary> = {};
+		const by_date: Record<string, EditionSummary> = {};
 
 		for (const edition of editions) {
 			by_date[edition.edition_date] = edition;
@@ -59,11 +59,6 @@
 			edition: editions_by_date[date_str]
 		}));
 	});
-
-	let visible_date_strs = $derived(visible_days.map(({ date_str }) => date_str));
-	let has_more = $derived(
-		editions.some((edition) => !visible_date_strs.includes(edition.edition_date))
-	);
 
 	function format_pill_label(date_str: string) {
 		const date = parse_date(date_str);
@@ -132,9 +127,7 @@
 		{/each}
 	</ul>
 
-	{#if has_more}
-		<a href="/news/archives" class="view-all">View all &rarr;</a>
-	{/if}
+	<a href="/news/archives" class="view-all">View all &rarr;</a>
 </nav>
 
 <style>
