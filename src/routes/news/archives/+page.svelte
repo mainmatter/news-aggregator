@@ -72,8 +72,10 @@
 		<Masthead top_left="Archives" top_right="All Editions" title="Past Editions" />
 		<div class="header-nav">
 			<span class="edition-total">{editions.length} Editions</span>
-			<div class="header-nav-links">
+			<div class="header-nav-center">
 				<NavLink href="/editions">Manage Editions</NavLink>
+			</div>
+			<div class="header-nav-end">
 				<NavLink href="/news">&larr; Back to Today</NavLink>
 			</div>
 		</div>
@@ -148,9 +150,10 @@
 	}
 
 	.header-nav {
-		display: flex;
-		justify-content: space-between;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
 		align-items: center;
+		gap: var(--s-4);
 		padding: var(--s-3) 0;
 		border-top: var(--s-px) solid var(--rule);
 		border-bottom: var(--s-px) solid var(--rule);
@@ -164,10 +167,14 @@
 		color: var(--muted);
 	}
 
-	.header-nav-links {
+	.header-nav-center {
 		display: flex;
-		align-items: center;
-		gap: var(--s-4);
+		justify-content: center;
+	}
+
+	.header-nav-end {
+		display: flex;
+		justify-content: flex-end;
 	}
 
 	.content {

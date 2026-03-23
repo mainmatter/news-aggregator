@@ -35,7 +35,6 @@
 		article_count={articles.length}
 	>
 		{#snippet nav()}
-			<NavLink href="/editions">Manage Editions</NavLink>
 			<NavLink href="/sources">Manage Sources</NavLink>
 			<form {...sign_out} class="sign-out-form">
 				<button class="sign-out-btn" type="submit">Sign Out</button>
