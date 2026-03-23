@@ -21,6 +21,23 @@
 	import { get_user_sources } from '$lib/sources.remote';
 	import { untrack } from 'svelte';
 
+	function move_item_by_index<T>(items: T[], from_index: number, to_index: number) {
+		if (
+			from_index < 0 ||
+			to_index < 0 ||
+			from_index >= items.length ||
+			to_index >= items.length ||
+			from_index === to_index
+		) {
+			return items;
+		}
+
+		const next_items = [...items];
+		const [moved_item] = next_items.splice(from_index, 1);
+		next_items.splice(to_index, 0, moved_item);
+		return next_items;
+	}
+
 	const date_param = $derived(page.params.date!);
 
 	const edition = $derived(await get_edition_editor(date_param));
@@ -69,12 +86,13 @@
 		if (!edition) return [];
 		const rows: Array<{
 			article: EditionArticleRow;
+			rendered_index: number;
 			edit: ReturnType<typeof update_edition_article.for>;
 			remove_form: ReturnType<typeof remove_edition_article.for>;
 			move_up: ReturnType<typeof reorder_edition_articles.for>;
 			move_down: ReturnType<typeof reorder_edition_articles.for>;
 		}> = [];
-		for (const article of edition.articles) {
+		for (const [rendered_index, article] of edition.articles.entries()) {
 			const edit = update_edition_article.for(article.id);
 			untrack(() => {
 				edit.fields.set({
@@ -90,7 +108,7 @@
 			const remove_form = remove_edition_article.for(article.id);
 			const move_up = reorder_edition_articles.for(`${article.id}-up`);
 			const move_down = reorder_edition_articles.for(`${article.id}-down`);
-			rows.push({ article, edit, remove_form, move_up, move_down });
+			rows.push({ article, rendered_index, edit, remove_form, move_up, move_down });
 		}
 		return rows;
 	});
@@ -411,11 +429,11 @@
 					<p class="empty-state">No articles in this edition yet. Search and add articles above.</p>
 				{:else}
 					<ol class="article-lineup">
-						{#each article_forms as { article, edit, remove_form, move_up, move_down } (article.id)}
+						{#each article_forms as { article, rendered_index, edit, remove_form, move_up, move_down } (article.id)}
 							<li class="article-card">
 								<div class="article-header">
 									<div class="article-identity">
-										<span class="position-number">{article.position + 1}</span>
+										<span class="position-number">{rendered_index + 1}</span>
 										<h3 class="article-title">
 											{article.custom_title ?? article.title}
 										</h3>
@@ -424,22 +442,18 @@
 									<div class="reorder-buttons">
 										<form
 											{...move_up.enhance(async ({ submit }) => {
-												if (article.position <= 0) return;
+												if (rendered_index <= 0) return;
 												await submit().updates(
 													get_edition_editor(date_param).withOverride((prev) => {
 														if (!prev) return prev;
-														const articles = [...prev.articles];
-														const idx = articles.findIndex((a) => a.id === article.id);
-														if (idx > 0) {
-															const temp = articles[idx - 1];
-															articles[idx - 1] = {
-																...articles[idx],
-																position: articles[idx - 1].position
-															};
-															articles[idx] = { ...temp, position: articles[idx].position };
-															articles.sort((a, b) => a.position - b.position);
-														}
-														return { ...prev, articles };
+														return {
+															...prev,
+															articles: move_item_by_index(
+																prev.articles,
+																rendered_index,
+																rendered_index - 1
+															)
+														};
 													})
 												);
 											})}
@@ -449,30 +463,26 @@
 											<input
 												{...move_up.fields.new_position.as('number')}
 												type="hidden"
-												value={article.position - 1}
+												value={rendered_index - 1}
 											/>
-											<Button variant="ghost" type="submit" disabled={article.position <= 0}>
+											<Button variant="ghost" type="submit" disabled={rendered_index <= 0}>
 												Up
 											</Button>
 										</form>
 										<form
 											{...move_down.enhance(async ({ submit }) => {
-												if (article.position >= edition.articles.length - 1) return;
+												if (rendered_index >= edition.articles.length - 1) return;
 												await submit().updates(
 													get_edition_editor(date_param).withOverride((prev) => {
 														if (!prev) return prev;
-														const articles = [...prev.articles];
-														const idx = articles.findIndex((a) => a.id === article.id);
-														if (idx < articles.length - 1) {
-															const temp = articles[idx + 1];
-															articles[idx + 1] = {
-																...articles[idx],
-																position: articles[idx + 1].position
-															};
-															articles[idx] = { ...temp, position: articles[idx].position };
-															articles.sort((a, b) => a.position - b.position);
-														}
-														return { ...prev, articles };
+														return {
+															...prev,
+															articles: move_item_by_index(
+																prev.articles,
+																rendered_index,
+																rendered_index + 1
+															)
+														};
 													})
 												);
 											})}
@@ -482,12 +492,12 @@
 											<input
 												{...move_down.fields.new_position.as('number')}
 												type="hidden"
-												value={article.position + 1}
+												value={rendered_index + 1}
 											/>
 											<Button
 												variant="ghost"
 												type="submit"
-												disabled={article.position >= edition.articles.length - 1}
+												disabled={rendered_index >= edition.articles.length - 1}
 											>
 												Down
 											</Button>
@@ -622,9 +632,7 @@
 												if (!prev) return prev;
 												return {
 													...prev,
-													articles: prev.articles
-														.filter((a) => a.id !== article.id)
-														.map((a, i) => ({ ...a, position: i }))
+													articles: prev.articles.filter((a) => a.id !== article.id)
 												};
 											}),
 											search_editable_articles({

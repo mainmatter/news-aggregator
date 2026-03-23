@@ -8,6 +8,63 @@ import {
 } from '$lib/server/db/schema';
 import { and, eq, desc, asc, sql, like, or, exists } from 'drizzle-orm';
 
+export const POSITION_STEP = 1024;
+export const MIN_POSITION_GAP = 1e-6;
+
+type Edition_position_row = {
+	id: string;
+	position: number;
+};
+
+async function await_all_settled(promises: Promise<unknown>[]) {
+	const results = await Promise.allSettled(promises);
+	const first_rejection = results.find((result) => result.status === 'rejected');
+
+	if (first_rejection?.status === 'rejected') {
+		throw first_rejection.reason;
+	}
+}
+
+async function get_ordered_position_rows(edition_id: string) {
+	return db
+		.select({ id: daily_edition_article.id, position: daily_edition_article.position })
+		.from(daily_edition_article)
+		.where(eq(daily_edition_article.daily_edition_id, edition_id))
+		.orderBy(asc(daily_edition_article.position), asc(daily_edition_article.id));
+}
+
+export function calculate_position_for_index(
+	items: Array<Pick<Edition_position_row, 'position'>>,
+	target_index: number
+) {
+	const clamped_target_index = Math.min(Math.max(0, target_index), items.length);
+	const previous_item = items[clamped_target_index - 1] ?? null;
+	const next_item = items[clamped_target_index] ?? null;
+
+	if (!previous_item && !next_item) {
+		return { position: POSITION_STEP, needs_rebalance: false };
+	}
+
+	if (!previous_item && next_item) {
+		return { position: next_item.position - POSITION_STEP, needs_rebalance: false };
+	}
+
+	if (previous_item && !next_item) {
+		return { position: previous_item.position + POSITION_STEP, needs_rebalance: false };
+	}
+
+	const gap = next_item.position - previous_item.position;
+	const position = previous_item.position + gap / 2;
+
+	return {
+		position,
+		needs_rebalance:
+			!(gap > MIN_POSITION_GAP) ||
+			!(position > previous_item.position) ||
+			!(position < next_item.position)
+	};
+}
+
 /**
  * Get all editions owned by a user, ordered by date descending.
  * Includes article count for the management list.
@@ -153,26 +210,80 @@ export async function get_next_position(edition_id: string) {
 		.from(daily_edition_article)
 		.where(eq(daily_edition_article.daily_edition_id, edition_id));
 
-	return (row?.max_pos ?? -1) + 1;
+	return (row?.max_pos ?? 0) + POSITION_STEP;
 }
 
 /**
- * Reindex all article positions in an edition sequentially (0, 1, 2, ...).
- * Useful after removing or reordering articles to avoid gaps/conflicts.
+ * Restore evenly spaced positions while preserving the current order.
  */
-export async function reindex_positions(edition_id: string) {
-	const items = await db
-		.select({ id: daily_edition_article.id, position: daily_edition_article.position })
-		.from(daily_edition_article)
-		.where(eq(daily_edition_article.daily_edition_id, edition_id))
-		.orderBy(asc(daily_edition_article.position));
+export async function rebalance_positions(edition_id: string) {
+	const items = await get_ordered_position_rows(edition_id);
 
-	for (let i = 0; i < items.length; i++) {
-		if (items[i].position !== i) {
-			await db
-				.update(daily_edition_article)
-				.set({ position: i })
-				.where(eq(daily_edition_article.id, items[i].id));
+	if (items.length === 0) {
+		return;
+	}
+
+	const max_absolute_position = items.reduce(
+		(max_position, item) => Math.max(max_position, Math.abs(item.position)),
+		0
+	);
+	const temporary_base = max_absolute_position + POSITION_STEP * (items.length + 1);
+
+	const temporary_update_promises = Array.from(items.entries(), ([index, item]) =>
+		db
+			.update(daily_edition_article)
+			.set({ position: temporary_base + index })
+			.where(eq(daily_edition_article.id, item.id))
+	);
+	await await_all_settled(temporary_update_promises);
+
+	const spaced_update_promises = Array.from(items.entries(), ([index, item]) =>
+		db
+			.update(daily_edition_article)
+			.set({ position: (index + 1) * POSITION_STEP })
+			.where(eq(daily_edition_article.id, item.id))
+	);
+	await await_all_settled(spaced_update_promises);
+}
+
+export async function move_edition_article(
+	edition_id: string,
+	edition_article_id: string,
+	target_index: number
+) {
+	const ordered_items = await get_ordered_position_rows(edition_id);
+	const current_index = ordered_items.findIndex((item) => item.id === edition_article_id);
+
+	if (current_index === -1) {
+		throw new Error('Article not found in this edition');
+	}
+
+	const clamped_target_index = Math.min(Math.max(0, target_index), ordered_items.length - 1);
+
+	if (current_index === clamped_target_index) {
+		return;
+	}
+
+	const items_without_moved = ordered_items.filter((item) => item.id !== edition_article_id);
+	let next_position = calculate_position_for_index(items_without_moved, clamped_target_index);
+
+	if (next_position.needs_rebalance) {
+		await rebalance_positions(edition_id);
+
+		const rebalanced_items = await get_ordered_position_rows(edition_id);
+		const rebalanced_without_moved = rebalanced_items.filter(
+			(item) => item.id !== edition_article_id
+		);
+
+		next_position = calculate_position_for_index(rebalanced_without_moved, clamped_target_index);
+
+		if (next_position.needs_rebalance) {
+			throw new Error('Unable to compute a stable position for this reorder');
 		}
 	}
+
+	await db
+		.update(daily_edition_article)
+		.set({ position: next_position.position })
+		.where(eq(daily_edition_article.id, edition_article_id));
 }

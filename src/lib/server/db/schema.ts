@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { index, integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { user } from './auth.schema';
 
 const now = sql`(cast(unixepoch('subsecond') * 1000 as integer))`;
@@ -121,7 +121,7 @@ export const daily_edition_article = sqliteTable(
 		article_id: text('article_id')
 			.notNull()
 			.references(() => article.id, { onDelete: 'cascade' }),
-		position: integer('position').notNull(),
+		position: real('position').notNull(),
 		section: text('section'),
 		reason: text('reason'),
 		custom_title: text('custom_title'),

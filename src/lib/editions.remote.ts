@@ -9,18 +9,68 @@ import {
 	user_source
 } from '$lib/server/db/schema';
 import {
+	calculate_position_for_index,
 	get_edition_articles,
 	get_next_position,
 	get_owned_edition,
 	get_owned_edition_by_date,
 	get_owned_editions,
-	reindex_positions,
+	POSITION_STEP,
 	search_candidate_articles
 } from '$lib/server/editions';
 import { normalize_url } from '$lib/server/sources';
 import { invalid } from '@sveltejs/kit';
-import { and, eq } from 'drizzle-orm';
+import { and, asc, eq } from 'drizzle-orm';
 import * as v from 'valibot';
+
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function await_all_settled(promises: Promise<unknown>[]) {
+	const results = await Promise.allSettled(promises);
+	const first_rejection = results.find((result) => result.status === 'rejected');
+
+	if (first_rejection?.status === 'rejected') {
+		throw first_rejection.reason;
+	}
+}
+
+async function get_ordered_edition_rows(transaction: Transaction, edition_id: string) {
+	return transaction
+		.select({ id: daily_edition_article.id, position: daily_edition_article.position })
+		.from(daily_edition_article)
+		.where(eq(daily_edition_article.daily_edition_id, edition_id))
+		.orderBy(asc(daily_edition_article.position), asc(daily_edition_article.id));
+}
+
+async function rebalance_positions_in_transaction(transaction: Transaction, edition_id: string) {
+	const items = await get_ordered_edition_rows(transaction, edition_id);
+
+	if (items.length === 0) {
+		return;
+	}
+
+	const max_absolute_position = items.reduce(
+		(max_position, item) => Math.max(max_position, Math.abs(item.position)),
+		0
+	);
+	const temporary_base = max_absolute_position + POSITION_STEP * (items.length + 1);
+
+	const temporary_update_promises = Array.from(items.entries(), ([index, item]) =>
+		transaction
+			.update(daily_edition_article)
+			.set({ position: temporary_base + index })
+			.where(eq(daily_edition_article.id, item.id))
+	);
+	await await_all_settled(temporary_update_promises);
+
+	const spaced_update_promises = Array.from(items.entries(), ([index, item]) =>
+		transaction
+			.update(daily_edition_article)
+			.set({ position: (index + 1) * POSITION_STEP })
+			.where(eq(daily_edition_article.id, item.id))
+	);
+	await await_all_settled(spaced_update_promises);
+}
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -264,7 +314,7 @@ export const update_edition_article = form(
 );
 
 /**
- * Remove an article from an edition and reindex positions.
+ * Remove an article from an edition.
  */
 export const remove_edition_article = form(
 	v.object({
@@ -297,9 +347,6 @@ export const remove_edition_article = form(
 
 		await db.delete(daily_edition_article).where(eq(daily_edition_article.id, edition_article_id));
 
-		// Reindex positions to avoid gaps
-		await reindex_positions(edition_id);
-
 		await get_edition_editor(edition.edition_date).refresh();
 		await get_editions().refresh();
 	}
@@ -323,39 +370,53 @@ export const reorder_edition_articles = form(
 			invalid('Edition not found');
 		}
 
-		// Get all articles in current order
-		const items = await db
-			.select({ id: daily_edition_article.id, position: daily_edition_article.position })
-			.from(daily_edition_article)
-			.where(eq(daily_edition_article.daily_edition_id, edition_id))
-			.orderBy(daily_edition_article.position);
+		try {
+			await db.transaction(async (transaction) => {
+				const ordered_items = await get_ordered_edition_rows(transaction, edition_id);
+				const current_index = ordered_items.findIndex((item) => item.id === edition_article_id);
 
-		const old_index = items.findIndex((item) => item.id === edition_article_id);
-		if (old_index === -1) {
-			invalid('Article not found in this edition');
-		}
+				if (current_index === -1) {
+					throw new Error('Article not found in this edition');
+				}
 
-		// Clamp new position
-		const clamped = Math.min(Math.max(0, new_position), items.length - 1);
-		if (old_index === clamped) return;
+				const clamped_target_index = Math.min(Math.max(0, new_position), ordered_items.length - 1);
 
-		// Remove from old position and insert at new
-		const [moved] = items.splice(old_index, 1);
-		items.splice(clamped, 0, moved);
+				if (current_index === clamped_target_index) {
+					return;
+				}
 
-		// Use a temporary offset to avoid unique constraint violations during reindex
-		const offset = items.length + 100;
-		for (let i = 0; i < items.length; i++) {
-			await db
-				.update(daily_edition_article)
-				.set({ position: i + offset })
-				.where(eq(daily_edition_article.id, items[i].id));
-		}
-		for (let i = 0; i < items.length; i++) {
-			await db
-				.update(daily_edition_article)
-				.set({ position: i })
-				.where(eq(daily_edition_article.id, items[i].id));
+				const items_without_moved = ordered_items.filter((item) => item.id !== edition_article_id);
+				let next_position = calculate_position_for_index(items_without_moved, clamped_target_index);
+
+				if (next_position.needs_rebalance) {
+					await rebalance_positions_in_transaction(transaction, edition_id);
+
+					const rebalanced_items = await get_ordered_edition_rows(transaction, edition_id);
+					const rebalanced_without_moved = rebalanced_items.filter(
+						(item) => item.id !== edition_article_id
+					);
+
+					next_position = calculate_position_for_index(
+						rebalanced_without_moved,
+						clamped_target_index
+					);
+
+					if (next_position.needs_rebalance) {
+						throw new Error('Unable to compute a stable position for this reorder');
+					}
+				}
+
+				await transaction
+					.update(daily_edition_article)
+					.set({ position: next_position.position })
+					.where(eq(daily_edition_article.id, edition_article_id));
+			});
+		} catch (error) {
+			if (error instanceof Error && error.message === 'Article not found in this edition') {
+				invalid('Article not found in this edition');
+			}
+
+			throw error;
 		}
 
 		await get_edition_editor(edition.edition_date).refresh();
