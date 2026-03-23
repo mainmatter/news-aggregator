@@ -1,13 +1,16 @@
 <script lang="ts">
-	import { get_user } from '$lib/auth.remote';
 	import { get_editions } from '$lib/editions.remote';
 	import EditorialDesign from '$lib/EditorialDesign.svelte';
 	import EditionsList from '$lib/components/EditionsList.svelte';
-	import { page } from '$app/state';
 
-	await get_user();
+	function get_default_edition_date() {
+		return new Date().toISOString().slice(0, 10);
+	}
+
+	let { params } = $props();
 
 	const editions = await get_editions();
+	const selected_date = $derived(params.date || get_default_edition_date());
 </script>
 
 <svelte:head>
@@ -17,7 +20,7 @@
 <div class="page-wrapper">
 	<EditionsList {editions} />
 </div>
-<EditorialDesign date={page.params.date} />
+<EditorialDesign date={selected_date} />
 
 <style>
 	.page-wrapper {

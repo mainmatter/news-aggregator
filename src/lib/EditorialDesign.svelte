@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { articles } from '$lib/articles';
+	import { get_edition_editor, type EditionArticleRow } from '$lib/editions.remote';
+	import type { Article as ArticleType } from '$lib/schemas';
 	import Article from '$lib/components/Article.svelte';
 	import FeaturedArticle from '$lib/components/FeaturedArticle.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
@@ -8,7 +9,63 @@
 	import NavLink from '$lib/components/NavLink.svelte';
 	import { sign_out } from '$lib/auth.remote';
 
-	let { date }: { date?: string | undefined } = $props();
+	function format_published_at(value: Date | string | null | undefined) {
+		if (!value) {
+			return 'Date unavailable';
+		}
+
+		const published_at = value instanceof Date ? value : new Date(value);
+
+		if (Number.isNaN(published_at.getTime())) {
+			return 'Date unavailable';
+		}
+
+		return published_at.toLocaleDateString('en-US', {
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric'
+		});
+	}
+
+	function get_source_name(url: string | null | undefined) {
+		if (!url) {
+			return 'Unknown source';
+		}
+
+		try {
+			return new URL(url).hostname.replace(/^www\./, '');
+		} catch {
+			return 'Unknown source';
+		}
+	}
+
+	function map_edition_article(article: EditionArticleRow): ArticleType {
+		const url = article.canonical_url || '#';
+
+		return {
+			id: article.id,
+			article_id: article.article_id,
+			canonical_url: url,
+			url,
+			title: article.custom_title || article.title || 'Untitled article',
+			source: get_source_name(article.canonical_url),
+			published_at: format_published_at(article.published_at),
+			summary:
+				article.custom_summary || article.summary || article.reason || 'Summary unavailable.',
+			category: article.custom_category || article.category || article.section || 'General',
+			position: article.position,
+			section: article.section,
+			reason: article.reason,
+			custom_title: article.custom_title,
+			custom_summary: article.custom_summary,
+			custom_category: article.custom_category
+		};
+	}
+
+	let { date }: { date: string } = $props();
+
+	const edition = $derived(await get_edition_editor(date));
+	const articles = $derived(edition?.articles.map(map_edition_article) ?? []);
 
 	const date_options: Intl.DateTimeFormatOptions = {
 		weekday: 'long',
@@ -45,21 +102,21 @@
 	<SectionRule />
 
 	<main class="content">
-		{#each articles as article, i (article.id)}
-			{#if i === 0}
-				<FeaturedArticle {article} index={i} />
+		{#if articles.length === 0}
+			<p>No articles found for this edition.</p>
+		{:else}
+			{#if articles[0]}
+				<FeaturedArticle article={articles[0]} index={0} />
 			{/if}
-		{/each}
 
-		<SectionRule />
+			<SectionRule />
 
-		<div class="grid">
-			{#each articles as article, i (article.id)}
-				{#if i > 0}
-					<Article {article} index={i} />
-				{/if}
-			{/each}
-		</div>
+			<div class="grid">
+				{#each articles.slice(1) as article, i (article.id)}
+					<Article {article} index={i + 1} />
+				{/each}
+			</div>
+		{/if}
 	</main>
 
 	<PageFooter
