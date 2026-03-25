@@ -174,6 +174,27 @@ export const create_edition = form(
 );
 
 /**
+ * Delete an existing edition.
+ */
+export const delete_edition = form(
+	v.object({
+		edition_id: v.pipe(v.string(), v.nonEmpty())
+	}),
+	async ({ edition_id }) => {
+		const user = await get_user();
+		const edition = await get_owned_edition(edition_id, user.id);
+
+		if (!edition) {
+			invalid('Edition not found');
+		}
+
+		await db.delete(daily_edition).where(eq(daily_edition.id, edition_id));
+
+		await get_editions().refresh();
+	}
+);
+
+/**
  * Update edition metadata (title, summary, status).
  */
 export const update_edition_meta = form(
