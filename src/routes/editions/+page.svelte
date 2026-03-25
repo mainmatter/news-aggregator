@@ -154,7 +154,7 @@
 										class="delete-form"
 										{...delete_form.enhance(async ({ submit }) => {
 											if (
-												confirm(
+												!confirm(
 													`Delete the edition for ${format_date(edition.edition_date)}? This cannot be undone.`
 												)
 											) {
@@ -166,6 +166,7 @@
 													current.filter((candidate) => candidate.id !== edition.id)
 												)
 											);
+										})}
 										})}
 									>
 										<input {...delete_form.fields.edition_id.as('hidden', edition.id)} />
