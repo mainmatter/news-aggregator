@@ -47,6 +47,87 @@
 	<SectionRule />
 
 	<main class="content">
+		<section class="edition-list">
+			<h2 class="section-label">Existing Editions</h2>
+
+			{#if editions.length === 0}
+				<p class="empty-state">No editions yet. Use the form below to create your first one.</p>
+			{:else}
+				<ul class="editions">
+					{#each editions as edition (edition.id)}
+						{@const delete_form = delete_edition.for(edition.id)}
+						<li class="edition-card">
+							<div class="edition-header">
+								<div class="edition-identity">
+									<h3 class="edition-date">{format_date(edition.edition_date)}</h3>
+									<span
+										class={[
+											'status-badge',
+											edition.status === 'published' ? 'status-published' : 'status-draft'
+										]}
+									>
+										{edition.status}
+									</span>
+								</div>
+
+								<div class="edition-actions">
+									<form
+										class="delete-form"
+										{...delete_form.enhance(async ({ submit }) => {
+											if (
+												!confirm(
+													`Delete the edition for ${format_date(edition.edition_date)}? This cannot be undone.`
+												)
+											) {
+												return;
+											}
+
+											await submit().updates(
+												get_editions().withOverride((current) =>
+													current.filter((candidate) => candidate.id !== edition.id)
+												)
+											);
+										})}
+									>
+										<input {...delete_form.fields.edition_id.as('hidden', edition.id)} />
+										<Button
+											variant="ghost"
+											type="submit"
+											class="delete-button"
+											aria-label={`Delete edition for ${format_date(edition.edition_date)}`}
+										>
+											Delete
+										</Button>
+										{#each delete_form.fields.allIssues() as issue, index (index)}
+											<p class="delete-error" role="alert">{issue.message}</p>
+										{/each}
+									</form>
+									<NavLink href="/editions/{edition.edition_date}">Edit &rarr;</NavLink>
+								</div>
+							</div>
+
+							{#if edition.title}
+								<p class="edition-title">{edition.title}</p>
+							{/if}
+
+							{#if edition.summary}
+								<p class="edition-summary">{edition.summary}</p>
+							{/if}
+
+							<div class="edition-meta">
+								<span class="article-count">
+									{edition.article_count}
+									{edition.article_count === 1 ? 'Article' : 'Articles'}
+								</span>
+							</div>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</section>
+
+		<SectionRule />
+
 		<section class="add-edition">
 			<h2 class="section-label">Create an Edition</h2>
 
@@ -122,87 +203,6 @@
 					<Button variant="primary" type="submit">Create Edition</Button>
 				</div>
 			</form>
-		</section>
-
-		<SectionRule />
-
-		<section class="edition-list">
-			<h2 class="section-label">Existing Editions</h2>
-
-			{#if editions.length === 0}
-				<p class="empty-state">No editions yet. Create one above to get started.</p>
-			{:else}
-				<ul class="editions">
-					{#each editions as edition (edition.id)}
-						{@const delete_form = delete_edition.for(edition.id)}
-						<li class="edition-card">
-							<div class="edition-header">
-								<div class="edition-identity">
-									<h3 class="edition-date">{format_date(edition.edition_date)}</h3>
-									<span
-										class={[
-											'status-badge',
-											edition.status === 'published' ? 'status-published' : 'status-draft'
-										]}
-									>
-										{edition.status}
-									</span>
-								</div>
-
-								<div class="edition-actions">
-									<form
-										class="delete-form"
-										{...delete_form.enhance(async ({ submit }) => {
-											if (
-												!confirm(
-													`Delete the edition for ${format_date(edition.edition_date)}? This cannot be undone.`
-												)
-											) {
-												return;
-											}
-
-											await submit().updates(
-												get_editions().withOverride((current) =>
-													current.filter((candidate) => candidate.id !== edition.id)
-												)
-											);
-										})}
-									>
-										<input {...delete_form.fields.edition_id.as('hidden', edition.id)} />
-										<Button
-											variant="ghost"
-											type="submit"
-											class="delete-button"
-											aria-label={`Delete edition for ${format_date(edition.edition_date)}`}
-										>
-											Delete
-										</Button>
-										{#each delete_form.fields.allIssues() as issue, index (index)}
-											<p class="delete-error" role="alert">{issue.message}</p>
-										{/each}
-									</form>
-									<NavLink href="/editions/{edition.edition_date}">Edit &rarr;</NavLink>
-								</div>
-							</div>
-
-							{#if edition.title}
-								<p class="edition-title">{edition.title}</p>
-							{/if}
-
-							{#if edition.summary}
-								<p class="edition-summary">{edition.summary}</p>
-							{/if}
-
-							<div class="edition-meta">
-								<span class="article-count">
-									{edition.article_count}
-									{edition.article_count === 1 ? 'Article' : 'Articles'}
-								</span>
-							</div>
-						</li>
-					{/each}
-				</ul>
-			{/if}
 		</section>
 	</main>
 
