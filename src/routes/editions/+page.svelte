@@ -5,7 +5,7 @@
 	import NavLink from '$lib/components/NavLink.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
-	import { create_edition, get_editions } from '$lib/editions.remote';
+	import { create_edition, delete_edition, get_editions } from '$lib/editions.remote';
 
 	const editions = $derived(await get_editions());
 
@@ -134,6 +134,7 @@
 			{:else}
 				<ul class="editions">
 					{#each editions as edition (edition.id)}
+						{@const delete_form = delete_edition.for(edition.id)}
 						<li class="edition-card">
 							<div class="edition-header">
 								<div class="edition-identity">
@@ -148,7 +149,40 @@
 									</span>
 								</div>
 
-								<NavLink href="/editions/{edition.edition_date}">Edit &rarr;</NavLink>
+								<div class="edition-actions">
+									<form
+										class="delete-form"
+										{...delete_form.enhance(async ({ submit }) => {
+											if (
+												confirm(
+													`Delete the edition for ${format_date(edition.edition_date)}? This cannot be undone.`
+												)
+											) {
+												return;
+											}
+
+											await submit().updates(
+												get_editions().withOverride((current) =>
+													current.filter((candidate) => candidate.id !== edition.id)
+												)
+											);
+										})}
+									>
+										<input {...delete_form.fields.edition_id.as('hidden', edition.id)} />
+										<Button
+											variant="ghost"
+											type="submit"
+											class="delete-button"
+											aria-label={`Delete edition for ${format_date(edition.edition_date)}`}
+										>
+											Delete
+										</Button>
+										{#each delete_form.fields.allIssues() as issue, index (index)}
+											<p class="delete-error" role="alert">{issue.message}</p>
+										{/each}
+									</form>
+									<NavLink href="/editions/{edition.edition_date}">Edit &rarr;</NavLink>
+								</div>
 							</div>
 
 							{#if edition.title}
@@ -344,6 +378,14 @@
 		gap: var(--s-3);
 	}
 
+	.edition-actions {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--s-3);
+		flex-shrink: 0;
+		flex-wrap: wrap;
+	}
+
 	.edition-identity {
 		display: flex;
 		align-items: baseline;
@@ -379,6 +421,33 @@
 	.status-published {
 		color: var(--accent);
 		border: var(--s-px) solid var(--accent);
+	}
+
+	.delete-form {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--s-1);
+	}
+
+	.delete-form :global(.delete-button) {
+		color: var(--muted);
+		transition: color 0.2s ease;
+	}
+
+	.delete-form :global(.delete-button:hover) {
+		color: var(--accent);
+	}
+
+	.delete-form :global(.delete-button:disabled) {
+		opacity: 0.4;
+		cursor: default;
+		color: var(--muted);
+	}
+
+	.delete-error {
+		color: var(--accent);
+		font-size: var(--text-sm);
 	}
 
 	/* --- Edition details --- */
