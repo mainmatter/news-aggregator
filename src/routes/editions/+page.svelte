@@ -167,7 +167,6 @@
 												)
 											);
 										})}
-										})}
 									>
 										<input {...delete_form.fields.edition_id.as('hidden', edition.id)} />
 										<Button
