@@ -5,6 +5,16 @@
       "source": "anthropics/skills",
       "sourceType": "github",
       "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "sandbox": {
+      "source": "vercel/sandbox",
+      "sourceType": "github",
+      "computedHash": "4ddc9e05ef1b6f3c333790fc7ddf504d2cd9033dc43cdd41e4b048bd4f661eab"
+    },
+    "workflow": {
+      "source": "vercel/workflow",
+      "sourceType": "github",
+      "computedHash": "dfb59009ebfb21747e6dc89fd4c683c052c459ae2592b3b966c120e2a7fb7601"
     }
   }
 }
