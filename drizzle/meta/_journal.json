@@ -15,6 +15,13 @@
       "when": 1774280192506,
       "tag": "0001_silent_wolf_cub",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1774536250611,
+      "tag": "0002_glossy_blindfold",
+      "breakpoints": true
     }
   ]
 }
