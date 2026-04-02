@@ -3,5 +3,4 @@ export { get_user_sources } from './get_user_sources';
 export { launch_source_sandbox } from './launch_source_sandbox';
 export { mark_generation_failed } from './mark_generation_failed';
 export { persist_edition } from './persist_edition';
-export { prepare_generation } from './prepare_generation';
 export { stop_sandbox } from './stop_sandbox';

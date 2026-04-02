@@ -5,7 +5,6 @@ import {
 	launch_source_sandbox,
 	mark_generation_failed,
 	persist_edition,
-	prepare_generation,
 	stop_sandbox
 } from './steps';
 import type { EditionGenerationInput, SourceGenerationResult, WorkflowUserSource } from './types';
@@ -75,8 +74,6 @@ async function run_source_generation(
 export async function generate_daily_edition_workflow(input: EditionGenerationInput) {
 	'use workflow';
 
-	const preparation = await prepare_generation(input);
-
 	try {
 		const sources = await get_user_sources(input.user_id);
 		const source_results = await Promise.all(
@@ -84,12 +81,12 @@ export async function generate_daily_edition_workflow(input: EditionGenerationIn
 		);
 
 		return await persist_edition({
-			preparation,
+			preparation: input.preparation,
 			source_results
 		});
 	} catch (error) {
 		await mark_generation_failed({
-			preparation,
+			preparation: input.preparation,
 			error_message: get_error_message(error)
 		});
 

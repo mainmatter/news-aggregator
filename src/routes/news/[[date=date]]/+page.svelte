@@ -15,7 +15,7 @@
 
 	let { params } = $props();
 
-	const editions = await get_editions();
+	const editions = $derived(await get_editions());
 	const selected_date = $derived(params.date || get_default_edition_date());
 	const selected_edition = $derived(await get_edition_editor(selected_date));
 

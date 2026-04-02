@@ -28,7 +28,10 @@ export const source_callback_payload_schema = v.object({
 	generated_at: v.optional(v.string())
 });
 
-export type EditionGenerationInput = v.InferOutput<typeof edition_generation_input_schema>;
+export type PreparationGenerationInput = v.InferOutput<typeof edition_generation_input_schema>;
+export type EditionGenerationInput = v.InferOutput<typeof edition_generation_input_schema> & {
+	preparation: PreparedGenerationState;
+};
 export type SourceArticleResult = v.InferOutput<typeof source_article_result_schema>;
 export type SourceGenerationResult = v.InferOutput<typeof source_callback_payload_schema>;
 
