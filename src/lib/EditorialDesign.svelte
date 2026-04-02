@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { get_edition_editor, type EditionArticleRow } from '$lib/editions.remote';
+	import {
+		get_edition_editor,
+		get_editions,
+		start_daily_edition_generation,
+		type EditionArticleRow,
+		type EditionEditor,
+		type EditionSummary
+	} from '$lib/editions.remote';
 	import type { Article as ArticleType } from '$lib/schemas';
 	import Article from '$lib/components/Article.svelte';
 	import FeaturedArticle from '$lib/components/FeaturedArticle.svelte';
@@ -62,6 +69,40 @@
 		};
 	}
 
+	function upsert_generating_edition(
+		current: EditionSummary[],
+		edition_date: string,
+		current_edition: EditionEditor | null
+	) {
+		const optimistic_entry: EditionSummary = {
+			id: current_edition?.id ?? crypto.randomUUID(),
+			edition_date,
+			status: 'generating',
+			title: current_edition?.title ?? null,
+			summary: current_edition?.summary ?? null,
+			article_count: 0,
+			generated_at: current_edition?.generated_at ?? null,
+			created_at: new Date(),
+			updated_at: new Date()
+		};
+
+		const next = current.some((item) => item.edition_date === edition_date)
+			? current.map((item) =>
+					item.edition_date === edition_date ? { ...item, ...optimistic_entry } : item
+				)
+			: [...current, optimistic_entry];
+
+		return next.toSorted((a, b) => b.edition_date.localeCompare(a.edition_date));
+	}
+
+	function get_generation_button_label(edition_state: string) {
+		if (edition_state === 'failed') {
+			return 'Retry generation';
+		}
+
+		return 'Start generation';
+	}
+
 	let { date }: { date: string } = $props();
 
 	const edition = $derived(await get_edition_editor(date));
@@ -105,9 +146,49 @@
 		}
 		return new Date().toLocaleDateString('en-US', date_options);
 	});
+
+	const is_today_or_future = $derived.by(() => {
+		const today = new Date().toISOString().slice(0, 10);
+		return date >= today;
+	});
+
+	const show_generation_cta = $derived(
+		is_today_or_future &&
+			(edition_state === 'missing' || edition_state === 'failed' || edition_state === 'empty')
+	);
 </script>
 
 <div class="page-container">
+	{#snippet generation_form_snippet()}
+		<form
+			class="generation-form"
+			{...start_daily_edition_generation.enhance(async ({ data, submit }) => {
+				const edition_date = data.edition_date;
+				const current_edition = edition;
+
+				await submit().updates(
+					get_editions().withOverride((current) =>
+						upsert_generating_edition(current, edition_date, current_edition)
+					),
+					get_edition_editor(edition_date).withOverride((current) => ({
+						id: current?.id ?? current_edition?.id ?? crypto.randomUUID(),
+						edition_date,
+						status: 'generating',
+						title: current?.title ?? current_edition?.title ?? null,
+						summary: current?.summary ?? current_edition?.summary ?? null,
+						generated_at: current?.generated_at ?? current_edition?.generated_at ?? null,
+						articles: []
+					}))
+				);
+			})}
+		>
+			<input {...start_daily_edition_generation.fields.edition_date.as('hidden', date)} />
+			<button type="submit" class="generation-button">
+				{get_generation_button_label(edition_state)}
+			</button>
+		</form>
+	{/snippet}
+
 	<PageHeader
 		edition_label="Daily Edition"
 		date={display_date}
@@ -130,6 +211,9 @@
 				<p class="state-eyebrow">Edition unavailable</p>
 				<h2>No edition has been created for this date yet.</h2>
 				<p>Choose another date or start a generation run to prepare this edition.</p>
+				{#if show_generation_cta}
+					{@render generation_form_snippet()}
+				{/if}
 			</section>
 		{:else if edition_state === 'generating'}
 			<section class="edition-state-panel">
@@ -144,6 +228,9 @@
 				<p>
 					Start a new generation run to try again, or return later after adjusting your sources.
 				</p>
+				{#if show_generation_cta}
+					{@render generation_form_snippet()}
+				{/if}
 			</section>
 		{:else if edition_state === 'published-empty'}
 			<section class="edition-state-panel">
@@ -159,6 +246,9 @@
 					This edition exists, but it still needs stories before it can read like a finished front
 					page.
 				</p>
+				{#if show_generation_cta}
+					{@render generation_form_snippet()}
+				{/if}
 			</section>
 		{:else}
 			{#if articles[0]}
@@ -246,5 +336,31 @@
 		color: var(--accent);
 		text-decoration: underline;
 		text-underline-offset: 0.2em;
+	}
+
+	.generation-form {
+		margin-top: var(--s-4);
+	}
+
+	.generation-button {
+		padding: var(--s-3) var(--s-5);
+		border: var(--s-px) solid var(--accent);
+		background: var(--accent);
+		color: var(--bg);
+		font-family: var(--font-body);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		letter-spacing: var(--tracking-5);
+		text-transform: uppercase;
+		cursor: pointer;
+		transition:
+			background 0.2s ease,
+			color 0.2s ease,
+			border-color 0.2s ease;
+	}
+
+	.generation-button:hover {
+		background: transparent;
+		color: var(--accent);
 	}
 </style>
