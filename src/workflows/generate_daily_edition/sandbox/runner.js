@@ -102,9 +102,14 @@ async function choose_links(client, session_id) {
 		`Source: ${source_name} (${source_url})`,
 		'',
 		`Use the webfetch tool to fetch the page at ${source_url}.`,
-		'From the fetched content, identify links that point to individual news/article pages.',
-		'Exclude navigation links, category pages, login pages, video pages, and newsletter signup pages.',
-		`Choose at most ${article_limit} URLs and prefer the most relevant recent journalism.`
+		'Only return links that you can verify were discovered on the actual source after fetching it or on a clearly source-owned page linked from it.',
+		'The returned article URLs may point to external domains, but each one must be directly linked from the relevant fetched source page.',
+		'If the source is blocked or incomplete, you may try source-faithful workarounds such as redirects, alternate same-source URLs, RSS feeds, AMP/mobile pages, or a newsletter edition page, but never replace the source with external search results or unrelated reporting.',
+		'If the provided source is a newsletter archive, issue index, or archive homepage, first identify the edition that matches the edition date or freshness window, fetch that edition page, and then extract the article links from that edition page.',
+		'If the provided source is not a newsletter archive, do not force this workflow and just extract links directly from the fetched source content.',
+		'From the relevant fetched source page, identify links that point to individual news/article pages.',
+		'Exclude navigation links, category pages, login pages, video pages, archive index pages, and newsletter signup pages.',
+		`Choose at most ${article_limit} URLs and prefer the most relevant recent journalism. If you cannot verify any article URLs as directly linked from the actual source workflow, return an empty list.`
 	].join('\n');
 
 	const schema = {
