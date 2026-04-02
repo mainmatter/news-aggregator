@@ -27,7 +27,7 @@ async function run_source_generation(
 	try {
 		using webhook = createWebhook();
 
-		const { sandbox_id } = await launch_source_sandbox({
+		const { sandbox_id, command_id } = await launch_source_sandbox({
 			source,
 			input,
 			webhook_url: webhook.url,
@@ -38,7 +38,7 @@ async function run_source_generation(
 			const request = await webhook;
 			return await consume_source_webhook({ request, webhook_token: webhook.token, source });
 		} finally {
-			await stop_sandbox({ sandbox_id });
+			await stop_sandbox({ sandbox_id, command_id });
 		}
 	} catch (error) {
 		return {

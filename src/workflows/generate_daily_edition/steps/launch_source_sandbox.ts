@@ -109,11 +109,13 @@ export async function launch_source_sandbox({
 
 	await sandbox.runCommand('npm', ['i', '-g', 'opencode-ai']);
 
-	await sandbox.runCommand({
+	const command = await sandbox.runCommand({
 		cmd: 'node',
 		args: ['runner.js'],
-		detached: true
+		detached: true,
+		stderr: process.stderr,
+		stdout: process.stdout
 	});
 
-	return { sandbox_id: sandbox.sandboxId };
+	return { sandbox_id: sandbox.sandboxId, command_id: command.cmdId };
 }

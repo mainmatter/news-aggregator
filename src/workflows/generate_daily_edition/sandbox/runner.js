@@ -30,19 +30,6 @@ function clean_text(value) {
 	return value?.replace(/\s+/g, ' ').trim() || '';
 }
 
-function within_window(value) {
-	if (!value) {
-		return true;
-	}
-
-	const parsed = new Date(value);
-	if (Number.isNaN(parsed.getTime())) {
-		return true;
-	}
-
-	return parsed >= new Date(window_start_iso) && parsed <= new Date(window_end_iso);
-}
-
 function build_opencode_config() {
 	const config = {
 		server: {
@@ -203,6 +190,7 @@ async function post_callback(payload) {
 
 async function main() {
 	let opencode_server = null;
+	let client = null;
 
 	try {
 		const sdk = await import('@opencode-ai/sdk/v2');
@@ -215,7 +203,7 @@ async function main() {
 			config: build_opencode_config()
 		});
 
-		const client = createOpencodeClient({
+		client = createOpencodeClient({
 			baseUrl: opencode_server.url,
 			directory: process.cwd(),
 			responseStyle: 'data'
@@ -267,6 +255,8 @@ async function main() {
 		});
 	} finally {
 		opencode_server?.close();
+		await client?.instance.dispose();
+		process.exit(0);
 	}
 }
 
