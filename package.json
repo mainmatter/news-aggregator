@@ -66,7 +66,10 @@
 		"@fontsource-variable/space-grotesk": "^5.2.10",
 		"@fontsource/bodoni-moda": "^5.2.7",
 		"@fontsource/courier-prime": "^5.2.8",
+		"@vercel/sandbox": "^1.9.0",
 		"sveltekit-view-transition": "^0.5.3",
-		"valibot": "^1.2.0"
+		"valibot": "^1.2.0",
+		"vite-plugin-cloudflare-tunnel": "^1.0.12",
+		"workflow": "4.2.0-beta.72"
 	}
 }

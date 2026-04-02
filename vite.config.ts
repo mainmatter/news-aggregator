@@ -2,9 +2,11 @@ import devtoolsJson from 'vite-plugin-devtools-json';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { workflowPlugin } from 'workflow/sveltekit';
+import cloudflare from 'vite-plugin-cloudflare-tunnel';
 
 export default defineConfig({
-	plugins: [sveltekit(), devtoolsJson()],
+	plugins: [sveltekit(), workflowPlugin(), devtoolsJson(), cloudflare()],
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

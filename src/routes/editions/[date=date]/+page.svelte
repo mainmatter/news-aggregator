@@ -38,6 +38,34 @@
 		return next_items;
 	}
 
+	function get_status_label(status: string) {
+		switch (status) {
+			case 'generating':
+				return 'Generating';
+			case 'failed':
+				return 'Failed';
+			case 'published':
+				return 'Published';
+			default:
+				return 'Draft';
+		}
+	}
+
+	function get_status_copy(status: string, article_count: number) {
+		const article_label = `${article_count} ${article_count === 1 ? 'Article' : 'Articles'}`;
+
+		switch (status) {
+			case 'generating':
+				return `Generating · ${article_label}`;
+			case 'failed':
+				return `Failed · ${article_label}`;
+			case 'published':
+				return `Published · ${article_label}`;
+			default:
+				return `Draft · ${article_label}`;
+		}
+	}
+
 	const date_param = $derived(page.params.date!);
 
 	const edition = $derived(await get_edition_editor(date_param));
@@ -128,10 +156,7 @@
 		<div class="header-nav">
 			<span class="edition-status">
 				{#if edition}
-					{edition.status === 'published' ? 'Published' : 'Draft'}
-					&middot;
-					{edition.articles.length}
-					{edition.articles.length === 1 ? 'Article' : 'Articles'}
+					{get_status_copy(edition.status, edition.articles.length)}
 				{:else}
 					No Edition
 				{/if}
@@ -152,6 +177,28 @@
 			</div>
 		</main>
 	{:else}
+		{#if edition.status === 'generating'}
+			<div class="status-banner status-banner-generating" role="status" aria-live="polite">
+				<div>
+					<p class="banner-eyebrow">{get_status_label(edition.status)}</p>
+					<p class="banner-copy">
+						This edition is currently being assembled. You can review the page, but the lineup may
+						still change as generation completes.
+					</p>
+				</div>
+			</div>
+		{:else if edition.status === 'failed'}
+			<div class="status-banner status-banner-failed" role="status" aria-live="polite">
+				<div>
+					<p class="banner-eyebrow">{get_status_label(edition.status)}</p>
+					<p class="banner-copy">
+						The latest generation attempt did not complete. Review the edition details or return
+						later after the underlying issue has been resolved.
+					</p>
+				</div>
+			</div>
+		{/if}
+
 		<main class="content">
 			<!-- ═══ 1. Edition Metadata ═══ -->
 			<section class="edition-meta">
@@ -196,6 +243,8 @@
 								<label class="field-label" for="meta-status">Status</label>
 								<select {...meta_form.fields.status.as('text')} id="meta-status">
 									<option value="draft">Draft</option>
+									<option value="generating">Generating</option>
+									<option value="failed">Failed</option>
 									<option value="published">Published</option>
 								</select>
 								<FieldErrors field={meta_form.fields.status} />
@@ -782,6 +831,36 @@
 		font-style: italic;
 		padding: var(--s-5) 0;
 		text-align: center;
+	}
+
+	.status-banner {
+		margin: var(--s-5) 0 0;
+		padding: var(--s-4);
+		border: var(--s-px) solid var(--rule);
+		background: var(--paper);
+	}
+
+	.status-banner-generating {
+		border-color: var(--fg);
+	}
+
+	.status-banner-failed {
+		border-color: var(--accent);
+		background: var(--accent-soft);
+	}
+
+	.banner-eyebrow {
+		font-size: var(--text-xs);
+		font-weight: 500;
+		letter-spacing: var(--tracking-5);
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.banner-copy {
+		margin-top: var(--s-2);
+		font-size: var(--text-base);
+		color: var(--fg);
 	}
 
 	/* --- 1. Edition Meta --- */
