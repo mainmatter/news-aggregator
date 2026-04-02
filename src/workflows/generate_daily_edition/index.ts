@@ -1,4 +1,4 @@
-import { createWebhook } from 'workflow';
+import { createWebhook, sleep } from 'workflow';
 import {
 	consume_source_webhook,
 	get_user_sources,
@@ -18,6 +18,8 @@ function get_error_message(error: unknown) {
 	return 'Unknown generation failure';
 }
 
+const source_webhook_timeout = '15m';
+
 async function run_source_generation(
 	source: WorkflowUserSource,
 	input: EditionGenerationInput
@@ -35,7 +37,24 @@ async function run_source_generation(
 		});
 
 		try {
-			const request = await webhook;
+			const outcome = await Promise.race([
+				webhook.then((request) => ({ type: 'webhook' as const, request })),
+				sleep(source_webhook_timeout).then(() => ({ type: 'timeout' as const }))
+			]);
+
+			if (outcome.type === 'timeout') {
+				return {
+					source_id: source.source_id,
+					source_name: source.display_name,
+					source_url: source.canonical_url,
+					status: 'error',
+					articles: [],
+					error: `Timed out waiting 15 minutes for ${source.display_name} webhook`,
+					generated_at: new Date().toISOString()
+				};
+			}
+
+			const { request } = outcome;
 			return await consume_source_webhook({ request, webhook_token: webhook.token, source });
 		} finally {
 			await stop_sandbox({ sandbox_id, command_id });
