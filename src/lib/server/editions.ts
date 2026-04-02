@@ -106,6 +106,27 @@ export async function get_owned_edition_by_date(user_id: string, edition_date: s
 	return row ?? null;
 }
 
+export async function get_owned_edition_generation_state(user_id: string, edition_date: string) {
+	const [row] = await db
+		.select({
+			id: daily_edition.id,
+			edition_date: daily_edition.edition_date,
+			status: daily_edition.status,
+			title: daily_edition.title,
+			summary: daily_edition.summary,
+			generated_at: daily_edition.generated_at,
+			article_count: sql<number>`(
+				select count(*) from daily_edition_article
+				where daily_edition_article.daily_edition_id = ${daily_edition.id}
+			)`.mapWith(Number)
+		})
+		.from(daily_edition)
+		.where(and(eq(daily_edition.user_id, user_id), eq(daily_edition.edition_date, edition_date)))
+		.limit(1);
+
+	return row ?? null;
+}
+
 /**
  * Get a single edition by ID, verifying ownership.
  * Returns null if not found or not owned.
