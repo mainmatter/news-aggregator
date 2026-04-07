@@ -11,6 +11,19 @@ import { and, eq, desc, asc, sql, like, or, exists } from 'drizzle-orm';
 export const POSITION_STEP = 1024;
 export const MIN_POSITION_GAP = 1e-6;
 
+export function get_default_edition_title(edition_date: string) {
+	const [year, month, day] = edition_date.split('-').map(Number);
+	const formatted_date = new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-US', {
+		weekday: 'long',
+		month: 'long',
+		day: 'numeric',
+		year: 'numeric',
+		timeZone: 'UTC'
+	});
+
+	return `Daily Edition - ${formatted_date}`;
+}
+
 type Edition_position_row = {
 	id: string;
 	position: number;
@@ -99,6 +112,27 @@ export async function get_owned_editions(user_id: string) {
 export async function get_owned_edition_by_date(user_id: string, edition_date: string) {
 	const [row] = await db
 		.select()
+		.from(daily_edition)
+		.where(and(eq(daily_edition.user_id, user_id), eq(daily_edition.edition_date, edition_date)))
+		.limit(1);
+
+	return row ?? null;
+}
+
+export async function get_owned_edition_generation_state(user_id: string, edition_date: string) {
+	const [row] = await db
+		.select({
+			id: daily_edition.id,
+			edition_date: daily_edition.edition_date,
+			status: daily_edition.status,
+			title: daily_edition.title,
+			summary: daily_edition.summary,
+			generated_at: daily_edition.generated_at,
+			article_count: sql<number>`(
+				select count(*) from daily_edition_article
+				where daily_edition_article.daily_edition_id = ${daily_edition.id}
+			)`.mapWith(Number)
+		})
 		.from(daily_edition)
 		.where(and(eq(daily_edition.user_id, user_id), eq(daily_edition.edition_date, edition_date)))
 		.limit(1);

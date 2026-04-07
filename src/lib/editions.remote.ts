@@ -18,6 +18,7 @@ import {
 	POSITION_STEP,
 	search_candidate_articles
 } from '$lib/server/editions';
+import { start_daily_edition_generation as start_daily_edition_generation_workflow } from '$lib/server/edition_generation';
 import { normalize_url } from '$lib/server/sources';
 import { invalid } from '@sveltejs/kit';
 import { and, asc, eq } from 'drizzle-orm';
@@ -82,6 +83,7 @@ export type EditionEditor = {
 	status: string;
 	title: string | null;
 	summary: string | null;
+	generated_at: Date | null;
 	articles: EditionArticleRow[];
 };
 
@@ -118,9 +120,38 @@ export const get_edition_editor = query(v.string(), async (edition_date) => {
 		status: edition.status,
 		title: edition.title,
 		summary: edition.summary,
+		generated_at: edition.generated_at,
 		articles
 	} satisfies EditionEditor;
 });
+
+export const start_daily_edition_generation = form(
+	v.object({
+		edition_date: v.pipe(
+			v.string(),
+			v.nonEmpty('Date is required'),
+			v.regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD format')
+		),
+		replace_existing: v.optional(v.boolean(), false)
+	}),
+	async ({ edition_date, replace_existing }, issue) => {
+		const user = await get_user();
+
+		try {
+			await start_daily_edition_generation_workflow({
+				user_id: user.id,
+				edition_date,
+				replace_existing
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Unable to start generation';
+			invalid(issue.edition_date(message));
+		}
+
+		await get_editions().refresh();
+		await get_edition_editor(edition_date).refresh();
+	}
+);
 
 /**
  * Search for articles available to add to an edition.

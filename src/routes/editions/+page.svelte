@@ -27,6 +27,51 @@
 		const day = String(now.getDate()).padStart(2, '0');
 		return `${year}-${month}-${day}`;
 	}
+
+	function get_status_class(status: string) {
+		switch (status) {
+			case 'published':
+				return 'status-published';
+			case 'generating':
+				return 'status-generating';
+			case 'failed':
+				return 'status-failed';
+			default:
+				return 'status-draft';
+		}
+	}
+
+	function format_status(status: string) {
+		switch (status) {
+			case 'generating':
+				return 'Generating';
+			case 'failed':
+				return 'Failed';
+			case 'published':
+				return 'Published';
+			default:
+				return 'Draft';
+		}
+	}
+
+	function format_generated_at(value: Date | string | null) {
+		if (!value) {
+			return null;
+		}
+
+		const generated_at = value instanceof Date ? value : new Date(value);
+
+		if (Number.isNaN(generated_at.getTime())) {
+			return null;
+		}
+
+		return generated_at.toLocaleString('en-US', {
+			month: 'short',
+			day: 'numeric',
+			hour: 'numeric',
+			minute: '2-digit'
+		});
+	}
 </script>
 
 <svelte:head>
@@ -60,13 +105,8 @@
 							<div class="edition-header">
 								<div class="edition-identity">
 									<h3 class="edition-date">{format_date(edition.edition_date)}</h3>
-									<span
-										class={[
-											'status-badge',
-											edition.status === 'published' ? 'status-published' : 'status-draft'
-										]}
-									>
-										{edition.status}
+									<span class={['status-badge', get_status_class(edition.status)]}>
+										{format_status(edition.status)}
 									</span>
 								</div>
 
@@ -119,6 +159,11 @@
 									{edition.article_count}
 									{edition.article_count === 1 ? 'Article' : 'Articles'}
 								</span>
+								{#if format_generated_at(edition.generated_at)}
+									<span class="generated-at">
+										Generated {format_generated_at(edition.generated_at)}
+									</span>
+								{/if}
 							</div>
 						</li>
 					{/each}
@@ -423,6 +468,18 @@
 		border: var(--s-px) solid var(--accent);
 	}
 
+	.status-generating {
+		color: var(--fg);
+		border: var(--s-px) solid var(--fg);
+		background: var(--accent-soft);
+	}
+
+	.status-failed {
+		color: var(--accent);
+		border: var(--s-px) solid var(--rule);
+		background: var(--accent-soft);
+	}
+
 	.delete-form {
 		display: flex;
 		flex-direction: column;
@@ -480,6 +537,11 @@
 		font-weight: 400;
 		letter-spacing: var(--tracking-4);
 		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.generated-at {
+		font-size: var(--text-xs);
 		color: var(--muted);
 	}
 

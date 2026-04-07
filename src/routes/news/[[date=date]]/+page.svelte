@@ -9,7 +9,7 @@
 
 	let { params } = $props();
 
-	const editions = await get_editions();
+	const editions = $derived(await get_editions());
 	const selected_date = $derived(params.date || get_default_edition_date());
 </script>
 
