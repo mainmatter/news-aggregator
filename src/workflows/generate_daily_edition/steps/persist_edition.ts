@@ -145,6 +145,7 @@ export async function persist_edition({
 	const failed_results = source_results.length - successful_results.length;
 	const normalized_articles = normalize_articles(source_results);
 	const now = new Date();
+	let published_articles = 0;
 
 	if (successful_results.length === 0) {
 		if (preparation.had_existing_edition) {
@@ -283,7 +284,7 @@ export async function persist_edition({
 			await transaction.insert(daily_edition_article).values(edition_article_values);
 		}
 
-		const published_articles = edition_article_values.length;
+		published_articles = edition_article_values.length;
 		await transaction
 			.update(daily_edition)
 			.set({
@@ -304,6 +305,6 @@ export async function persist_edition({
 		status: 'published',
 		successful_sources: successful_results.length,
 		failed_sources: failed_results,
-		published_articles: normalized_articles.length
+		published_articles
 	} satisfies PersistEditionResult;
 }
