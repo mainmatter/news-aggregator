@@ -112,7 +112,7 @@ export async function launch_source_sandbox({
 		'@opencode-ai/sdk@1.3.17'
 	]);
 
-	await sandbox.runCommand('npm', ['i', '-g', 'opencode-ai']);
+	await sandbox.runCommand('npm', ['i', '-g', 'opencode-ai@1.3.17']);
 
 	const command = await sandbox.runCommand({
 		cmd: 'node',
