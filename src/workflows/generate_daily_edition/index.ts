@@ -1,6 +1,7 @@
 import { createWebhook, sleep } from 'workflow';
 import {
 	consume_source_webhook,
+	get_user_generation_settings,
 	get_user_sources,
 	launch_source_sandbox,
 	mark_generation_failed,
@@ -21,7 +22,8 @@ const source_webhook_timeout = '15m';
 
 async function run_source_generation(
 	source: WorkflowUserSource,
-	input: EditionGenerationInput
+	input: EditionGenerationInput,
+	settings: Awaited<ReturnType<typeof get_user_generation_settings>>
 ): Promise<SourceGenerationResult> {
 	'use workflow';
 
@@ -31,6 +33,7 @@ async function run_source_generation(
 		const { sandbox_id, command_id } = await launch_source_sandbox({
 			source,
 			input,
+			settings,
 			webhook_url: webhook.url,
 			webhook_token: webhook.token
 		});
@@ -75,9 +78,12 @@ export async function generate_daily_edition_workflow(input: EditionGenerationIn
 	'use workflow';
 
 	try {
-		const sources = await get_user_sources(input.user_id);
+		const [sources, settings] = await Promise.all([
+			get_user_sources(input.user_id),
+			get_user_generation_settings(input.user_id)
+		]);
 		const source_results = await Promise.all(
-			sources.map((source) => run_source_generation(source, input))
+			sources.map((source) => run_source_generation(source, input, settings))
 		);
 
 		return await persist_edition({
