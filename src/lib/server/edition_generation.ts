@@ -1,7 +1,10 @@
 import { dev } from '$app/environment';
 import { db } from '$lib/server/db';
 import { daily_edition, daily_edition_article } from '$lib/server/db/schema';
-import { get_owned_edition_generation_state } from '$lib/server/editions';
+import {
+	get_default_edition_title,
+	get_owned_edition_generation_state
+} from '$lib/server/editions';
 import { and, eq, sql } from 'drizzle-orm';
 import { start } from 'workflow/api';
 import { generate_daily_edition_workflow } from '../../workflows/generate_daily_edition';
@@ -15,19 +18,6 @@ async function get_tunnel_base_url() {
 
 	const { getTunnelUrl } = await import('virtual:vite-plugin-cloudflare-tunnel');
 	return getTunnelUrl();
-}
-
-function get_default_title(edition_date: string) {
-	const [year, month, day] = edition_date.split('-').map(Number);
-	const formatted_date = new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-US', {
-		weekday: 'long',
-		month: 'long',
-		day: 'numeric',
-		year: 'numeric',
-		timeZone: 'UTC'
-	});
-
-	return `Daily Edition - ${formatted_date}`;
 }
 
 export async function prepare_generation(input: PreparationGenerationInput) {
@@ -86,7 +76,7 @@ export async function prepare_generation(input: PreparationGenerationInput) {
 			user_id: input.user_id,
 			edition_date: input.edition_date,
 			status: 'generating',
-			title: get_default_title(input.edition_date),
+			title: get_default_edition_title(input.edition_date),
 			summary: 'Generating your daily edition from active sources.'
 		})
 		.returning();

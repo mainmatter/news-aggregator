@@ -5,7 +5,7 @@ import {
 	daily_edition_article,
 	source_article
 } from '$lib/server/db/schema';
-import { POSITION_STEP } from '$lib/server/editions';
+import { get_default_edition_title, POSITION_STEP } from '$lib/server/editions';
 import { normalize_url } from '$lib/server/sources';
 import { eq, inArray } from 'drizzle-orm';
 import { createHash } from 'node:crypto';
@@ -26,19 +26,6 @@ type NormalizedArticle = {
 	position: number;
 	source_ids: Set<string>;
 };
-
-function get_default_title(edition_date: string) {
-	const [year, month, day] = edition_date.split('-').map(Number);
-	const formatted_date = new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-US', {
-		weekday: 'long',
-		month: 'long',
-		day: 'numeric',
-		year: 'numeric',
-		timeZone: 'UTC'
-	});
-
-	return `Daily Edition - ${formatted_date}`;
-}
 
 function get_empty_summary(successful_sources: number) {
 	if (successful_sources > 0) {
@@ -184,7 +171,7 @@ export async function persist_edition({
 			.update(daily_edition)
 			.set({
 				status: 'published',
-				title: get_default_title(preparation.edition_date),
+				title: get_default_edition_title(preparation.edition_date),
 				summary: get_empty_summary(0),
 				generated_at: now
 			})
@@ -301,7 +288,7 @@ export async function persist_edition({
 			.update(daily_edition)
 			.set({
 				status: 'published',
-				title: preparation.previous_title || get_default_title(preparation.edition_date),
+				title: preparation.previous_title || get_default_edition_title(preparation.edition_date),
 				summary:
 					published_articles > 0
 						? preparation.previous_summary ||

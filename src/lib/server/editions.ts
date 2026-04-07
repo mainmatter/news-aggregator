@@ -11,6 +11,19 @@ import { and, eq, desc, asc, sql, like, or, exists } from 'drizzle-orm';
 export const POSITION_STEP = 1024;
 export const MIN_POSITION_GAP = 1e-6;
 
+export function get_default_edition_title(edition_date: string) {
+	const [year, month, day] = edition_date.split('-').map(Number);
+	const formatted_date = new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-US', {
+		weekday: 'long',
+		month: 'long',
+		day: 'numeric',
+		year: 'numeric',
+		timeZone: 'UTC'
+	});
+
+	return `Daily Edition - ${formatted_date}`;
+}
+
 type Edition_position_row = {
 	id: string;
 	position: number;
