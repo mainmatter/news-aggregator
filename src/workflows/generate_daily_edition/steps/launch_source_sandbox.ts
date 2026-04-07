@@ -105,7 +105,12 @@ export async function launch_source_sandbox({
 		}
 	]);
 
-	await sandbox.runCommand('npm', ['i', '--no-package-lock', '--silent', '@opencode-ai/sdk']);
+	await sandbox.runCommand('npm', [
+		'i',
+		'--no-package-lock',
+		'--silent',
+		'@opencode-ai/sdk@1.3.17'
+	]);
 
 	await sandbox.runCommand('npm', ['i', '-g', 'opencode-ai']);
 
