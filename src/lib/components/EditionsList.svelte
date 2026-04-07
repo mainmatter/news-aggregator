@@ -86,6 +86,10 @@
 		}
 		return route_date === date_str;
 	}
+
+	function get_edition_href(date_str: string) {
+		return is_today(date_str) ? '/news' : `/news/${date_str}`;
+	}
 </script>
 
 <nav class="editions-strip" aria-label="Daily editions">
@@ -96,13 +100,15 @@
 			{@const active = is_active(item.date_str)}
 			{@const today = is_today(item.date_str)}
 			<li>
-				{#if item.edition}
+				{#if item.edition || today}
 					<a
-						href="/news/{item.date_str}"
+						href={get_edition_href(item.date_str)}
 						class={['edition-pill', { active }]}
 						style:view-transition-name="edition-pill-{item.date_str}"
 						aria-current={active ? 'page' : undefined}
-						title="{format_full_date(item.date_str)} — {item.edition.article_count} stories"
+						title={item.edition
+							? `${format_full_date(item.date_str)} — ${item.edition.article_count} stories`
+							: `${format_full_date(item.date_str)} — no edition available yet`}
 					>
 						{#if today}
 							<span class="today-dot" aria-label="Today"></span>
