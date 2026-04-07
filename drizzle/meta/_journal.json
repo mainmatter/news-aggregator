@@ -22,6 +22,13 @@
       "when": 1774536250611,
       "tag": "0002_glossy_blindfold",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1775573414296,
+      "tag": "0003_loose_texas_twister",
+      "breakpoints": true
     }
   ]
 }

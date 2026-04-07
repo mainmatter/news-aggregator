@@ -54,6 +54,19 @@ export const user_source = sqliteTable(
 	]
 );
 
+export const user_settings = sqliteTable(
+	'user_settings',
+	{
+		id: create_id(),
+		user_id: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		article_selection_prompt: text('article_selection_prompt'),
+		...create_timestamps()
+	},
+	(table) => [uniqueIndex('user_settings_user_id_unique').on(table.user_id)]
+);
+
 export const article = sqliteTable(
 	'article',
 	{

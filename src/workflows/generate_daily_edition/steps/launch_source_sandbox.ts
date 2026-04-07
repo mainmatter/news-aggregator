@@ -34,11 +34,13 @@ function get_window_bounds(edition_date: string) {
 export async function launch_source_sandbox({
 	source,
 	input,
+	settings,
 	webhook_url,
 	webhook_token
 }: {
 	source: WorkflowUserSource;
 	input: EditionGenerationInput;
+	settings: { article_selection_prompt: string | null };
 	webhook_url: string;
 	webhook_token: string;
 }) {
@@ -62,6 +64,14 @@ export async function launch_source_sandbox({
 		WINDOW_START_ISO: window_start_iso,
 		WINDOW_END_ISO: window_end_iso
 	};
+
+	if (settings.article_selection_prompt) {
+		sandbox_env.ARTICLE_SELECTION_PROMPT = settings.article_selection_prompt;
+	}
+
+	if (source.label) {
+		sandbox_env.SOURCE_LABEL = source.label;
+	}
 
 	if (env.OPENCODE_MODEL) sandbox_env.OPENCODE_MODEL = env.OPENCODE_MODEL;
 	if (env.OPENCODE_AGENT) sandbox_env.OPENCODE_AGENT = env.OPENCODE_AGENT;
