@@ -19,7 +19,6 @@
 		type EditionArticleRow
 	} from '$lib/editions.remote';
 	import { get_user_sources } from '$lib/sources.remote';
-	import { untrack } from 'svelte';
 
 	function move_item_by_index<T>(items: T[], from_index: number, to_index: number) {
 		if (
@@ -83,14 +82,6 @@
 	const meta_form = $derived.by(() => {
 		if (!edition) return null;
 		const form = update_edition_meta.for(edition.id);
-		untrack(() => {
-			form.fields.set({
-				edition_id: edition.id,
-				title: edition.title ?? undefined,
-				summary: edition.summary ?? undefined,
-				status: edition.status
-			});
-		});
 		return form;
 	});
 
@@ -122,17 +113,6 @@
 		}> = [];
 		for (const [rendered_index, article] of edition.articles.entries()) {
 			const edit = update_edition_article.for(article.id);
-			untrack(() => {
-				edit.fields.set({
-					edition_article_id: article.id,
-					edition_id: edition.id,
-					custom_title: article.custom_title ?? undefined,
-					custom_summary: article.custom_summary ?? undefined,
-					custom_category: article.custom_category ?? undefined,
-					section: article.section ?? undefined,
-					reason: article.reason ?? undefined
-				});
-			});
 			const remove_form = remove_edition_article.for(article.id);
 			const move_up = reorder_edition_articles.for(`${article.id}-up`);
 			const move_down = reorder_edition_articles.for(`${article.id}-down`);
@@ -232,7 +212,7 @@
 							<div class="field">
 								<label class="field-label" for="meta-title">Title</label>
 								<input
-									{...meta_form.fields.title.as('text')}
+									{...meta_form.fields.title.as('text', edition.title ?? '')}
 									id="meta-title"
 									placeholder="Edition headline"
 								/>
@@ -241,7 +221,7 @@
 
 							<div class="field">
 								<label class="field-label" for="meta-status">Status</label>
-								<select {...meta_form.fields.status.as('text')} id="meta-status">
+								<select {...meta_form.fields.status.as('text', edition.status)} id="meta-status">
 									<option value="draft">Draft</option>
 									<option value="generating">Generating</option>
 									<option value="failed">Failed</option>
@@ -254,7 +234,7 @@
 						<div class="field field-full">
 							<label class="field-label" for="meta-summary">Summary</label>
 							<textarea
-								{...meta_form.fields.summary.as('text')}
+								{...meta_form.fields.summary.as('text', edition.summary ?? '')}
 								id="meta-summary"
 								rows="3"
 								placeholder="A brief description of this edition"
@@ -618,7 +598,7 @@
 											<div class="field">
 												<label class="field-label" for="ct-{article.id}">Title</label>
 												<input
-													{...edit.fields.custom_title.as('text')}
+													{...edit.fields.custom_title.as('text', article.custom_title ?? '')}
 													id="ct-{article.id}"
 													placeholder={article.title ?? 'Title'}
 												/>
@@ -628,7 +608,7 @@
 											<div class="field">
 												<label class="field-label" for="cc-{article.id}">Category</label>
 												<input
-													{...edit.fields.custom_category.as('text')}
+													{...edit.fields.custom_category.as('text', article.custom_category ?? '')}
 													id="cc-{article.id}"
 													placeholder={article.category ?? 'Category'}
 												/>
@@ -638,7 +618,7 @@
 											<div class="field">
 												<label class="field-label" for="sec-{article.id}">Section</label>
 												<input
-													{...edit.fields.section.as('text')}
+													{...edit.fields.section.as('text', article.section ?? '')}
 													id="sec-{article.id}"
 													placeholder="e.g. Front Page, Opinion"
 												/>
@@ -648,7 +628,7 @@
 											<div class="field">
 												<label class="field-label" for="rsn-{article.id}">Reason</label>
 												<input
-													{...edit.fields.reason.as('text')}
+													{...edit.fields.reason.as('text', article.reason ?? '')}
 													id="rsn-{article.id}"
 													placeholder="Why this article?"
 												/>
@@ -659,7 +639,7 @@
 										<div class="field field-full">
 											<label class="field-label" for="cs-{article.id}">Summary</label>
 											<textarea
-												{...edit.fields.custom_summary.as('text')}
+												{...edit.fields.custom_summary.as('text', article.custom_summary ?? '')}
 												id="cs-{article.id}"
 												rows="2"
 												placeholder={article.summary ?? 'Summary'}

@@ -12,20 +12,11 @@
 	import PageFooter from '$lib/components/PageFooter.svelte';
 	import FieldErrors from '$lib/components/FieldErrors.svelte';
 	import Button from '$lib/components/Button.svelte';
-	import { untrack } from 'svelte';
 
 	const user_sources = $derived(await get_user_sources());
 	const user_settings = $derived(await get_user_settings());
 
-	const settings_form = $derived.by(() => {
-		const form = update_user_settings;
-		untrack(() => {
-			form.fields.set({
-				article_selection_prompt: user_settings.article_selection_prompt ?? undefined
-			});
-		});
-		return form;
-	});
+	const settings_form = update_user_settings;
 
 	const forms = $derived.by(() => {
 		const forms: Array<{
@@ -35,15 +26,6 @@
 		}> = [];
 		for (const source of user_sources) {
 			const edit = update_user_source.for(source.user_source_id);
-			untrack(() => {
-				edit.fields.set({
-					display_name: source.display_name,
-					canonical_url: source.canonical_url,
-					label: source.label ?? undefined,
-					is_active: source.is_active,
-					user_source_id: source.user_source_id
-				});
-			});
 			const remove = delete_user_source.for(source.user_source_id);
 			forms.push({ source, edit, remove });
 		}
@@ -76,9 +58,6 @@
 				class="settings-form"
 				{...settings_form.enhance(async ({ data, submit }) => {
 					const article_selection_prompt = data.article_selection_prompt?.trim() || null;
-					update_user_settings.fields.set({
-						article_selection_prompt: article_selection_prompt ?? undefined
-					});
 
 					await submit().updates(
 						get_user_settings().withOverride((settings) => ({
@@ -97,7 +76,10 @@
 						interested in. This affects article choice only, not summary tone/formatting.
 					</p>
 					<textarea
-						{...settings_form.fields.article_selection_prompt.as('text')}
+						{...settings_form.fields.article_selection_prompt.as(
+							'text',
+							user_settings.article_selection_prompt ?? ''
+						)}
 						id="article-selection-guidance"
 						placeholder="Prefer investigations, local accountability reporting, and labor coverage…"
 					></textarea>
@@ -222,7 +204,11 @@
 									</div>
 
 									<label class="active-toggle">
-										<input {...edit.fields.is_active.as('checkbox')} />
+										<input
+											{...source.is_active
+												? edit.fields.is_active.as('checkbox', true)
+												: edit.fields.is_active.as('checkbox', false)}
+										/>
 										<span class="toggle-label">Active</span>
 									</label>
 								</div>
@@ -231,7 +217,7 @@
 									<div class="field field-inline">
 										<label class="field-label" for="url-{source.user_source_id}">Feed URL</label>
 										<input
-											{...edit.fields.canonical_url.as('url')}
+											{...edit.fields.canonical_url.as('url', source.canonical_url)}
 											id="url-{source.user_source_id}"
 											placeholder="https://..."
 										/>
@@ -243,7 +229,7 @@
 											>Display Name</label
 										>
 										<input
-											{...edit.fields.display_name.as('text')}
+											{...edit.fields.display_name.as('text', source.display_name)}
 											id="name-{source.user_source_id}"
 											placeholder="Source name"
 										/>
@@ -255,7 +241,7 @@
 											>Label (optional)</label
 										>
 										<input
-											{...edit.fields.label.as('text')}
+											{...edit.fields.label.as('text', source.label ?? '')}
 											id="label-{source.user_source_id}"
 											placeholder="Add a label…"
 										/>
