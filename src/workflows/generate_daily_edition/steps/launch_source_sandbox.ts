@@ -129,6 +129,7 @@ export async function launch_source_sandbox({
 	const command = await sandbox.runCommand({
 		cmd: 'node',
 		args: ['runner.js'],
+		env: sandbox_env,
 		detached: true,
 		stderr: process.stderr,
 		stdout: process.stdout
