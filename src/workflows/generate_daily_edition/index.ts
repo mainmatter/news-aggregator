@@ -30,6 +30,8 @@ async function run_source_generation(
 	try {
 		using webhook = createWebhook();
 
+		console.log('webhook url', webhook.url);
+
 		const { sandbox_id, command_id } = await launch_source_sandbox({
 			source,
 			input,

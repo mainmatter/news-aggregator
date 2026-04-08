@@ -54,6 +54,8 @@ export async function launch_source_sandbox({
 	const { window_start_iso, window_end_iso } = get_window_bounds(input.edition_date);
 	const resolved_url = resolve_webhook_url(webhook_url, input.tunnel_base_url);
 
+	console.log('resolved webhook url', resolved_url);
+
 	const sandbox_env: Record<string, string> = {
 		CALLBACK_URL: resolved_url,
 		CALLBACK_SECRET: callback_secret,
