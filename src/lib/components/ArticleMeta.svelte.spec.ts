@@ -29,4 +29,16 @@ describe('ArticleMeta.svelte', () => {
 		const dots = container.querySelectorAll('.dot');
 		expect(dots.length).toBe(2);
 	});
+
+	it('should omit empty items and their separator dots', async () => {
+		const { container } = render(ArticleMeta, {
+			props: { category: 'Tech', items: ['Source', ''] }
+		});
+
+		await expect.element(page.getByText('Source')).toBeInTheDocument();
+
+		const dots = container.querySelectorAll('.dot');
+		expect(dots.length).toBe(1);
+		expect(container.querySelectorAll('span').length).toBe(3);
+	});
 });
