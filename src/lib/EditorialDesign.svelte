@@ -18,13 +18,13 @@
 
 	function format_published_at(value: Date | string | null | undefined) {
 		if (!value) {
-			return 'Date unavailable';
+			return '';
 		}
 
 		const published_at = value instanceof Date ? value : new Date(value);
 
 		if (Number.isNaN(published_at.getTime())) {
-			return 'Date unavailable';
+			return '';
 		}
 
 		return published_at.toLocaleDateString('en-US', {

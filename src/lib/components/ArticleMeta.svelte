@@ -1,10 +1,11 @@
 <script lang="ts">
 	let { category, items }: { category: string; items: string[] } = $props();
+	const visible_items = $derived(items.filter(Boolean));
 </script>
 
 <div class="article-meta">
 	<span class="category">{category}</span>
-	{#each items as item (item)}
+	{#each visible_items as item (item)}
 		<span class="dot">·</span>
 		<span>{item}</span>
 	{/each}
