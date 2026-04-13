@@ -80,10 +80,9 @@ export async function generate_daily_edition_workflow(input: EditionGenerationIn
 	'use workflow';
 
 	try {
-		const [sources, settings] = await Promise.all([
-			get_user_sources(input.user_id),
-			get_user_generation_settings(input.user_id)
-		]);
+		const sources = await get_user_sources(input.user_id);
+		const settings = await get_user_generation_settings(input.user_id);
+
 		const source_results = await Promise.all(
 			sources.map((source) => run_source_generation(source, input, settings))
 		);
