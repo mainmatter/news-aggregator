@@ -79,6 +79,14 @@ export async function generate_daily_edition_workflow(input: EditionGenerationIn
 
 	try {
 		const sources = await get_user_sources(input.user_id);
+
+		if (sources.length === 0) {
+			return await persist_edition({
+				preparation: input.preparation,
+				source_results: []
+			});
+		}
+
 		const settings = await get_user_generation_settings(input.user_id);
 
 		const source_results = await Promise.all(

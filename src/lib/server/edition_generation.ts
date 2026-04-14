@@ -1,6 +1,6 @@
 import { dev } from '$app/environment';
 import { db } from '$lib/server/db';
-import { daily_edition, daily_edition_article } from '$lib/server/db/schema';
+import { daily_edition, daily_edition_article, user_source } from '$lib/server/db/schema';
 import {
 	get_default_edition_title,
 	get_owned_edition_generation_state
@@ -113,6 +113,16 @@ export async function start_daily_edition_generation({
 		throw new Error(
 			'This edition already exists. Only empty editions can be generated again in v1.'
 		);
+	}
+
+	const [active_source] = await db
+		.select({ id: user_source.id })
+		.from(user_source)
+		.where(and(eq(user_source.user_id, user_id), eq(user_source.is_active, true)))
+		.limit(1);
+
+	if (!active_source) {
+		throw new Error('Add at least one active source before starting generation.');
 	}
 
 	const tunnel_base_url = await get_tunnel_base_url();
