@@ -4,6 +4,20 @@
 	"experimental": {
 		"disable_paste_summary": true
 	},
+	"agent": {
+		"grill-me": {
+			"color": "info",
+			"mode": "primary",
+			"description": "Use this agent to make the agent ask a lot of questions on a specific plan and edit the plan with the updated knowledge",
+			"prompt": "Interview me relentlessly about every aspect of this plan using the question tool until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.\nIf a question can be answered by exploring the codebase, explore the codebase instead.",
+			"permission": {
+				"edit": {
+					".opencode/plans/**": "allow"
+				},
+				"question": "allow"
+			}
+		}
+	},
 	"mcp": {
 		"chrome": {
 			"type": "local",
