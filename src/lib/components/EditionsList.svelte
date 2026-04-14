@@ -60,6 +60,9 @@
 		}));
 	});
 
+	let today_edition = $derived(editions_by_date[today_date]);
+	let non_today_visible_days = $derived(visible_days.filter((item) => !is_today(item.date_str)));
+
 	function format_pill_label(date_str: string) {
 		const date = parse_date(date_str);
 		const weekday = date.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
@@ -96,11 +99,27 @@
 	<span class="editions-label">Editions</span>
 
 	<ul class="editions-row">
-		{#each visible_days as item (item.date_str)}
+		<li>
+			<a
+				href="/news"
+				class={['edition-pill', { active: is_active(today_date) }]}
+				style:view-transition-name="edition-pill-{today_date}"
+				aria-current={is_active(today_date) ? 'page' : undefined}
+				title={today_edition
+					? `${format_full_date(today_date)} — ${today_edition.article_count} stories`
+					: `${format_full_date(today_date)} — no edition available yet`}
+			>
+				<span class="today-dot" aria-label="Today"></span>
+				<span class="pill-text">{format_pill_label(today_date)}</span>
+			</a>
+		</li>
+
+		<li class="today-separator" aria-hidden="true"></li>
+
+		{#each non_today_visible_days as item (item.date_str)}
 			{@const active = is_active(item.date_str)}
-			{@const today = is_today(item.date_str)}
 			<li>
-				{#if item.edition || today}
+				{#if item.edition}
 					<a
 						href={get_edition_href(item.date_str)}
 						class={['edition-pill', { active }]}
@@ -110,9 +129,6 @@
 							? `${format_full_date(item.date_str)} — ${item.edition.article_count} stories`
 							: `${format_full_date(item.date_str)} — no edition available yet`}
 					>
-						{#if today}
-							<span class="today-dot" aria-label="Today"></span>
-						{/if}
 						<span class="pill-text">{format_pill_label(item.date_str)}</span>
 					</a>
 				{:else}
@@ -123,9 +139,6 @@
 						aria-disabled="true"
 						title="{format_full_date(item.date_str)} — no edition available"
 					>
-						{#if today}
-							<span class="today-dot" aria-label="Today"></span>
-						{/if}
 						<span class="pill-text">{format_pill_label(item.date_str)}</span>
 					</span>
 				{/if}
@@ -173,6 +186,14 @@
 	}
 
 	li {
+		flex-shrink: 0;
+	}
+
+	.today-separator {
+		width: var(--s-px);
+		height: var(--s-4);
+		background: var(--rule);
+		margin-inline: var(--s-1);
 		flex-shrink: 0;
 	}
 
