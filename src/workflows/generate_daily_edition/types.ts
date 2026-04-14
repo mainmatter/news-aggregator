@@ -42,6 +42,15 @@ export type WorkflowUserSource = {
 	label: string | null;
 };
 
+export type SourceGenerationSettings = {
+	article_selection_prompt: string | null;
+};
+
+export type SourceSandboxRuntime = {
+	sandbox_id: string;
+	command_id: string;
+};
+
 export type PreparedGenerationState = {
 	edition_id: string;
 	edition_date: string;

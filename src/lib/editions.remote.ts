@@ -8,6 +8,7 @@ import {
 	source_article,
 	user_source
 } from '$lib/server/db/schema';
+import { start_daily_edition_generation as start_daily_edition_generation_workflow } from '$lib/server/edition_generation';
 import {
 	calculate_position_for_index,
 	get_edition_articles,
@@ -18,7 +19,6 @@ import {
 	POSITION_STEP,
 	search_candidate_articles
 } from '$lib/server/editions';
-import { start_daily_edition_generation as start_daily_edition_generation_workflow } from '$lib/server/edition_generation';
 import { normalize_url } from '$lib/server/sources';
 import { invalid } from '@sveltejs/kit';
 import { and, asc, eq } from 'drizzle-orm';

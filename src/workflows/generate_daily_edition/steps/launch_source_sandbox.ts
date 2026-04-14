@@ -1,34 +1,21 @@
-import { env } from '$env/dynamic/private';
-import { Sandbox } from '@vercel/sandbox';
-import { createHmac } from 'node:crypto';
-import type { EditionGenerationInput, WorkflowUserSource } from '../types';
-import runner_source from '../sandbox/runner.js?raw';
+import { get_sandbox_backend } from '../sandbox/backend';
+import { get_runner_files } from '../sandbox/runner_files';
+import {
+	assert_webhook_secret_configured,
+	create_source_sandbox_config,
+	opencode_version
+} from '../sandbox/shared';
+import type {
+	EditionGenerationInput,
+	SourceGenerationSettings,
+	SourceSandboxRuntime,
+	WorkflowUserSource
+} from '../types';
 
-const sandbox_timeout_ms = 15 * 60 * 1000;
-
-function resolve_webhook_url(webhook_url: string, tunnel_base_url?: string) {
-	if (!tunnel_base_url) return webhook_url;
-
-	const parsed = new URL(webhook_url);
-	const tunnel = new URL(tunnel_base_url);
-	parsed.protocol = tunnel.protocol;
-	parsed.host = tunnel.host;
-	parsed.port = '';
-	return parsed.toString();
-}
-
-function derive_callback_secret(webhook_token: string) {
-	return createHmac('sha256', env.WEBHOOK_SECRET).update(webhook_token).digest('hex');
-}
-
-function get_window_bounds(edition_date: string) {
-	const window_end = new Date(`${edition_date}T23:59:59.999Z`);
-	const window_start = new Date(window_end.getTime() - 48 * 60 * 60 * 1000);
-
-	return {
-		window_start_iso: window_start.toISOString(),
-		window_end_iso: window_end.toISOString()
-	};
+function ensure_command_succeeded(command_description: string, exit_code: number) {
+	if (exit_code !== 0) {
+		throw new Error(`${command_description} failed with exit code ${exit_code}`);
+	}
 }
 
 export async function launch_source_sandbox({
@@ -40,100 +27,60 @@ export async function launch_source_sandbox({
 }: {
 	source: WorkflowUserSource;
 	input: EditionGenerationInput;
-	settings: { article_selection_prompt: string | null };
+	settings: SourceGenerationSettings;
 	webhook_url: string;
 	webhook_token: string;
-}) {
+}): Promise<SourceSandboxRuntime> {
 	'use step';
 
-	if (!env.WEBHOOK_SECRET) {
-		throw new Error('WEBHOOK_SECRET is not configured');
-	}
+	assert_webhook_secret_configured();
 
-	const callback_secret = derive_callback_secret(webhook_token);
-	const { window_start_iso, window_end_iso } = get_window_bounds(input.edition_date);
-	const resolved_url = resolve_webhook_url(webhook_url, input.tunnel_base_url);
-
-	console.log('resolved webhook url', resolved_url);
-
-	const sandbox_env: Record<string, string> = {
-		CALLBACK_URL: resolved_url,
-		CALLBACK_SECRET: callback_secret,
-		SOURCE_ID: source.source_id,
-		SOURCE_NAME: source.display_name,
-		SOURCE_URL: source.canonical_url,
-		EDITION_DATE: input.edition_date,
-		WINDOW_START_ISO: window_start_iso,
-		WINDOW_END_ISO: window_end_iso
-	};
-
-	if (settings.article_selection_prompt) {
-		sandbox_env.ARTICLE_SELECTION_PROMPT = settings.article_selection_prompt;
-	}
-
-	if (source.label) {
-		sandbox_env.SOURCE_LABEL = source.label;
-	}
-
-	if (env.OPENCODE_MODEL) sandbox_env.OPENCODE_MODEL = env.OPENCODE_MODEL;
-	if (env.OPENCODE_AGENT) sandbox_env.OPENCODE_AGENT = env.OPENCODE_AGENT;
-	if (env.OPENCODE_PROVIDER_API_KEY)
-		sandbox_env.OPENCODE_PROVIDER_API_KEY = env.OPENCODE_PROVIDER_API_KEY;
-	if (env.OPENCODE_PROVIDER_BASE_URL)
-		sandbox_env.OPENCODE_PROVIDER_BASE_URL = env.OPENCODE_PROVIDER_BASE_URL;
-
-	const sandbox_config: Record<string, unknown> = {
-		runtime: 'node24',
-		timeout: sandbox_timeout_ms,
-		env: sandbox_env
-	};
-
-	if (env.VERCEL_TOKEN && env.VERCEL_PROJECT_ID && env.VERCEL_TEAM_ID) {
-		sandbox_config.token = env.VERCEL_TOKEN;
-		sandbox_config.projectId = env.VERCEL_PROJECT_ID;
-		sandbox_config.teamId = env.VERCEL_TEAM_ID;
-	}
-
-	const sandbox = await Sandbox.create(sandbox_config);
-
-	await sandbox.writeFiles([
-		{
-			path: 'package.json',
-			content: Buffer.from(
-				JSON.stringify(
-					{
-						name: 'source-extractor',
-						version: '1.0.0',
-						type: 'module'
-					},
-					null,
-					2
-				)
-			)
-		},
-		{
-			path: 'runner.js',
-			content: Buffer.from(runner_source)
-		}
-	]);
-
-	await sandbox.runCommand('npm', [
-		'i',
-		'--no-package-lock',
-		'--silent',
-		'@opencode-ai/sdk@1.3.17'
-	]);
-
-	await sandbox.runCommand('npm', ['i', '-g', 'opencode-ai@1.3.17']);
-
-	const command = await sandbox.runCommand({
-		cmd: 'node',
-		args: ['runner.js'],
-		env: sandbox_env,
-		detached: true,
-		stderr: process.stderr,
-		stdout: process.stdout
+	const backend = get_sandbox_backend();
+	const sandbox_config = create_source_sandbox_config({
+		source,
+		input,
+		settings,
+		webhook_url,
+		webhook_token
 	});
 
-	return { sandbox_id: sandbox.sandboxId, command_id: command.cmdId };
+	const sandbox = await backend.create(sandbox_config);
+
+	try {
+		await sandbox.writeFiles(get_runner_files());
+
+		const install_sdk = await sandbox.runCommand({
+			cmd: 'npm',
+			args: ['i', '--no-package-lock', '--silent', `@opencode-ai/sdk@${opencode_version}`]
+		});
+		ensure_command_succeeded('Installing @opencode-ai/sdk in sandbox', install_sdk.exit_code);
+
+		const install_cli = await sandbox.runCommand({
+			cmd: 'npm',
+			args: ['i', '-g', `opencode-ai@${opencode_version}`]
+		});
+		ensure_command_succeeded('Installing opencode-ai CLI in sandbox', install_cli.exit_code);
+
+		const command = await sandbox.runCommand({
+			cmd: 'node',
+			args: ['runner.js'],
+			env: sandbox_config.env,
+			detached: true,
+			stderr: process.stderr,
+			stdout: process.stdout
+		});
+
+		return { sandbox_id: sandbox.id, command_id: command.id };
+	} catch (error) {
+		try {
+			await backend.stop(sandbox.id);
+		} catch (cleanup_error) {
+			console.error(
+				`[sandbox:${sandbox.id}] Failed to clean up sandbox after launch error:`,
+				cleanup_error
+			);
+		}
+
+		throw error;
+	}
 }
