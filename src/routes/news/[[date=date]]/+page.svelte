@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { get_editions } from '$lib/editions.remote';
+	import { get_user_sources } from '$lib/sources.remote';
 	import EditorialDesign from '$lib/EditorialDesign.svelte';
 	import EditionsList from '$lib/components/EditionsList.svelte';
 
@@ -10,7 +11,9 @@
 	let { params } = $props();
 
 	const editions = $derived(await get_editions());
+	const sources = $derived(await get_user_sources());
 	const selected_date = $derived(params.date || get_default_edition_date());
+	const has_available_sources = $derived(sources.some((source) => source.is_active === true));
 </script>
 
 <svelte:head>
@@ -20,7 +23,7 @@
 <div class="page-wrapper">
 	<EditionsList {editions} />
 </div>
-<EditorialDesign date={selected_date} />
+<EditorialDesign date={selected_date} {has_available_sources} />
 
 <style>
 	.page-wrapper {

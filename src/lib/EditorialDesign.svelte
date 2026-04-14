@@ -103,7 +103,8 @@
 		return 'Start generation';
 	}
 
-	let { date }: { date: string } = $props();
+	let { date, has_available_sources = true }: { date: string; has_available_sources?: boolean } =
+		$props();
 
 	const edition = $derived(await get_edition_editor(date));
 	const articles = $derived(edition?.articles.map(map_edition_article) ?? []);
@@ -153,7 +154,8 @@
 	});
 
 	const show_generation_cta = $derived(
-		is_today_or_future &&
+		has_available_sources &&
+			is_today_or_future &&
 			(edition_state === 'missing' || edition_state === 'failed' || edition_state === 'empty')
 	);
 </script>
@@ -209,10 +211,19 @@
 		{#if edition_state === 'missing'}
 			<section class="edition-state-panel">
 				<p class="state-eyebrow">Edition unavailable</p>
-				<h2>No edition has been created for this date yet.</h2>
-				<p>Choose another date or start a generation run to prepare this edition.</p>
+				{#if has_available_sources}
+					<h2>No edition has been created for this date yet.</h2>
+					<p>Choose another date or start a generation run to prepare this edition.</p>
+				{:else}
+					<h2>No edition can be generated yet.</h2>
+					<p>Generation needs at least one active source.</p>
+				{/if}
 				{#if show_generation_cta}
 					{@render generation_form_snippet()}
+				{:else if !has_available_sources}
+					<div class="generation-form">
+						<a href="/sources" class="generation-button">Manage sources</a>
+					</div>
 				{/if}
 			</section>
 		{:else if edition_state === 'generating'}
@@ -343,6 +354,9 @@
 	}
 
 	.generation-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 		padding: var(--s-3) var(--s-5);
 		border: var(--s-px) solid var(--accent);
 		background: var(--accent);
@@ -352,6 +366,7 @@
 		font-weight: 600;
 		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
+		text-decoration: none;
 		cursor: pointer;
 		transition:
 			background 0.2s ease,
