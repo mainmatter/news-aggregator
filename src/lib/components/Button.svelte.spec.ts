@@ -58,4 +58,24 @@ describe('Button.svelte', () => {
 		await button.click();
 		expect(onclick).toHaveBeenCalled();
 	});
+
+	it('should expose an imperative status animation API', async () => {
+		vi.useFakeTimers();
+
+		const { component } = render(Button, {
+			props: {
+				children: text_snippet('Save')
+			}
+		});
+
+		const button = page.getByRole('button', { name: 'Save' });
+
+		component.show_feedback('success', 800);
+		await expect.element(button).toHaveAttribute('data-feedback', 'success');
+
+		await vi.advanceTimersByTimeAsync(800);
+		await expect.element(button).toHaveAttribute('data-feedback', 'idle');
+
+		vi.useRealTimers();
+	});
 });

@@ -15,6 +15,8 @@
 	--paper: #ece7df;
 	--rule: #d4cfc6;
 	--card-hover: rgba(0, 0, 0, 0.02);
+	--status-success: #2f7a55;
+	--status-error: #b6453f;
 
 	/* --- Typography --- */
 	--font-display: 'Fraunces Variable', 'Georgia', serif;
@@ -68,6 +70,8 @@
 		--paper: #252420;
 		--rule: #3a3830;
 		--card-hover: rgba(255, 255, 255, 0.03);
+		--status-success: #57b787;
+		--status-error: #f07a72;
 	}
 }
 
@@ -80,6 +84,8 @@
 	--paper: #252420;
 	--rule: #3a3830;
 	--card-hover: rgba(255, 255, 255, 0.03);
+	--status-success: #57b787;
+	--status-error: #f07a72;
 }
 
 /* ===== Reset ===== */
