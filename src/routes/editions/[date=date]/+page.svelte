@@ -84,6 +84,8 @@
 		const form = update_edition_meta.for(edition.id);
 		return form;
 	});
+	let meta_save_button: Button | undefined = $state();
+	let override_save_buttons: Record<string, Button | undefined> = {};
 
 	// --- Article search ---
 	let search_term = $derived(page.url.searchParams.get('q') ?? '');
@@ -188,17 +190,24 @@
 					<form
 						class="meta-form"
 						{...meta_form.enhance(async ({ data, submit }) => {
-							await submit().updates(
-								get_edition_editor(date_param).withOverride((prev) => {
-									if (!prev) return prev;
-									return {
-										...prev,
-										title: data.title ?? prev.title,
-										summary: data.summary ?? prev.summary,
-										status: data.status ?? prev.status
-									};
-								})
-							);
+							try {
+								await submit().updates(
+									get_edition_editor(date_param).withOverride((prev) => {
+										if (!prev) return prev;
+										return {
+											...prev,
+											title: data.title ?? prev.title,
+											summary: data.summary ?? prev.summary,
+											status: data.status ?? prev.status
+										};
+									})
+								);
+
+								meta_save_button?.show_feedback('success');
+							} catch (error) {
+								meta_save_button?.show_feedback('error');
+								throw error;
+							}
 						})}
 					>
 						<input {...meta_form.fields.edition_id.as('hidden', edition.id)} />
@@ -243,7 +252,7 @@
 						</div>
 
 						<div class="meta-actions">
-							<Button variant="primary" type="submit">Save Details</Button>
+							<Button bind:this={meta_save_button} type="submit">Save</Button>
 						</div>
 					</form>
 				{/if}
@@ -358,7 +367,7 @@
 					class="manual-form"
 					{...create_manual_article.enhance(async ({ form, submit }) => {
 						await submit().updates(
-							get_edition_editor(date_param).withOverride((prev) => prev),
+							get_edition_editor(date_param),
 							search_editable_articles({
 								edition_id: edition.id,
 								search_term: search_term || undefined
@@ -472,6 +481,7 @@
 										<form
 											{...move_up.enhance(async ({ submit }) => {
 												if (rendered_index <= 0) return;
+
 												await submit().updates(
 													get_edition_editor(date_param).withOverride((prev) => {
 														if (!prev) return prev;
@@ -501,6 +511,7 @@
 										<form
 											{...move_down.enhance(async ({ submit }) => {
 												if (rendered_index >= edition.articles.length - 1) return;
+
 												await submit().updates(
 													get_edition_editor(date_param).withOverride((prev) => {
 														if (!prev) return prev;
@@ -569,26 +580,33 @@
 									<form
 										class="article-edit-form"
 										{...edit.enhance(async ({ data, submit }) => {
-											await submit().updates(
-												get_edition_editor(date_param).withOverride((prev) => {
-													if (!prev) return prev;
-													return {
-														...prev,
-														articles: prev.articles.map((a) =>
-															a.id === article.id
-																? {
-																		...a,
-																		custom_title: data.custom_title ?? a.custom_title,
-																		custom_summary: data.custom_summary ?? a.custom_summary,
-																		custom_category: data.custom_category ?? a.custom_category,
-																		section: data.section ?? a.section,
-																		reason: data.reason ?? a.reason
-																	}
-																: a
-														)
-													};
-												})
-											);
+											try {
+												await submit().updates(
+													get_edition_editor(date_param).withOverride((prev) => {
+														if (!prev) return prev;
+														return {
+															...prev,
+															articles: prev.articles.map((a) =>
+																a.id === article.id
+																	? {
+																			...a,
+																			custom_title: data.custom_title ?? a.custom_title,
+																			custom_summary: data.custom_summary ?? a.custom_summary,
+																			custom_category: data.custom_category ?? a.custom_category,
+																			section: data.section ?? a.section,
+																			reason: data.reason ?? a.reason
+																		}
+																	: a
+															)
+														};
+													})
+												);
+
+												override_save_buttons[article.id]?.show_feedback('success');
+											} catch (error) {
+												override_save_buttons[article.id]?.show_feedback('error');
+												throw error;
+											}
 										})}
 									>
 										<input {...edit.fields.edition_article_id.as('hidden', article.id)} />
@@ -648,7 +666,11 @@
 										</div>
 
 										<div class="edit-actions">
-											<Button type="submit">Save Overrides</Button>
+											<!-- eslint-disable-next-line svelte/no-unused-svelte-ignore -->
+											<!-- svelte-ignore binding_property_non_reactive -->
+											<Button bind:this={override_save_buttons[article.id]} type="submit"
+												>Save</Button
+											>
 										</div>
 									</form>
 								</details>

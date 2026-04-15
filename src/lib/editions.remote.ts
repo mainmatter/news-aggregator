@@ -1,4 +1,4 @@
-import { form, query } from '$app/server';
+import { form, query, requested } from '$app/server';
 import { get_user } from '$lib/auth.remote';
 import { db } from '$lib/server/db';
 import {
@@ -301,6 +301,7 @@ export const add_edition_article = form(
 
 		await get_edition_editor(edition.edition_date).refresh();
 		await get_editions().refresh();
+		await requested(search_editable_articles, 1).refreshAll();
 	}
 );
 

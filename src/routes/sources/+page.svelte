@@ -17,6 +17,8 @@
 	const user_settings = $derived(await get_user_settings());
 
 	const settings_form = update_user_settings;
+	let settings_save_button: Button | undefined = $state();
+	let source_save_buttons: Record<string, Button | undefined> = {};
 
 	const forms = $derived.by(() => {
 		const forms: Array<{
@@ -57,14 +59,21 @@
 			<form
 				class="settings-form"
 				{...settings_form.enhance(async ({ data, submit }) => {
-					const article_selection_prompt = data.article_selection_prompt?.trim() || null;
+					try {
+						const article_selection_prompt = data.article_selection_prompt?.trim() || null;
 
-					await submit().updates(
-						get_user_settings().withOverride((settings) => ({
-							...settings,
-							article_selection_prompt
-						}))
-					);
+						await submit().updates(
+							get_user_settings().withOverride((settings) => ({
+								...settings,
+								article_selection_prompt
+							}))
+						);
+
+						settings_save_button?.show_feedback('success');
+					} catch (error) {
+						settings_save_button?.show_feedback('error');
+						throw error;
+					}
 				})}
 			>
 				<div class="field">
@@ -87,7 +96,7 @@
 				</div>
 
 				<div class="settings-actions">
-					<Button type="submit">Save</Button>
+					<Button bind:this={settings_save_button} type="submit">Save</Button>
 				</div>
 			</form>
 		</section>
@@ -173,26 +182,32 @@
 							<form
 								class="source-edit-form"
 								{...edit.enhance(async ({ data, submit }) => {
-									const updated_display_name = data.display_name ?? source.display_name;
-									const updated_label = data.label ?? null;
-									const updated_url = data.canonical_url ?? source.canonical_url;
-									const updated_active = data.is_active ?? false;
+									try {
+										const updated_display_name = data.display_name ?? source.display_name;
+										const updated_label = data.label ?? null;
+										const updated_url = data.canonical_url ?? source.canonical_url;
+										const updated_active = data.is_active ?? false;
 
-									await submit().updates(
-										get_user_sources().withOverride((sources) =>
-											sources.map((s) =>
-												s.user_source_id === source.user_source_id
-													? {
-															...s,
-															display_name: updated_display_name,
-															label: updated_label,
-															canonical_url: updated_url,
-															is_active: updated_active
-														}
-													: s
+										await submit().updates(
+											get_user_sources().withOverride((sources) =>
+												sources.map((s) =>
+													s.user_source_id === source.user_source_id
+														? {
+																...s,
+																display_name: updated_display_name,
+																label: updated_label,
+																canonical_url: updated_url,
+																is_active: updated_active
+															}
+														: s
+												)
 											)
-										)
-									);
+										);
+										source_save_buttons[source.user_source_id]?.show_feedback('success');
+									} catch (error) {
+										source_save_buttons[source.user_source_id]?.show_feedback('error');
+										throw error;
+									}
 								})}
 							>
 								<input {...edit.fields.user_source_id.as('hidden', source.user_source_id)} />
@@ -250,7 +265,9 @@
 								</div>
 
 								<div class="source-actions">
-									<Button type="submit">Save</Button>
+									<Button bind:this={source_save_buttons[source.user_source_id]} type="submit">
+										Save
+									</Button>
 								</div>
 							</form>
 
