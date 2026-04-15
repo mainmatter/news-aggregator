@@ -203,7 +203,6 @@
 												)
 											)
 										);
-										console.log(source_save_buttons[source.user_source_id]);
 										source_save_buttons[source.user_source_id]?.show_feedback('success');
 									} catch (error) {
 										source_save_buttons[source.user_source_id]?.show_feedback('error');
