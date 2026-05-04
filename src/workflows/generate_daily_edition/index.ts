@@ -1,5 +1,9 @@
 import { createWebhook, sleep } from 'workflow';
 import {
+	generation_failure_codes,
+	report_generation_exception
+} from '$lib/server/observability/sentry';
+import {
 	consume_source_webhook,
 	get_user_generation_settings,
 	get_user_sources,
@@ -27,6 +31,8 @@ async function run_source_generation(
 ): Promise<SourceGenerationResult> {
 	'use workflow';
 
+	const correlation_id = `${input.preparation.edition_id}:${source.source_id}`;
+
 	try {
 		using webhook = createWebhook();
 
@@ -35,7 +41,10 @@ async function run_source_generation(
 			input,
 			settings,
 			webhook_url: webhook.url,
-			webhook_token: webhook.token
+			webhook_token: webhook.token,
+			sentry_trace: input.sentry_trace,
+			baggage: input.baggage,
+			correlation_id
 		});
 
 		try {
@@ -45,27 +54,71 @@ async function run_source_generation(
 			]);
 
 			if (outcome.type === 'timeout') {
+				const timeout_error = new Error(
+					`Timed out waiting 15 minutes for ${source.display_name} webhook`
+				);
+
+				report_generation_exception({
+					error: timeout_error,
+					tags: {
+						error_code: generation_failure_codes.source_webhook_timeout,
+						stage: 'source_webhook_timeout',
+						edition_id: input.preparation.edition_id,
+						edition_date: input.preparation.edition_date,
+						source_id: source.source_id,
+						correlation_id
+					}
+				});
+
 				return {
 					source_id: source.source_id,
 					source_name: source.display_name,
 					source_url: source.canonical_url,
+					correlation_id,
 					status: 'error',
 					articles: [],
-					error: `Timed out waiting 15 minutes for ${source.display_name} webhook`,
+					error: timeout_error.message,
 					generated_at: new Date().toISOString()
 				};
 			}
 
 			const { request } = outcome;
-			return await consume_source_webhook({ request, webhook_token: webhook.token, source });
+			return await consume_source_webhook({
+				request,
+				webhook_token: webhook.token,
+				source,
+				edition_id: input.preparation.edition_id,
+				edition_date: input.preparation.edition_date,
+				correlation_id
+			});
 		} finally {
-			await stop_sandbox({ sandbox_id, command_id });
+			await stop_sandbox({
+				sandbox_id,
+				command_id,
+				edition_id: input.preparation.edition_id,
+				edition_date: input.preparation.edition_date,
+				source_id: source.source_id,
+				correlation_id
+			});
 		}
 	} catch (error) {
+		report_generation_exception({
+			error,
+			tags: {
+				error_code: generation_failure_codes.source_generation_failed,
+				stage: 'run_source_generation',
+				edition_id: input.preparation.edition_id,
+				edition_date: input.preparation.edition_date,
+				source_id: source.source_id,
+				correlation_id
+			}
+		});
+
 		return {
 			source_id: source.source_id,
 			source_name: source.display_name,
 			source_url: source.canonical_url,
+			correlation_id,
 			status: 'error',
 			articles: [],
 			error: get_error_message(error),
@@ -98,6 +151,16 @@ export async function generate_daily_edition_workflow(input: EditionGenerationIn
 			source_results
 		});
 	} catch (error) {
+		report_generation_exception({
+			error,
+			tags: {
+				error_code: generation_failure_codes.workflow_generation_failed,
+				stage: 'generate_daily_edition_workflow',
+				edition_id: input.preparation.edition_id,
+				edition_date: input.preparation.edition_date
+			}
+		});
+
 		await mark_generation_failed({
 			preparation: input.preparation,
 			error_message: get_error_message(error)
