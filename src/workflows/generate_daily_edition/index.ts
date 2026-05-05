@@ -102,18 +102,6 @@ async function run_source_generation(
 			});
 		}
 	} catch (error) {
-		report_generation_exception({
-			error,
-			tags: {
-				error_code: generation_failure_codes.source_generation_failed,
-				stage: 'run_source_generation',
-				edition_id: input.preparation.edition_id,
-				edition_date: input.preparation.edition_date,
-				source_id: source.source_id,
-				correlation_id
-			}
-		});
-
 		return {
 			source_id: source.source_id,
 			source_name: source.display_name,
