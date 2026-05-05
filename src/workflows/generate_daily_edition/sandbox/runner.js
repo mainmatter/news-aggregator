@@ -35,6 +35,7 @@ const generation_correlation_id = process.env.GENERATION_CORRELATION_ID || '';
 
 const article_limit = 6;
 const opencode_provider = opencode_model ? opencode_model.split('/')[0] : 'unknown';
+const sentry_captured_errors = new WeakSet();
 
 if (sentry_dsn) {
 	Sentry.init({
@@ -120,6 +121,9 @@ async function run_ai_stage_span(stage, attributes, fn) {
 				correlation_id: generation_correlation_id || 'unknown'
 			}
 		});
+		if (typeof error === 'object' && error !== null) {
+			sentry_captured_errors.add(error);
+		}
 
 		throw error;
 	}
@@ -391,13 +395,15 @@ async function main() {
 			});
 		});
 	} catch (error) {
-		Sentry.captureException(error, {
-			tags: {
-				stage: 'sandbox_main',
-				source_id,
-				correlation_id: generation_correlation_id || 'unknown'
-			}
-		});
+		if (typeof error !== 'object' || error === null || !sentry_captured_errors.has(error)) {
+			Sentry.captureException(error, {
+				tags: {
+					stage: 'sandbox_main',
+					source_id,
+					correlation_id: generation_correlation_id || 'unknown'
+				}
+			});
+		}
 
 		await run_ai_stage_span('post_callback', { stage_type: 'webhook_callback' }, async () => {
 			await post_callback({

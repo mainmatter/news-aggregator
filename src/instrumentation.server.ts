@@ -11,9 +11,6 @@ Sentry.init({
 
 	tracesSampleRate: 1.0,
 
-	// Enable logs to be sent to Sentry
-	enableLogs: true,
-
 	beforeSend(event) {
 		return sanitize_sentry_event(event);
 	},
