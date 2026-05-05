@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@sentry/sveltekit@10.51.0':
+    hash: e13548c03fd18cc9070a08440bae664146f6243541a238dfdd1cece07f9d310e
+    path: patches/@sentry__sveltekit@10.51.0.patch
+
 importers:
 
   .:
@@ -46,7 +51,7 @@ importers:
         version: 5.2.8
       '@sentry/sveltekit':
         specifier: ^10.51.0
-        version: 10.51.0(@sveltejs/kit@2.57.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(svelte@5.53.7)(typescript@5.9.3)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(rollup@4.59.0)(svelte@5.53.7)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1))
+        version: 10.51.0(patch_hash=e13548c03fd18cc9070a08440bae664146f6243541a238dfdd1cece07f9d310e)(@sveltejs/kit@2.57.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(svelte@5.53.7)(typescript@5.9.3)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(rollup@4.59.0)(svelte@5.53.7)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1))
       '@vercel/sandbox':
         specifier: ^1.9.0
         version: 1.9.0
@@ -6952,7 +6957,7 @@ snapshots:
       magic-string: 0.30.21
       svelte: 5.53.7
 
-  '@sentry/sveltekit@10.51.0(@sveltejs/kit@2.57.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(svelte@5.53.7)(typescript@5.9.3)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(rollup@4.59.0)(svelte@5.53.7)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1))':
+  '@sentry/sveltekit@10.51.0(patch_hash=e13548c03fd18cc9070a08440bae664146f6243541a238dfdd1cece07f9d310e)(@sveltejs/kit@2.57.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(svelte@5.53.7)(typescript@5.9.3)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(rollup@4.59.0)(svelte@5.53.7)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1))':
     dependencies:
       '@sentry/cloudflare': 10.51.0
       '@sentry/core': 10.51.0

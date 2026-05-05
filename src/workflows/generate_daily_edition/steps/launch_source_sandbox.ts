@@ -70,7 +70,7 @@ export async function launch_source_sandbox({
 
 		const install_sentry = await sandbox.runCommand({
 			cmd: 'npm',
-			args: ['i', '--no-package-lock', '--silent', '@sentry/node']
+			args: ['i', '--no-package-lock', '--silent', '@sentry/node@10']
 		});
 		ensure_command_succeeded('Installing @sentry/node in sandbox', install_sentry.exit_code);
 

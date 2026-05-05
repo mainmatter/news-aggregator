@@ -1,0 +1,17 @@
+diff --git a/package.json b/package.json
+index d15c7d7d7eb364d810806cd58b7c374d0ebf6982..3f2f95c32e4569d38bb0eb939ea970d28f93abaf 100644
+--- a/package.json
++++ b/package.json
+@@ -31,7 +31,11 @@
+       "node": {
+         "import": "./build/esm/index.server.js",
+         "require": "./build/cjs/index.server.js"
+-      }
++      },
++	  "default": {
++		"import": "./build/esm/index.server.js",
++        "require": "./build/cjs/index.server.js"
++	  }
+     }
+   },
+   "publishConfig": {

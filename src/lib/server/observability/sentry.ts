@@ -2,12 +2,20 @@ import {
 	sanitize_sentry_breadcrumb,
 	sanitize_sentry_event
 } from '$lib/observability/sentry_sanitize';
+import * as Sentry from '@sentry/sveltekit';
 
 export { sanitize_sentry_breadcrumb, sanitize_sentry_event };
 
 export type generation_failure_classification = {
 	type: string;
 	fingerprint: string[];
+};
+
+export type generation_exception_report = {
+	error: unknown;
+	tags?: Record<string, string>;
+	contexts?: Record<string, Record<string, unknown>>;
+	extra?: Record<string, unknown>;
 };
 
 export const generation_failure_codes = {
@@ -71,22 +79,28 @@ export function build_generation_exception_metadata({
 	};
 }
 
-export function report_generation_exception(args: {
-	error: unknown;
-	tags?: Record<string, string>;
-	contexts?: Record<string, Record<string, unknown>>;
-	extra?: Record<string, unknown>;
-}) {
+export function report_generation_exception(args: generation_exception_report) {
 	const metadata = build_generation_exception_metadata(args);
 
-	console.error('[observability] generation exception', {
-		error: args.error,
-		fingerprint: metadata.classification.fingerprint,
-		tags: metadata.tags,
-		contexts: metadata.contexts,
-		extra: metadata.extra
+	Sentry.withScope((scope) => {
+		scope.setFingerprint(metadata.classification.fingerprint);
+
+		for (const [key, value] of Object.entries(metadata.tags)) {
+			scope.setTag(key, value);
+		}
+
+		for (const [key, value] of Object.entries(metadata.contexts)) {
+			scope.setContext(key, value);
+		}
+
+		for (const [key, value] of Object.entries(metadata.extra)) {
+			scope.setExtra(key, value);
+		}
+
+		Sentry.captureException(args.error);
 	});
 }
+
 
 export function build_sandbox_observability_env({
 	sentry_trace,

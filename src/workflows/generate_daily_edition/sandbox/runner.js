@@ -70,6 +70,14 @@ function capture_ai_metadata_event({ stage, status, latency_ms, article_count, e
 	});
 }
 
+function classify_error_type(error) {
+	if (error instanceof Error && error.name) {
+		return error.name;
+	}
+
+	return typeof error;
+}
+
 async function run_ai_stage_span(stage, attributes, fn) {
 	const start_time = Date.now();
 
@@ -98,13 +106,11 @@ async function run_ai_stage_span(stage, attributes, fn) {
 
 		return result;
 	} catch (error) {
-		const error_message = error instanceof Error ? error.message : String(error);
-
 		capture_ai_metadata_event({
 			stage,
 			status: 'error',
 			latency_ms: Date.now() - start_time,
-			error_type: error_message
+			error_type: classify_error_type(error)
 		});
 
 		Sentry.captureException(error, {

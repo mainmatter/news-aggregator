@@ -1,9 +1,23 @@
-import { describe, expect, it } from 'vitest';
+import * as Sentry from '@sentry/sveltekit';
+import { describe, expect, it, vi } from 'vitest';
 import {
 	build_sandbox_observability_env,
 	classify_generation_failure,
+	report_generation_exception,
 	sanitize_sentry_event
 } from './sentry';
+
+vi.mock('@sentry/sveltekit', () => ({
+	withScope: vi.fn((callback) => {
+		callback({
+			setFingerprint: vi.fn(),
+			setTag: vi.fn(),
+			setContext: vi.fn(),
+			setExtra: vi.fn()
+		});
+	}),
+	captureException: vi.fn()
+}));
 
 describe('sanitize_sentry_event', () => {
 	it('redacts secrets from request headers and breadcrumb data', () => {
@@ -51,6 +65,20 @@ describe('classify_generation_failure', () => {
 			type: 'unknown',
 			fingerprint: ['{{ default }}', 'edition_generation', 'unknown']
 		});
+	});
+});
+
+describe('report_generation_exception', () => {
+	it('captures generation exceptions with Sentry', () => {
+		const error = new Error('generation failed');
+
+		report_generation_exception({
+			error,
+			tags: { error_code: 'source_generation_failed' }
+		});
+
+		expect(Sentry.withScope).toHaveBeenCalledOnce();
+		expect(Sentry.captureException).toHaveBeenCalledWith(error);
 	});
 });
 

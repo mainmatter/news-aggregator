@@ -1,8 +1,10 @@
 import { dev } from '$app/environment';
 import { db } from '$lib/server/db';
 import { daily_edition, daily_edition_article, user_source } from '$lib/server/db/schema';
-import { generation_failure_codes } from '$lib/server/observability/sentry';
-import { capture_generation_exception } from '$lib/server/observability/sentry_capture';
+import {
+	generation_failure_codes,
+	report_generation_exception
+} from '$lib/server/observability/sentry';
 import {
 	get_default_edition_title,
 	get_owned_edition_generation_state
@@ -162,7 +164,7 @@ export async function start_daily_edition_generation({
 					}
 				]);
 			} catch (error) {
-				capture_generation_exception({
+				report_generation_exception({
 					error,
 					tags: {
 						error_code: generation_failure_codes.edition_generation_start_failed,

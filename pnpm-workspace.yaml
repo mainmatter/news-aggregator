@@ -1,2 +1,5 @@
 onlyBuiltDependencies:
   - esbuild
+
+patchedDependencies:
+  '@sentry/sveltekit@10.51.0': patches/@sentry__sveltekit@10.51.0.patch
