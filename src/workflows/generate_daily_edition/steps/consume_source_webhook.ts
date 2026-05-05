@@ -1,4 +1,8 @@
 import { env } from '$env/dynamic/private';
+import {
+	generation_failure_codes,
+	report_generation_exception
+} from '$lib/server/observability/sentry';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import * as v from 'valibot';
 import {
@@ -27,53 +31,79 @@ function safe_compare(left: string, right: string) {
 export async function consume_source_webhook({
 	request,
 	webhook_token,
-	source
+	source,
+	edition_id,
+	edition_date,
+	correlation_id
 }: {
 	request: Request;
 	webhook_token: string;
 	source: WorkflowUserSource;
+	edition_id: string;
+	edition_date: string;
+	correlation_id: string;
 }) {
 	'use step';
 
-	if (!env.WEBHOOK_SECRET) {
-		throw new Error('WEBHOOK_SECRET is not configured');
+	try {
+		if (!env.WEBHOOK_SECRET) {
+			throw new Error('WEBHOOK_SECRET is not configured');
+		}
+
+		const timestamp = request.headers.get('x-news-callback-timestamp');
+		const signature = request.headers.get('x-news-callback-signature');
+
+		if (!timestamp || !signature) {
+			throw new Error(`Missing callback headers for ${source.display_name}`);
+		}
+
+		const timestamp_ms = Number(timestamp);
+		if (!Number.isFinite(timestamp_ms)) {
+			throw new Error(`Invalid callback timestamp for ${source.display_name}`);
+		}
+
+		if (Math.abs(Date.now() - timestamp_ms) > max_callback_age_ms) {
+			throw new Error(`Expired callback timestamp for ${source.display_name}`);
+		}
+
+		const raw_body = await request.text();
+		const derived_secret = derive_callback_secret(webhook_token);
+		const expected_signature = createHmac('sha256', derived_secret)
+			.update(`${timestamp}.${raw_body}`)
+			.digest('hex');
+
+		if (!safe_compare(signature, expected_signature)) {
+			throw new Error(`Invalid callback signature for ${source.display_name}`);
+		}
+
+		const parsed_payload = v.parse(source_callback_payload_schema, JSON.parse(raw_body));
+
+		if (parsed_payload.source_id !== source.source_id) {
+			throw new Error(`Unexpected source callback payload for ${source.display_name}`);
+		}
+
+		if (parsed_payload.source_url !== source.canonical_url) {
+			throw new Error(`Unexpected source URL in callback for ${source.display_name}`);
+		}
+
+		if (parsed_payload.correlation_id && parsed_payload.correlation_id !== correlation_id) {
+			throw new Error(`Unexpected source correlation id in callback for ${source.display_name}`);
+		}
+
+		return parsed_payload satisfies SourceGenerationResult;
+	} catch (error) {
+		report_generation_exception({
+			error,
+			tags: {
+				error_code: generation_failure_codes.consume_source_webhook_failed,
+				stage: 'consume_source_webhook',
+				edition_id,
+				edition_date,
+				source_id: source.source_id,
+				correlation_id
+			}
+		});
+
+		throw error;
 	}
-
-	const timestamp = request.headers.get('x-news-callback-timestamp');
-	const signature = request.headers.get('x-news-callback-signature');
-
-	if (!timestamp || !signature) {
-		throw new Error(`Missing callback headers for ${source.display_name}`);
-	}
-
-	const timestamp_ms = Number(timestamp);
-	if (!Number.isFinite(timestamp_ms)) {
-		throw new Error(`Invalid callback timestamp for ${source.display_name}`);
-	}
-
-	if (Math.abs(Date.now() - timestamp_ms) > max_callback_age_ms) {
-		throw new Error(`Expired callback timestamp for ${source.display_name}`);
-	}
-
-	const raw_body = await request.text();
-	const derived_secret = derive_callback_secret(webhook_token);
-	const expected_signature = createHmac('sha256', derived_secret)
-		.update(`${timestamp}.${raw_body}`)
-		.digest('hex');
-
-	if (!safe_compare(signature, expected_signature)) {
-		throw new Error(`Invalid callback signature for ${source.display_name}`);
-	}
-
-	const parsed_payload = v.parse(source_callback_payload_schema, JSON.parse(raw_body));
-
-	if (parsed_payload.source_id !== source.source_id) {
-		throw new Error(`Unexpected source callback payload for ${source.display_name}`);
-	}
-
-	if (parsed_payload.source_url !== source.canonical_url) {
-		throw new Error(`Unexpected source URL in callback for ${source.display_name}`);
-	}
-
-	return parsed_payload satisfies SourceGenerationResult;
 }

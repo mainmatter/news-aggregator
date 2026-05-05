@@ -2,9 +2,14 @@ import { dev } from '$app/environment';
 import { db } from '$lib/server/db';
 import { daily_edition, daily_edition_article, user_source } from '$lib/server/db/schema';
 import {
+	generation_failure_codes,
+	report_generation_exception
+} from '$lib/server/observability/sentry';
+import {
 	get_default_edition_title,
 	get_owned_edition_generation_state
 } from '$lib/server/editions';
+import * as Sentry from '@sentry/sveltekit';
 import { and, eq, sql } from 'drizzle-orm';
 import { start } from 'workflow/api';
 import { generate_daily_edition_workflow } from '../../workflows/generate_daily_edition';
@@ -103,44 +108,74 @@ export async function start_daily_edition_generation({
 	edition_date: string;
 	replace_existing?: boolean;
 }) {
-	const existing = await get_owned_edition_generation_state(user_id, edition_date);
-
-	if (existing?.status === 'generating') {
-		throw new Error('This edition is already generating');
-	}
-
-	if (existing && existing.article_count > 0 && !replace_existing) {
-		throw new Error(
-			'This edition already exists. Only empty editions can be generated again in v1.'
-		);
-	}
-
-	const [active_source] = await db
-		.select({ id: user_source.id })
-		.from(user_source)
-		.where(and(eq(user_source.user_id, user_id), eq(user_source.is_active, true)))
-		.limit(1);
-
-	if (!active_source) {
-		throw new Error('Add at least one active source before starting generation.');
-	}
-
-	const tunnel_base_url = await get_tunnel_base_url();
-
-	const preparation = await prepare_generation({
-		user_id,
-		edition_date,
-		replace_existing,
-		tunnel_base_url
-	});
-
-	return start(generate_daily_edition_workflow, [
+	return Sentry.startSpan(
 		{
-			user_id,
-			edition_date,
-			replace_existing,
-			tunnel_base_url,
-			preparation
+			name: 'start_daily_edition_generation',
+			op: 'edition_generation.start',
+			attributes: {
+				user_id,
+				edition_date,
+				replace_existing
+			}
+		},
+		async () => {
+			try {
+				const trace_data = Sentry.getTraceData();
+				const existing = await get_owned_edition_generation_state(user_id, edition_date);
+
+				if (existing?.status === 'generating') {
+					throw new Error('This edition is already generating');
+				}
+
+				if (existing && existing.article_count > 0 && !replace_existing) {
+					throw new Error(
+						'This edition already exists. Only empty editions can be generated again in v1.'
+					);
+				}
+
+				const [active_source] = await db
+					.select({ id: user_source.id })
+					.from(user_source)
+					.where(and(eq(user_source.user_id, user_id), eq(user_source.is_active, true)))
+					.limit(1);
+
+				if (!active_source) {
+					throw new Error('Add at least one active source before starting generation.');
+				}
+
+				const tunnel_base_url = await get_tunnel_base_url();
+
+				const preparation = await prepare_generation({
+					user_id,
+					edition_date,
+					replace_existing,
+					tunnel_base_url
+				});
+
+				return start(generate_daily_edition_workflow, [
+					{
+						user_id,
+						edition_date,
+						replace_existing,
+						tunnel_base_url,
+						sentry_trace: trace_data['sentry-trace'],
+						baggage: trace_data.baggage,
+						preparation
+					}
+				]);
+			} catch (error) {
+				report_generation_exception({
+					error,
+					tags: {
+						error_code: generation_failure_codes.edition_generation_start_failed,
+						stage: 'start_daily_edition_generation',
+						user_id,
+						edition_date
+					}
+				});
+
+				throw error;
+			}
 		}
-	]);
+	);
 }

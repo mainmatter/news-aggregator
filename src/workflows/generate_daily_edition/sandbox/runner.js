@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import { createHmac } from 'node:crypto';
+import * as Sentry from '@sentry/node';
 
 function require_env(name) {
 	const value = process.env[name];
@@ -25,8 +26,108 @@ const opencode_model = process.env.OPENCODE_MODEL || '';
 const opencode_agent = process.env.OPENCODE_AGENT || '';
 const opencode_provider_api_key = process.env.OPENCODE_PROVIDER_API_KEY || '';
 const opencode_provider_base_url = process.env.OPENCODE_PROVIDER_BASE_URL || '';
+const sentry_dsn = process.env.PUBLIC_SENTRY_DSN || '';
+const sentry_environment = process.env.SENTRY_ENVIRONMENT || '';
+const sentry_release = process.env.SENTRY_RELEASE || '';
+const sentry_trace = process.env.SENTRY_TRACE || '';
+const sentry_baggage = process.env.SENTRY_BAGGAGE || '';
+const generation_correlation_id = process.env.GENERATION_CORRELATION_ID || '';
 
 const article_limit = 6;
+const opencode_provider = opencode_model ? opencode_model.split('/')[0] : 'unknown';
+const sentry_captured_errors = new WeakSet();
+
+if (sentry_dsn) {
+	Sentry.init({
+		dsn: sentry_dsn,
+		tracesSampleRate: 1,
+		sendDefaultPii: false,
+		...(sentry_environment ? { environment: sentry_environment } : {}),
+		...(sentry_release ? { release: sentry_release } : {})
+	});
+}
+
+function capture_ai_metadata_event({ stage, status, latency_ms, article_count, error_type }) {
+	if (!sentry_dsn) {
+		return;
+	}
+
+	Sentry.captureEvent({
+		level: status === 'error' ? 'error' : 'info',
+		message: `sandbox_ai_${stage}_${status}`,
+		tags: {
+			stage,
+			status,
+			provider: opencode_provider,
+			model: opencode_model || 'unknown',
+			source_id,
+			correlation_id: generation_correlation_id || 'unknown'
+		},
+		extra: {
+			latency_ms,
+			article_count,
+			error_type
+		}
+	});
+}
+
+function classify_error_type(error) {
+	if (error instanceof Error && error.name) {
+		return error.name;
+	}
+
+	return typeof error;
+}
+
+async function run_ai_stage_span(stage, attributes, fn) {
+	const start_time = Date.now();
+
+	try {
+		const result = await Sentry.startSpan(
+			{
+				name: stage,
+				op: 'ai.stage',
+				attributes: {
+					provider: opencode_provider,
+					model: opencode_model || 'unknown',
+					source_id,
+					correlation_id: generation_correlation_id || 'unknown',
+					...attributes
+				}
+			},
+			fn
+		);
+
+		capture_ai_metadata_event({
+			stage,
+			status: 'success',
+			latency_ms: Date.now() - start_time,
+			article_count: Array.isArray(result) ? result.length : undefined
+		});
+
+		return result;
+	} catch (error) {
+		capture_ai_metadata_event({
+			stage,
+			status: 'error',
+			latency_ms: Date.now() - start_time,
+			error_type: classify_error_type(error)
+		});
+
+		Sentry.captureException(error, {
+			tags: {
+				stage,
+				source_id,
+				correlation_id: generation_correlation_id || 'unknown'
+			}
+		});
+		if (typeof error === 'object' && error !== null) {
+			sentry_captured_errors.add(error);
+		}
+
+		throw error;
+	}
+}
 
 function clean_text(value) {
 	return value?.replace(/\s+/g, ' ').trim() || '';
@@ -212,11 +313,6 @@ async function post_callback(payload) {
 	const signature = createHmac('sha256', callback_secret)
 		.update(`${timestamp}.${raw_body}`)
 		.digest('hex');
-	console.log('fetching callback URL with payload:', payload, {
-		raw_body,
-		signature,
-		callback_url
-	});
 	const response = await fetch(callback_url, {
 		method: 'POST',
 		headers: {
@@ -257,8 +353,12 @@ async function main() {
 			title: `Choose links for ${source_name}`
 		});
 		console.log('Link session ID:', link_session.id, 'choosing links...');
-		const chosen_links = await choose_links(client, link_session.id);
-		console.log({ chosen_links });
+		const chosen_links = await run_ai_stage_span(
+			'choose_links',
+			{ stage_type: 'link_selection' },
+			() => choose_links(client, link_session.id)
+		);
+		console.log({ chosen_links_count: chosen_links.length });
 		const summaries = [];
 
 		const promises = chosen_links.map(async (article_url) => {
@@ -267,7 +367,11 @@ async function main() {
 				const article_session = await client.session.create({
 					title: `Summarize: ${article_url}`
 				});
-				const summary = await summarize_article(client, article_session.id, article_url);
+				const summary = await run_ai_stage_span(
+					'summarize_article',
+					{ stage_type: 'summarization' },
+					() => summarize_article(client, article_session.id, article_url)
+				);
 				console.log('summary:', summary);
 				if (summary) {
 					summaries.push(summary);
@@ -279,29 +383,77 @@ async function main() {
 
 		await Promise.allSettled(promises);
 
-		await post_callback({
-			source_id,
-			source_name,
-			source_url,
-			status: 'success',
-			articles: summaries,
-			generated_at: new Date().toISOString()
+		await run_ai_stage_span('post_callback', { stage_type: 'webhook_callback' }, async () => {
+			await post_callback({
+				source_id,
+				source_name,
+				source_url,
+				correlation_id: generation_correlation_id || undefined,
+				status: 'success',
+				articles: summaries,
+				generated_at: new Date().toISOString()
+			});
 		});
 	} catch (error) {
-		await post_callback({
-			source_id,
-			source_name,
-			source_url,
-			status: 'error',
-			articles: [],
-			error: error instanceof Error ? error.message : 'Unknown sandbox failure',
-			generated_at: new Date().toISOString()
+		if (typeof error !== 'object' || error === null || !sentry_captured_errors.has(error)) {
+			Sentry.captureException(error, {
+				tags: {
+					stage: 'sandbox_main',
+					source_id,
+					correlation_id: generation_correlation_id || 'unknown'
+				}
+			});
+		}
+
+		await run_ai_stage_span('post_callback', { stage_type: 'webhook_callback' }, async () => {
+			await post_callback({
+				source_id,
+				source_name,
+				source_url,
+				correlation_id: generation_correlation_id || undefined,
+				status: 'error',
+				articles: [],
+				error: error instanceof Error ? error.message : 'Unknown sandbox failure',
+				generated_at: new Date().toISOString()
+			});
 		});
 	} finally {
 		opencode_server?.close();
 		await client?.instance.dispose();
+		await Sentry.flush(2_000).catch(() => undefined);
 		process.exit(0);
 	}
 }
 
-await main();
+if (sentry_trace || sentry_baggage) {
+	await Sentry.continueTrace(
+		{
+			sentryTrace: sentry_trace || undefined,
+			baggage: sentry_baggage || undefined
+		},
+		() =>
+			Sentry.startSpan(
+				{
+					name: 'sandbox_runner',
+					op: 'workflow.sandbox',
+					attributes: {
+						source_id,
+						correlation_id: generation_correlation_id || 'unknown'
+					}
+				},
+				() => main()
+			)
+	);
+} else {
+	await Sentry.startSpan(
+		{
+			name: 'sandbox_runner',
+			op: 'workflow.sandbox',
+			attributes: {
+				source_id,
+				correlation_id: generation_correlation_id || 'unknown'
+			}
+		},
+		() => main()
+	);
+}

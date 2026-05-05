@@ -1,4 +1,7 @@
 import { env } from '$env/dynamic/private';
+import { SENTRY_ENVIRONMENT, SENTRY_RELEASE } from '$env/static/private';
+import { PUBLIC_SENTRY_DSN } from '$env/static/public';
+import { build_sandbox_observability_env } from '$lib/server/observability/sentry';
 import { createHmac } from 'node:crypto';
 import type {
 	EditionGenerationInput,
@@ -50,13 +53,19 @@ export function create_source_sandbox_env({
 	input,
 	settings,
 	webhook_url,
-	webhook_token
+	webhook_token,
+	sentry_trace,
+	baggage,
+	correlation_id
 }: {
 	source: WorkflowUserSource;
 	input: EditionGenerationInput;
 	settings: SourceGenerationSettings;
 	webhook_url: string;
 	webhook_token: string;
+	sentry_trace?: string;
+	baggage?: string;
+	correlation_id: string;
 }) {
 	const callback_secret = derive_callback_secret(webhook_token);
 	const { window_start_iso, window_end_iso } = get_window_bounds(input.edition_date);
@@ -90,6 +99,27 @@ export function create_source_sandbox_env({
 		sandbox_env.OPENCODE_PROVIDER_BASE_URL = env.OPENCODE_PROVIDER_BASE_URL;
 	}
 
+	if (PUBLIC_SENTRY_DSN) {
+		sandbox_env.PUBLIC_SENTRY_DSN = PUBLIC_SENTRY_DSN;
+	}
+
+	if (SENTRY_ENVIRONMENT) {
+		sandbox_env.SENTRY_ENVIRONMENT = SENTRY_ENVIRONMENT;
+	}
+
+	if (SENTRY_RELEASE) {
+		sandbox_env.SENTRY_RELEASE = SENTRY_RELEASE;
+	}
+
+	Object.assign(
+		sandbox_env,
+		build_sandbox_observability_env({
+			sentry_trace,
+			baggage,
+			correlation_id
+		})
+	);
+
 	return sandbox_env;
 }
 
@@ -99,6 +129,9 @@ export function create_source_sandbox_config(args: {
 	settings: SourceGenerationSettings;
 	webhook_url: string;
 	webhook_token: string;
+	sentry_trace?: string;
+	baggage?: string;
+	correlation_id: string;
 }): sandbox_create_config {
 	return {
 		runtime: sandbox_runtime,

@@ -4,7 +4,9 @@ export const edition_generation_input_schema = v.object({
 	user_id: v.pipe(v.string(), v.nonEmpty()),
 	edition_date: v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/)),
 	replace_existing: v.optional(v.boolean(), false),
-	tunnel_base_url: v.optional(v.string())
+	tunnel_base_url: v.optional(v.string()),
+	sentry_trace: v.optional(v.string()),
+	baggage: v.optional(v.string())
 });
 
 export const source_article_result_schema = v.object({
@@ -22,6 +24,7 @@ export const source_callback_payload_schema = v.object({
 	source_id: v.pipe(v.string(), v.nonEmpty()),
 	source_name: v.pipe(v.string(), v.nonEmpty()),
 	source_url: v.pipe(v.string(), v.nonEmpty()),
+	correlation_id: v.optional(v.pipe(v.string(), v.nonEmpty())),
 	status: v.picklist(['success', 'error']),
 	articles: v.optional(v.array(source_article_result_schema), []),
 	error: v.optional(v.string()),
