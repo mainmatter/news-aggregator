@@ -222,6 +222,10 @@ async function prompt_structured(client, session_id, prompt, schema) {
 		parts: [{ type: 'text', text: prompt }]
 	});
 
+	if (response == null) {
+		throw new Error('No response from AIStructured output error: no response data');
+	}
+
 	if (response.info.error) {
 		throw new Error(
 			`Structured output error: ${response.info.error.data?.message || response.info.error.name}`
