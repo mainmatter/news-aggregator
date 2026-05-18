@@ -25,8 +25,8 @@
 		padding-bottom: var(--s-2px);
 		border-bottom: var(--s-px) solid transparent;
 		transition:
-			color 0.3s ease,
-			border-bottom-color 0.3s ease;
+			color 0.2s var(--ease-out-expo),
+			border-bottom-color 0.2s var(--ease-out-expo);
 	}
 
 	.nav-link:hover {

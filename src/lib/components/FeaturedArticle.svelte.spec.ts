@@ -57,4 +57,11 @@ describe('FeaturedArticle.svelte', () => {
 		await expect.element(link).toBeInTheDocument();
 		await expect.element(link).toHaveAttribute('href', 'https://example.com/climate');
 	});
+
+	it('should mark the featured headline as a lead story instead of using side-stripe styling', async () => {
+		render(FeaturedArticle, { props: { article: make_article(), index: 0 } });
+
+		await expect.element(page.getByText('Lead story')).toBeInTheDocument();
+		await expect.element(page.getByRole('heading', { level: 2 })).not.toHaveClass('side-stripe');
+	});
 });

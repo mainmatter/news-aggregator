@@ -79,4 +79,18 @@ describe('Article.svelte summary trimming', () => {
 		const text = await summary_el.element().textContent;
 		expect(text).toHaveLength(MAX_LENGTH + MAX_OFFSET);
 	});
+
+	it('groups secondary story content separately from the ordinal', async () => {
+		render(Article, { props: make_article('A focused summary for the secondary story.') });
+
+		const article = page.getByRole('article');
+		const content = article.element().querySelector('.article-content');
+
+		expect(content).toBeInstanceOf(HTMLElement);
+		expect(content?.querySelector('.article-meta')).toBeTruthy();
+		expect(content?.querySelector('.grid-headline')).toBeTruthy();
+		expect(content?.querySelector('.grid-summary')).toBeTruthy();
+		expect(content?.querySelector('.grid-footer')).toBeTruthy();
+		expect(content?.querySelector('.article-number')).toBeNull();
+	});
 });

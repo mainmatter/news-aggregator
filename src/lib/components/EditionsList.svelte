@@ -211,10 +211,10 @@
 		text-decoration: none;
 		white-space: nowrap;
 		transition:
-			color 0.15s ease,
-			background 0.15s ease,
-			border-color 0.15s ease,
-			opacity 0.15s ease;
+			color 0.15s var(--ease-out-expo),
+			background 0.15s var(--ease-out-expo),
+			border-color 0.15s var(--ease-out-expo),
+			opacity 0.15s var(--ease-out-expo);
 	}
 
 	.edition-pill:hover {
@@ -225,7 +225,7 @@
 	.edition-pill.active {
 		color: var(--fg);
 		font-weight: 550;
-		background: var(--accent-soft);
+		background: var(--accent-wash);
 
 		&::before {
 			view-transition-name: active-pill-underline;
@@ -276,7 +276,7 @@
 		white-space: nowrap;
 		flex-shrink: 0;
 		letter-spacing: var(--tracking-1);
-		transition: color 0.15s ease;
+		transition: color 0.15s var(--ease-out-expo);
 	}
 
 	.view-all:hover {

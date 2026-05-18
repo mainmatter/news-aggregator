@@ -724,7 +724,7 @@
 	}
 
 	.page-header {
-		animation: fade-down 0.7s ease-out;
+		animation: fade-down 0.55s var(--ease-out-expo);
 	}
 
 	.header-nav {
@@ -745,7 +745,7 @@
 	}
 
 	.content {
-		animation: fade-up 0.6s ease-out both;
+		animation: fade-up 0.5s var(--ease-out-expo) both;
 		animation-delay: 0.2s;
 	}
 
@@ -795,13 +795,13 @@
 	.field select {
 		width: 100%;
 		padding: var(--s-3);
-		background: var(--paper);
+		background: var(--paper-raised);
 		color: var(--fg);
 		border: var(--s-px) solid var(--rule);
 		border-radius: 0;
 		font-family: var(--font-body);
 		font-size: var(--text-base);
-		transition: border-color 0.3s ease;
+		transition: border-color 0.2s var(--ease-out-expo);
 	}
 
 	.field textarea {
@@ -823,7 +823,7 @@
 	.field textarea:focus,
 	.field select:focus {
 		outline: none;
-		border-color: var(--fg);
+		border-color: var(--accent);
 	}
 
 	.empty-state {
@@ -839,16 +839,16 @@
 		margin: var(--s-5) 0 0;
 		padding: var(--s-4);
 		border: var(--s-px) solid var(--rule);
-		background: var(--paper);
+		background: var(--paper-raised);
 	}
 
 	.status-banner-generating {
-		border-color: var(--fg);
+		border-color: var(--rule-strong);
 	}
 
 	.status-banner-failed {
 		border-color: var(--accent);
-		background: var(--accent-soft);
+		background: var(--accent-wash);
 	}
 
 	.banner-eyebrow {
@@ -933,14 +933,17 @@
 		justify-content: space-between;
 		align-items: flex-start;
 		gap: var(--s-4);
-		background: var(--paper);
+		background: var(--paper-raised);
 		border: var(--s-px) solid var(--rule);
 		padding: var(--s-4);
-		transition: border-color 0.2s ease;
+		transition:
+			border-color 0.2s var(--ease-out-expo),
+			background 0.2s var(--ease-out-expo);
 	}
 
 	.candidate-card:hover {
-		border-color: var(--fg);
+		background: var(--paper);
+		border-color: var(--rule-strong);
 	}
 
 	.candidate-info {
@@ -1060,15 +1063,18 @@
 	}
 
 	.article-card {
-		background: var(--paper);
+		background: var(--paper-raised);
 		border: var(--s-px) solid var(--rule);
 		padding: var(--s-4);
-		transition: border-color 0.2s ease;
+		transition:
+			border-color 0.2s var(--ease-out-expo),
+			background 0.2s var(--ease-out-expo);
 		position: relative;
 	}
 
 	.article-card:hover {
-		border-color: var(--fg);
+		background: var(--paper);
+		border-color: var(--rule-strong);
 	}
 
 	/* --- Article header (like source-header) --- */
@@ -1116,7 +1122,7 @@
 	.reorder-buttons :global(.btn-ghost) {
 		font-size: var(--text-xs);
 		color: var(--muted);
-		transition: color 0.2s ease;
+		transition: color 0.2s var(--ease-out-expo);
 	}
 
 	.reorder-buttons :global(.btn-ghost:hover) {
@@ -1214,7 +1220,7 @@
 	.remove-form :global(.btn-ghost) {
 		color: var(--muted);
 		font-size: var(--text-xs);
-		transition: color 0.2s ease;
+		transition: color 0.2s var(--ease-out-expo);
 	}
 
 	.remove-form :global(.btn-ghost:hover) {

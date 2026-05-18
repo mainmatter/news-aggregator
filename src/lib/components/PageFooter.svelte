@@ -9,10 +9,10 @@
 
 <style>
 	footer {
-		padding-bottom: var(--s-6);
+		padding: var(--s-5) 0 var(--s-6);
 		text-align: center;
-		animation: fade-up 0.6s ease-out both;
-		animation-delay: 1s;
+		animation: fade-up 0.45s var(--ease-out-expo) both;
+		animation-delay: 0.15s;
 	}
 
 	.tagline {
@@ -28,6 +28,6 @@
 	.subtitle {
 		font-size: var(--text-sm);
 		color: var(--muted);
-		letter-spacing: 0.03em;
+		letter-spacing: var(--tracking-1);
 	}
 </style>

@@ -270,7 +270,7 @@
 	}
 
 	.page-header {
-		animation: fade-down 0.7s ease-out;
+		animation: fade-down 0.55s var(--ease-out-expo);
 	}
 
 	.header-nav {
@@ -291,7 +291,7 @@
 	}
 
 	.content {
-		animation: fade-up 0.6s ease-out both;
+		animation: fade-up 0.5s var(--ease-out-expo) both;
 		animation-delay: 0.2s;
 	}
 
@@ -357,13 +357,13 @@
 	.field textarea {
 		width: 100%;
 		padding: var(--s-3);
-		background: var(--paper);
+		background: var(--paper-raised);
 		color: var(--fg);
 		border: var(--s-px) solid var(--rule);
 		border-radius: 0;
 		font-family: var(--font-body);
 		font-size: var(--text-base);
-		transition: border-color 0.3s ease;
+		transition: border-color 0.2s var(--ease-out-expo);
 	}
 
 	.field textarea {
@@ -380,7 +380,7 @@
 	.field select:focus,
 	.field textarea:focus {
 		outline: none;
-		border-color: var(--fg);
+		border-color: var(--accent);
 	}
 
 	/* --- Edition list --- */
@@ -406,14 +406,17 @@
 
 	/* --- Edition card --- */
 	.edition-card {
-		background: var(--paper);
+		background: var(--paper-raised);
 		border: var(--s-px) solid var(--rule);
 		padding: var(--s-4);
-		transition: border-color 0.2s ease;
+		transition:
+			border-color 0.2s var(--ease-out-expo),
+			background 0.2s var(--ease-out-expo);
 	}
 
 	.edition-card:hover {
-		border-color: var(--fg);
+		background: var(--paper);
+		border-color: var(--rule-strong);
 	}
 
 	.edition-header {
@@ -471,13 +474,13 @@
 	.status-generating {
 		color: var(--fg);
 		border: var(--s-px) solid var(--fg);
-		background: var(--accent-soft);
+		background: var(--accent-wash);
 	}
 
 	.status-failed {
 		color: var(--accent);
 		border: var(--s-px) solid var(--rule);
-		background: var(--accent-soft);
+		background: var(--accent-wash);
 	}
 
 	.delete-form {
@@ -489,7 +492,7 @@
 
 	.delete-form :global(.delete-button) {
 		color: var(--muted);
-		transition: color 0.2s ease;
+		transition: color 0.2s var(--ease-out-expo);
 	}
 
 	.delete-form :global(.delete-button:hover) {

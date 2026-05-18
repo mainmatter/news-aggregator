@@ -80,7 +80,7 @@
 	}
 
 	.login-header {
-		animation: fade-down 0.7s ease-out;
+		animation: fade-down 0.55s var(--ease-out-expo);
 	}
 
 	.tagline {
@@ -93,7 +93,7 @@
 	}
 
 	.form-section {
-		animation: fade-up 0.6s ease-out 0.3s both;
+		animation: fade-up 0.5s var(--ease-out-expo) 0.2s both;
 	}
 
 	.field {
@@ -119,13 +119,13 @@
 	.field input {
 		width: 100%;
 		padding: var(--s-3);
-		background: var(--paper);
+		background: var(--paper-raised);
 		color: var(--fg);
 		border: var(--s-px) solid var(--rule);
 		border-radius: 0;
 		font-family: var(--font-body);
 		font-size: var(--text-base);
-		transition: border-color 0.3s ease;
+		transition: border-color 0.2s var(--ease-out-expo);
 	}
 
 	.field input::placeholder {
@@ -135,7 +135,7 @@
 
 	.field input:focus {
 		outline: none;
-		border-color: var(--fg);
+		border-color: var(--accent);
 	}
 
 	.error-message {

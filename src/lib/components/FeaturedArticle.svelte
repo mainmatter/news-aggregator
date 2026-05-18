@@ -6,6 +6,7 @@
 </script>
 
 <article class="featured" style:--i={index}>
+	<p class="lead-kicker">Lead story</p>
 	<ArticleMeta category={article.category} items={[article.source, article.published_at]} />
 	<h2 class="featured-headline">{article.title}</h2>
 	<div class="featured-body">
@@ -18,9 +19,32 @@
 
 <style>
 	.featured {
-		padding: var(--s-6) 0 var(--s-6);
-		animation: fade-up 0.8s ease-out both;
+		padding: clamp(var(--s-6), 7vw, var(--s-12)) 0 clamp(var(--s-6), 6vw, var(--s-10));
+		animation: fade-up 0.65s var(--ease-out-expo) both;
 		animation-delay: calc(var(--i, 0) * 120ms + 200ms);
+	}
+
+	.lead-kicker {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--s-2);
+		margin-bottom: var(--s-3);
+		padding: var(--s-1) var(--s-2);
+		background: var(--accent-wash);
+		color: var(--accent);
+		font-size: var(--text-xs);
+		font-weight: 650;
+		letter-spacing: var(--tracking-6);
+		line-height: 1;
+		text-transform: uppercase;
+	}
+
+	.lead-kicker::before {
+		content: '';
+		width: var(--s-1);
+		height: var(--s-1);
+		border-radius: 50%;
+		background: currentColor;
 	}
 
 	.featured-headline {
@@ -32,18 +56,17 @@
 		line-height: 1.15;
 		letter-spacing: -0.02em;
 		color: var(--fg);
-		max-width: 800px;
+		max-width: 13ch;
 		margin-bottom: var(--s-5);
-		border-left: var(--s-2px) solid var(--accent);
-		padding-left: var(--_indent);
+		text-wrap: balance;
 	}
 
 	.featured-body {
 		--_indent: clamp(var(--s-4), 3vw, var(--s-5));
-		max-width: 600px;
+		max-width: var(--measure);
 		margin-left: var(--_indent);
-		padding-left: var(--_indent);
-		border-left: var(--s-px) solid var(--rule);
+		padding: var(--s-5) 0 0 var(--_indent);
+		border-top: var(--s-px) solid var(--rule-strong);
 	}
 
 	.featured-summary {
@@ -87,7 +110,7 @@
 		width: 0;
 		height: var(--s-px);
 		background: var(--accent);
-		transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		transition: width 0.3s var(--ease-out-expo);
 	}
 
 	.read-link:hover::after {

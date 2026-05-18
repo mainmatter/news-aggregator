@@ -82,10 +82,14 @@
 		border-radius: 0;
 		cursor: pointer;
 		transition:
-			--feedback-angle 0.5s,
-			--feedback-color 0.5s,
-			background 0.3s ease,
-			color 0.3s ease;
+			--feedback-angle 0.5s var(--ease-out-expo),
+			--feedback-color 0.5s var(--ease-out-expo),
+			background 0.2s var(--ease-out-expo),
+			color 0.2s var(--ease-out-expo);
+	}
+
+	button:focus-visible {
+		outline-offset: var(--s-2px);
 	}
 
 	button:hover {

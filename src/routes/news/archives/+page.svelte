@@ -146,7 +146,7 @@
 	}
 
 	.page-header {
-		animation: fade-down 0.7s ease-out;
+		animation: fade-down 0.55s var(--ease-out-expo);
 	}
 
 	.header-nav {
@@ -178,12 +178,12 @@
 	}
 
 	.content {
-		animation: fade-up 0.6s ease-out both;
+		animation: fade-up 0.5s var(--ease-out-expo) both;
 		animation-delay: 0.2s;
 	}
 
 	.month-group {
-		animation: fade-up 0.5s ease-out both;
+		animation: fade-up 0.45s var(--ease-out-expo) both;
 		animation-delay: calc(0.3s + var(--gi) * 0.08s);
 	}
 
@@ -208,7 +208,7 @@
 	}
 
 	.edition-row {
-		animation: fade-up 0.4s ease-out both;
+		animation: fade-up 0.35s var(--ease-out-expo) both;
 		animation-delay: calc(0.4s + var(--gi) * 0.08s + var(--ei) * 0.04s);
 	}
 
@@ -223,14 +223,13 @@
 		padding: var(--s-3) var(--s-2);
 		text-decoration: none;
 		color: var(--fg);
-		border-radius: var(--s-2px);
 		transition:
-			background 0.2s ease,
-			color 0.2s ease;
+			background 0.2s var(--ease-out-expo),
+			color 0.2s var(--ease-out-expo);
 	}
 
 	.edition-link:hover {
-		background: var(--card-hover);
+		background: var(--paper-raised);
 	}
 
 	.edition-day-col {
@@ -316,11 +315,12 @@
 	.edition-arrow {
 		font-size: var(--text-sm);
 		color: var(--muted);
-		transition: color 0.2s ease;
+		transition: color 0.2s var(--ease-out-expo), transform 0.2s var(--ease-out-expo);
 	}
 
 	.edition-link:hover .edition-arrow {
 		color: var(--accent);
+		transform: translateX(var(--s-1));
 	}
 
 	.edition-link:hover .edition-title {

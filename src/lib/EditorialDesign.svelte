@@ -300,9 +300,9 @@
 
 	.edition-state-panel {
 		display: grid;
-		gap: var(--s-2);
-		padding: var(--s-5) 0;
-		max-width: 42rem;
+		gap: var(--s-3);
+		max-width: var(--measure);
+		padding: clamp(var(--s-6), 6vw, var(--s-10)) 0;
 	}
 
 	.state-eyebrow {
@@ -315,9 +315,10 @@
 
 	.edition-state-panel h2 {
 		font-family: var(--font-display);
-		font-size: var(--text-2xl);
+		font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
 		font-weight: 400;
 		line-height: 1.15;
+		text-wrap: balance;
 	}
 
 	.edition-state-panel p:last-child {
@@ -340,7 +341,7 @@
 		border: none;
 		cursor: pointer;
 		padding: 0;
-		transition: color 0.3s ease;
+		transition: color 0.2s var(--ease-out-expo);
 	}
 
 	.sign-out-btn:hover {
@@ -369,9 +370,9 @@
 		text-decoration: none;
 		cursor: pointer;
 		transition:
-			background 0.2s ease,
-			color 0.2s ease,
-			border-color 0.2s ease;
+			background 0.2s var(--ease-out-expo),
+			color 0.2s var(--ease-out-expo),
+			border-color 0.2s var(--ease-out-expo);
 	}
 
 	.generation-button:hover {

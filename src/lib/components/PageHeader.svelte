@@ -27,13 +27,14 @@
 
 <style>
 	.page-header {
-		animation: fade-down 0.7s ease-out;
+		animation: fade-down 0.55s var(--ease-out-expo);
 	}
 
 	.header-nav {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		gap: var(--s-4);
 		padding: var(--s-3) 0;
 		border-top: var(--s-px) solid var(--rule);
 		border-bottom: var(--s-px) solid var(--rule);
@@ -45,5 +46,13 @@
 		letter-spacing: var(--tracking-4);
 		text-transform: uppercase;
 		color: var(--muted);
+	}
+
+	@media (max-width: 640px) {
+		.header-nav {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: var(--s-2);
+		}
 	}
 </style>

@@ -21,53 +21,64 @@
 
 <article class="grid-article" style:--i={index}>
 	<span class="article-number">{String(index + 1).padStart(2, '0')}</span>
-	<ArticleMeta category={article.category} items={[article.published_at]} />
-	<h3 class="grid-headline">
-		<a href={article.url} target="_blank" rel="noopener noreferrer">
-			{article.title}
-		</a>
-	</h3>
-	<p class="grid-summary" class:fade-out={should_trim}>{displayed_summary}</p>
-	<div class="grid-footer">
-		<span class="source">{article.source}</span>
-		<a href={article.url} class="read-link-small" target="_blank" rel="noopener noreferrer">
-			Read &rarr;
-		</a>
+	<div class="article-content">
+		<ArticleMeta category={article.category} items={[article.published_at]} />
+		<h3 class="grid-headline">
+			<a href={article.url} target="_blank" rel="noopener noreferrer">
+				{article.title}
+			</a>
+		</h3>
+		<p class="grid-summary" class:fade-out={should_trim}>{displayed_summary}</p>
+		<div class="grid-footer">
+			<span class="source">{article.source}</span>
+			<a href={article.url} class="read-link-small" target="_blank" rel="noopener noreferrer">
+				Read
+				<span aria-hidden="true">→</span>
+			</a>
+		</div>
 	</div>
 </article>
 
 <style>
 	.grid-article {
-		--_pad: var(--s-6);
-		padding: var(--_pad) var(--_pad) var(--_pad) 0;
+		--_pad-block: var(--s-5);
+		display: grid;
+		grid-template-columns: clamp(var(--s-8), 10vw, var(--s-12)) minmax(0, 1fr);
+		column-gap: clamp(var(--s-4), 3vw, var(--s-6));
+		padding: var(--_pad-block) 0;
 		border-bottom: var(--s-px) solid var(--rule);
-		animation: fade-up 0.6s ease-out both;
+		animation: fade-up 0.5s var(--ease-out-expo) both;
 		animation-delay: calc(var(--i, 0) * 100ms + 200ms);
-		transition: background 0.3s ease;
+		transition:
+			background 0.2s var(--ease-out-expo),
+			border-color 0.2s var(--ease-out-expo);
 		position: relative;
-	}
-
-	/* Vertical rule between columns */
-	.grid-article:nth-child(even) {
-		padding-left: var(--_pad);
-		padding-right: 0;
-		border-left: var(--s-px) solid var(--rule);
 	}
 
 	.grid-article:hover {
 		background: var(--card-hover);
+		border-color: var(--rule-strong);
+	}
+
+	.article-content {
+		display: grid;
+		align-content: start;
+		gap: var(--s-3);
+		min-width: 0;
 	}
 
 	.article-number {
-		display: block;
+		display: flex;
+		align-items: flex-start;
+		justify-content: flex-end;
 		font-family: var(--font-display);
-		font-size: var(--text-4xl);
+		font-size: var(--text-3xl);
 		font-weight: 300;
 		font-variation-settings: 'opsz' 72;
 		line-height: 1;
 		color: var(--rule);
-		margin-bottom: var(--s-3);
-		transition: color 0.3s ease;
+		padding-top: var(--s-1);
+		transition: color 0.2s var(--ease-out-expo);
 	}
 
 	.grid-article:hover .article-number {
@@ -76,17 +87,18 @@
 
 	.grid-headline {
 		font-family: var(--font-display);
-		font-size: var(--text-fluid-xl);
+		font-size: var(--text-xl);
 		font-weight: 500;
 		font-variation-settings: 'opsz' 32;
-		line-height: 1.3;
-		margin-bottom: var(--s-2);
+		line-height: 1.25;
+		max-width: 24ch;
+		text-wrap: balance;
 	}
 
 	.grid-headline a {
 		color: var(--fg);
 		text-decoration: none;
-		transition: color 0.3s ease;
+		transition: color 0.2s var(--ease-out-expo);
 	}
 
 	.grid-headline a:hover {
@@ -97,7 +109,7 @@
 		font-size: var(--text-base);
 		line-height: 1.65;
 		color: var(--muted);
-		margin-bottom: var(--s-4);
+		max-width: var(--measure);
 	}
 
 	.fade-out {
@@ -108,8 +120,10 @@
 
 	.grid-footer {
 		display: flex;
+		gap: var(--s-3);
 		justify-content: space-between;
 		align-items: center;
+		margin-top: var(--s-1);
 		padding-top: var(--s-3);
 		border-top: var(--s-px) solid var(--rule);
 		font-size: var(--text-xs);
@@ -128,6 +142,7 @@
 		font-weight: 500;
 		position: relative;
 		padding-bottom: var(--s-2px);
+		white-space: nowrap;
 	}
 
 	.read-link-small::after {
@@ -138,10 +153,23 @@
 		width: 0;
 		height: var(--s-px);
 		background: var(--accent);
-		transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		transition: width 0.25s var(--ease-out-expo);
 	}
 
 	.read-link-small:hover::after {
 		width: 100%;
+	}
+
+	@media (max-width: 760px) {
+		.grid-article {
+			grid-template-columns: 1fr;
+			gap: var(--s-3);
+		}
+
+		.article-number {
+			justify-content: flex-start;
+			font-size: var(--text-xl);
+			padding-top: 0;
+		}
 	}
 </style>
