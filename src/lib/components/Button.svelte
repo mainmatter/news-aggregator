@@ -53,12 +53,12 @@
 	}
 
 	button {
-		--btn-bg: var(--paper);
-		--btn-color: var(--muted);
-		--btn-border-color: var(--rule);
+		--btn-bg: transparent;
+		--btn-color: var(--fg);
+		--btn-border-color: var(--fg);
 		--btn-hover-bg: var(--btn-bg);
-		--btn-hover-color: var(--fg);
-		--btn-hover-border-color: var(--fg);
+		--btn-hover-color: var(--accent);
+		--btn-hover-border-color: var(--accent);
 		--feedback-color: var(--btn-border-color);
 		--feedback-angle: 0deg;
 		--c: var(--feedback-color);
@@ -70,22 +70,22 @@
 		position: relative;
 		font-family: var(--font-body);
 		font-size: var(--text-xs);
-		font-weight: 500;
-		letter-spacing: var(--tracking-3);
+		font-weight: 750;
+		letter-spacing: var(--tracking-4);
 		text-transform: uppercase;
-		padding: var(--s-1) var(--s-3);
-		background:
-			linear-gradient(var(--btn-bg, var(--paper))) padding-box,
-			conic-gradient(var(--c) var(--feedback-angle), var(--btn-border-color) 0deg) border-box;
+		padding: var(--s-2) var(--s-4);
+		background: var(--btn-bg);
 		color: var(--btn-color);
-		border: var(--s-px) solid transparent;
+		border: var(--s-px) solid var(--btn-border-color);
 		border-radius: 0;
 		cursor: pointer;
 		transition:
 			--feedback-angle 0.5s var(--ease-out-expo),
 			--feedback-color 0.5s var(--ease-out-expo),
 			background 0.2s var(--ease-out-expo),
-			color 0.2s var(--ease-out-expo);
+			color 0.2s var(--ease-out-expo),
+			border-color 0.2s var(--ease-out-expo),
+			transform 0.2s var(--ease-out-expo);
 	}
 
 	button:focus-visible {
@@ -95,37 +95,39 @@
 	button:hover {
 		--btn-bg: var(--btn-hover-bg);
 		--btn-color: var(--btn-hover-color);
+		--btn-border-color: var(--btn-hover-border-color);
+		transform: translateY(calc(-1 * var(--s-px)));
 	}
 
 	.btn-ghost {
 		--btn-bg: transparent;
-		--btn-color: var(--muted);
+		--btn-color: var(--fg);
 		--btn-border-color: transparent;
 		--btn-hover-bg: transparent;
-		--btn-hover-color: var(--fg);
+		--btn-hover-color: var(--accent);
 		--btn-hover-border-color: transparent;
 		padding: 0;
 	}
 
 	.btn-primary {
-		--btn-bg: var(--fg);
-		--btn-color: var(--bg);
-		--btn-border-color: var(--fg);
-		--btn-hover-bg: var(--accent);
+		--btn-bg: var(--accent);
+		--btn-color: var(--accent-contrast);
+		--btn-border-color: var(--accent);
+		--btn-hover-bg: var(--fg);
 		--btn-hover-color: var(--bg);
-		--btn-hover-border-color: var(--accent);
+		--btn-hover-border-color: var(--fg);
 		flex: 1;
 		letter-spacing: var(--tracking-5);
 		padding: var(--s-3) var(--s-4);
 	}
 
 	.btn-secondary {
-		--btn-bg: var(--paper);
-		--btn-color: var(--muted);
-		--btn-border-color: var(--rule);
-		--btn-hover-bg: var(--paper);
-		--btn-hover-color: var(--fg);
-		--btn-hover-border-color: var(--fg);
+		--btn-bg: transparent;
+		--btn-color: var(--fg);
+		--btn-border-color: var(--fg);
+		--btn-hover-bg: var(--support-soft);
+		--btn-hover-color: var(--accent);
+		--btn-hover-border-color: var(--accent);
 		flex: 1;
 		letter-spacing: var(--tracking-5);
 		padding: var(--s-3) var(--s-4);
@@ -135,11 +137,13 @@
 		--feedback-color: var(--status-success);
 		--feedback-angle: 360deg;
 		color: var(--status-success);
+		border-color: var(--status-success);
 	}
 
 	button[data-feedback='error'] {
 		--feedback-color: var(--status-error);
 		--feedback-angle: 360deg;
 		color: var(--status-error);
+		border-color: var(--status-error);
 	}
 </style>

@@ -731,15 +731,15 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: var(--s-3) 0;
-		border-top: var(--s-px) solid var(--rule);
-		border-bottom: var(--s-px) solid var(--rule);
+		padding: var(--s-4) 0;
+		border-top: var(--s-2px) solid var(--fg);
+		border-bottom: var(--s-px) solid var(--rule-strong);
 	}
 
 	.edition-status {
 		font-size: var(--text-sm);
-		font-weight: 400;
-		letter-spacing: var(--tracking-4);
+		font-weight: 800;
+		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
 		color: var(--muted);
 	}
@@ -753,9 +753,8 @@
 	.section-label {
 		font-family: var(--font-display);
 		font-size: var(--text-lg);
-		font-weight: 400;
-		font-style: italic;
-		font-variation-settings: 'opsz' 32;
+		font-weight: 850;
+		letter-spacing: -0.02em;
 		color: var(--fg);
 		margin-bottom: var(--s-4);
 	}
@@ -794,10 +793,11 @@
 	.field textarea,
 	.field select {
 		width: 100%;
-		padding: var(--s-3);
-		background: var(--paper-raised);
+		padding: var(--s-3) 0;
+		background: transparent;
 		color: var(--fg);
-		border: var(--s-px) solid var(--rule);
+		border: 0;
+		border-bottom: var(--s-2px) solid var(--rule-strong);
 		border-radius: 0;
 		font-family: var(--font-body);
 		font-size: var(--text-base);
@@ -823,22 +823,21 @@
 	.field textarea:focus,
 	.field select:focus {
 		outline: none;
-		border-color: var(--accent);
+		border-bottom-color: var(--accent);
 	}
 
 	.empty-state {
 		font-family: var(--font-body);
 		font-size: var(--text-base);
 		color: var(--muted);
-		font-style: italic;
+		font-weight: 650;
 		padding: var(--s-5) 0;
-		text-align: center;
 	}
 
 	.status-banner {
 		margin: var(--s-5) 0 0;
 		padding: var(--s-4);
-		border: var(--s-px) solid var(--rule);
+		border: var(--s-2px) solid var(--rule-strong);
 		background: var(--paper-raised);
 	}
 
@@ -878,10 +877,9 @@
 	}
 
 	.date-display {
-		font-family: var(--font-display);
+		font-family: var(--font-body);
 		font-size: var(--text-md);
-		font-weight: 400;
-		font-variation-settings: 'opsz' 24;
+		font-weight: 800;
 		color: var(--fg);
 	}
 
@@ -934,8 +932,8 @@
 		align-items: flex-start;
 		gap: var(--s-4);
 		background: var(--paper-raised);
-		border: var(--s-px) solid var(--rule);
-		padding: var(--s-4);
+		border: var(--s-2px) solid var(--rule);
+		padding: var(--s-5);
 		transition:
 			border-color 0.2s var(--ease-out-expo),
 			background 0.2s var(--ease-out-expo);
@@ -954,8 +952,8 @@
 	.candidate-title {
 		font-family: var(--font-display);
 		font-size: var(--text-md);
-		font-weight: 500;
-		font-variation-settings: 'opsz' 24;
+		font-weight: 850;
+		letter-spacing: -0.02em;
 		line-height: 1.3;
 	}
 
@@ -1064,8 +1062,8 @@
 
 	.article-card {
 		background: var(--paper-raised);
-		border: var(--s-px) solid var(--rule);
-		padding: var(--s-4);
+		border: var(--s-2px) solid var(--rule);
+		padding: var(--s-5);
 		transition:
 			border-color 0.2s var(--ease-out-expo),
 			background 0.2s var(--ease-out-expo);
@@ -1093,10 +1091,9 @@
 	}
 
 	.position-number {
-		font-family: var(--font-display);
+		font-family: var(--font-body);
 		font-size: var(--text-md);
-		font-weight: 300;
-		font-variation-settings: 'opsz' 24;
+		font-weight: 850;
 		color: var(--muted);
 		line-height: 1;
 		flex-shrink: 0;
@@ -1105,8 +1102,8 @@
 	.article-title {
 		font-family: var(--font-display);
 		font-size: var(--text-md);
-		font-weight: 500;
-		font-variation-settings: 'opsz' 24;
+		font-weight: 850;
+		letter-spacing: -0.02em;
 		line-height: 1.3;
 		overflow: hidden;
 		text-overflow: ellipsis;

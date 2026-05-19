@@ -35,17 +35,17 @@
 		justify-content: space-between;
 		align-items: center;
 		gap: var(--s-4);
-		padding: var(--s-3) 0;
-		border-top: var(--s-px) solid var(--rule);
-		border-bottom: var(--s-px) solid var(--rule);
+		padding: var(--s-4) 0;
+		border-top: var(--s-2px) solid var(--fg);
+		border-bottom: var(--s-px) solid var(--rule-strong);
 	}
 
 	.story-count {
 		font-size: var(--text-sm);
-		font-weight: 400;
-		letter-spacing: var(--tracking-4);
+		font-weight: 750;
+		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
-		color: var(--muted);
+		color: var(--fg);
 	}
 
 	@media (max-width: 640px) {

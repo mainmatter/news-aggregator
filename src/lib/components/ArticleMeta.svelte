@@ -15,19 +15,22 @@
 	.article-meta {
 		display: flex;
 		align-items: center;
-		gap: var(--s-1);
+		gap: var(--s-2);
 		font-size: var(--text-xs);
-		letter-spacing: var(--tracking-4);
+		font-weight: 700;
+		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
 		color: var(--muted);
+		flex-wrap: wrap;
 	}
 
 	.category {
-		font-weight: 600;
+		font-weight: 800;
 		color: var(--accent);
 	}
 
 	.dot {
-		color: var(--rule);
+		color: var(--rule-strong);
+		font-weight: 400;
 	}
 </style>

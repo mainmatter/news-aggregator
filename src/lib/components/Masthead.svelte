@@ -24,16 +24,16 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: clamp(var(--s-2), 2vw, var(--s-4));
-		margin-bottom: var(--s-5);
+		gap: var(--s-3);
+		margin-bottom: var(--s-4);
 	}
 
 	.header-label {
 		font-size: var(--text-xs);
-		font-weight: 500;
-		letter-spacing: var(--tracking-7);
+		font-weight: 700;
+		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
-		color: var(--muted);
+		color: var(--fg);
 		white-space: nowrap;
 	}
 
@@ -45,18 +45,23 @@
 	}
 
 	.masthead {
-		text-align: center;
-		padding: clamp(var(--s-4), 4vw, var(--s-6)) 0;
+		padding: clamp(var(--s-5), 5vw, var(--s-8)) 0 var(--s-3);
 	}
 
 	.masthead h1 {
 		font-family: var(--font-display);
 		font-size: var(--text-fluid-7xl);
-		font-weight: 300;
-		font-style: italic;
-		font-variation-settings: 'opsz' 72;
-		line-height: 1;
-		letter-spacing: -0.03em;
+		font-weight: 800;
+		line-height: 0.88;
+		letter-spacing: -0.06em;
 		color: var(--fg);
+		max-width: 9ch;
+		text-wrap: balance;
+	}
+
+	@media (max-width: 640px) {
+		.masthead h1 {
+			font-size: clamp(var(--text-5xl), 18vw, var(--text-7xl));
+		}
 	}
 </style>

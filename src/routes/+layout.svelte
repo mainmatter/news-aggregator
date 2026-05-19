@@ -1,6 +1,6 @@
 <script lang="ts">
-	import '@fontsource-variable/fraunces';
-	import '@fontsource-variable/outfit';
+	import '@fontsource-variable/source-sans-3';
+	import '@fontsource-variable/dm-sans';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import ModeToggle from '$lib/components/ModeToggle.svelte';
@@ -15,7 +15,7 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div class="red-rule"></div>
+<div class="brand-strip"></div>
 
 <div class="mode-toggle-wrapper">
 	<ModeToggle />
@@ -24,13 +24,18 @@
 {@render children()}
 
 <style>
-	.red-rule {
+	.brand-strip {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
-		height: var(--s-1);
-		background: var(--accent);
+		height: var(--s-2px);
+		background: linear-gradient(
+			90deg,
+			var(--fg) 0 22%,
+			var(--accent) 22% 74%,
+			var(--support) 74% 100%
+		);
 		z-index: 100;
 	}
 

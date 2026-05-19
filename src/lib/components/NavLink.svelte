@@ -17,20 +17,22 @@
 <style>
 	.nav-link {
 		font-size: var(--text-sm);
-		font-weight: 500;
-		letter-spacing: var(--tracking-3);
+		font-weight: 750;
+		letter-spacing: var(--tracking-4);
 		text-transform: uppercase;
-		color: var(--muted);
+		color: var(--fg);
 		text-decoration: none;
-		padding-bottom: var(--s-2px);
-		border-bottom: var(--s-px) solid transparent;
+		padding-bottom: var(--s-1);
+		background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 var(--s-2px) no-repeat;
 		transition:
 			color 0.2s var(--ease-out-expo),
-			border-bottom-color 0.2s var(--ease-out-expo);
+			background-size 0.2s var(--ease-out-expo),
+			transform 0.2s var(--ease-out-expo);
 	}
 
 	.nav-link:hover {
 		color: var(--accent);
-		border-bottom-color: var(--accent);
+		background-size: 100% var(--s-2px);
+		transform: translateX(var(--s-1));
 	}
 </style>

@@ -154,15 +154,15 @@
 		grid-template-columns: 1fr auto 1fr;
 		align-items: center;
 		gap: var(--s-4);
-		padding: var(--s-3) 0;
-		border-top: var(--s-px) solid var(--rule);
-		border-bottom: var(--s-px) solid var(--rule);
+		padding: var(--s-4) 0;
+		border-top: var(--s-2px) solid var(--fg);
+		border-bottom: var(--s-px) solid var(--rule-strong);
 	}
 
 	.edition-total {
 		font-size: var(--text-sm);
-		font-weight: 400;
-		letter-spacing: var(--tracking-4);
+		font-weight: 800;
+		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
 		color: var(--muted);
 	}
@@ -190,9 +190,8 @@
 	.month-label {
 		font-family: var(--font-display);
 		font-size: var(--text-lg);
-		font-weight: 400;
-		font-style: italic;
-		font-variation-settings: 'opsz' 32;
+		font-weight: 850;
+		letter-spacing: -0.02em;
 		color: var(--fg);
 		margin-bottom: var(--s-3);
 	}
@@ -229,7 +228,7 @@
 	}
 
 	.edition-link:hover {
-		background: var(--paper-raised);
+		background: var(--support-soft);
 	}
 
 	.edition-day-col {
@@ -241,11 +240,9 @@
 	}
 
 	.edition-day-number {
-		font-family: var(--font-display);
+		font-family: var(--font-body);
 		font-size: var(--text-2xl);
-		font-weight: 300;
-		font-style: italic;
-		font-variation-settings: 'opsz' 48;
+		font-weight: 850;
 		line-height: 1;
 		min-width: 2ch;
 		text-align: right;
@@ -279,8 +276,8 @@
 	.edition-title {
 		font-family: var(--font-display);
 		font-size: var(--text-base);
-		font-weight: 500;
-		font-variation-settings: 'opsz' 24;
+		font-weight: 850;
+		letter-spacing: -0.02em;
 		line-height: 1.3;
 	}
 
@@ -315,7 +312,9 @@
 	.edition-arrow {
 		font-size: var(--text-sm);
 		color: var(--muted);
-		transition: color 0.2s var(--ease-out-expo), transform 0.2s var(--ease-out-expo);
+		transition:
+			color 0.2s var(--ease-out-expo),
+			transform 0.2s var(--ease-out-expo);
 	}
 
 	.edition-link:hover .edition-arrow {

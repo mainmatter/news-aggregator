@@ -277,15 +277,15 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: var(--s-3) 0;
-		border-top: var(--s-px) solid var(--rule);
-		border-bottom: var(--s-px) solid var(--rule);
+		padding: var(--s-4) 0;
+		border-top: var(--s-2px) solid var(--fg);
+		border-bottom: var(--s-px) solid var(--rule-strong);
 	}
 
 	.edition-total {
 		font-size: var(--text-sm);
-		font-weight: 400;
-		letter-spacing: var(--tracking-4);
+		font-weight: 800;
+		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
 		color: var(--muted);
 	}
@@ -299,9 +299,8 @@
 	.section-label {
 		font-family: var(--font-display);
 		font-size: var(--text-lg);
-		font-weight: 400;
-		font-style: italic;
-		font-variation-settings: 'opsz' 32;
+		font-weight: 850;
+		letter-spacing: -0.02em;
 		color: var(--fg);
 		margin-bottom: var(--s-4);
 	}
@@ -356,10 +355,11 @@
 	.field select,
 	.field textarea {
 		width: 100%;
-		padding: var(--s-3);
-		background: var(--paper-raised);
+		padding: var(--s-3) 0;
+		background: transparent;
 		color: var(--fg);
-		border: var(--s-px) solid var(--rule);
+		border: 0;
+		border-bottom: var(--s-2px) solid var(--rule-strong);
 		border-radius: 0;
 		font-family: var(--font-body);
 		font-size: var(--text-base);
@@ -380,7 +380,7 @@
 	.field select:focus,
 	.field textarea:focus {
 		outline: none;
-		border-color: var(--accent);
+		border-bottom-color: var(--accent);
 	}
 
 	/* --- Edition list --- */
@@ -399,16 +399,15 @@
 		font-family: var(--font-body);
 		font-size: var(--text-base);
 		color: var(--muted);
-		font-style: italic;
+		font-weight: 650;
 		padding: var(--s-5) 0;
-		text-align: center;
 	}
 
 	/* --- Edition card --- */
 	.edition-card {
 		background: var(--paper-raised);
-		border: var(--s-px) solid var(--rule);
-		padding: var(--s-4);
+		border: var(--s-2px) solid var(--rule);
+		padding: var(--s-5);
 		transition:
 			border-color 0.2s var(--ease-out-expo),
 			background 0.2s var(--ease-out-expo);
@@ -428,7 +427,7 @@
 
 	.edition-actions {
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		gap: var(--s-3);
 		flex-shrink: 0;
 		flex-wrap: wrap;
@@ -445,8 +444,8 @@
 	.edition-date {
 		font-family: var(--font-display);
 		font-size: var(--text-md);
-		font-weight: 500;
-		font-variation-settings: 'opsz' 24;
+		font-weight: 850;
+		letter-spacing: -0.02em;
 		line-height: 1.3;
 	}
 
@@ -463,7 +462,7 @@
 
 	.status-draft {
 		color: var(--muted);
-		border: var(--s-px) solid var(--rule);
+		border: var(--s-px) solid var(--rule-strong);
 	}
 
 	.status-published {
@@ -479,14 +478,13 @@
 
 	.status-failed {
 		color: var(--accent);
-		border: var(--s-px) solid var(--rule);
+		border: var(--s-px) solid var(--status-error);
 		background: var(--accent-wash);
 	}
 
 	.delete-form {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
 		gap: var(--s-1);
 	}
 
@@ -514,9 +512,7 @@
 	.edition-title {
 		font-family: var(--font-display);
 		font-size: var(--text-base);
-		font-weight: 400;
-		font-style: italic;
-		font-variation-settings: 'opsz' 20;
+		font-weight: 750;
 		color: var(--fg);
 		margin-top: var(--s-2);
 	}

@@ -4,27 +4,37 @@
 	}
 }
 
-/* ===== Editorial Design Tokens ===== */
+/* ===== Focused Product Design Tokens ===== */
 :root {
 	/* --- Colors --- */
-	--bg: oklch(96.8% 0.012 78);
-	--fg: oklch(20% 0.011 78);
-	--accent: oklch(54% 0.145 29);
-	--accent-soft: color-mix(in oklch, var(--accent) 6%, transparent);
-	--accent-wash: color-mix(in oklch, var(--accent) 9%, var(--bg));
-	--muted: oklch(48% 0.018 78);
-	--paper: oklch(92.8% 0.014 78);
-	--paper-raised: oklch(94.8% 0.012 78);
-	--rule: oklch(84.5% 0.018 78);
-	--rule-strong: oklch(68% 0.025 78);
-	--card-hover: color-mix(in oklch, var(--fg) 3%, transparent);
-	--focus-ring: color-mix(in oklch, var(--accent) 42%, transparent);
-	--status-success: oklch(50% 0.105 155);
-	--status-error: oklch(51% 0.14 29);
+	--bg: oklch(97.2% 0.008 286);
+	--fg: oklch(16.5% 0.012 286);
+	--accent: oklch(48.5% 0.235 310);
+	--accent-contrast: oklch(98% 0.006 286);
+	--accent-soft: color-mix(in oklch, var(--accent) 8%, transparent);
+	--accent-wash: color-mix(in oklch, var(--accent) 11%, var(--bg));
+	--support: oklch(73% 0.14 190);
+	--support-soft: color-mix(in oklch, var(--support) 16%, var(--bg));
+	--muted: oklch(48% 0.018 286);
+	--paper: oklch(94.6% 0.008 286);
+	--paper-raised: oklch(98.4% 0.006 286);
+	--ink-panel: oklch(17.5% 0.012 286);
+	--ink-panel-fg: oklch(96.5% 0.008 286);
+	--rule: oklch(83% 0.017 286);
+	--rule-strong: oklch(55% 0.024 286);
+	--card-hover: color-mix(in oklch, var(--support) 10%, transparent);
+	--focus-ring: color-mix(in oklch, var(--support) 70%, transparent);
+	--status-success: oklch(48% 0.12 155);
+	--status-error: oklch(50% 0.17 28);
+	--status-warning: oklch(66% 0.12 82);
 
 	/* --- Typography --- */
-	--font-display: 'Fraunces Variable', 'Georgia', serif;
-	--font-body: 'Outfit Variable', 'Helvetica Neue', sans-serif;
+	--font-display:
+		'Source Sans 3 Variable', 'DM Sans Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+		sans-serif;
+	--font-body:
+		'Source Sans 3 Variable', 'DM Sans Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+		sans-serif;
 	--text-xs: 0.7rem;
 	--text-sm: 0.75rem;
 	--text-base: 0.9rem;
@@ -62,7 +72,7 @@
 	--s-12: 6rem;
 
 	/* --- Layout --- */
-	--page-max-width: 1120px;
+	--page-max-width: 1180px;
 	--measure: 68ch;
 	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -70,39 +80,51 @@
 /* System dark preference (only if user hasn't explicitly chosen light) */
 @media (prefers-color-scheme: dark) {
 	:root:not(.light) {
-		--bg: oklch(20% 0.011 78);
-		--fg: oklch(92.8% 0.014 78);
-		--accent: oklch(65% 0.135 29);
-		--accent-soft: color-mix(in oklch, var(--accent) 9%, transparent);
-		--accent-wash: color-mix(in oklch, var(--accent) 13%, var(--bg));
-		--muted: oklch(68% 0.025 78);
-		--paper: oklch(25.5% 0.012 78);
-		--paper-raised: oklch(28.5% 0.014 78);
-		--rule: oklch(34% 0.018 78);
-		--rule-strong: oklch(48% 0.023 78);
-		--card-hover: color-mix(in oklch, var(--fg) 4%, transparent);
-		--focus-ring: color-mix(in oklch, var(--accent) 50%, transparent);
-		--status-success: oklch(67% 0.12 155);
-		--status-error: oklch(70% 0.13 29);
+		--bg: oklch(18% 0.012 286);
+		--fg: oklch(94.8% 0.008 286);
+		--accent: oklch(72% 0.2 310);
+		--accent-contrast: oklch(17% 0.012 286);
+		--accent-soft: color-mix(in oklch, var(--accent) 11%, transparent);
+		--accent-wash: color-mix(in oklch, var(--accent) 15%, var(--bg));
+		--support: oklch(78% 0.13 190);
+		--support-soft: color-mix(in oklch, var(--support) 13%, var(--bg));
+		--muted: oklch(70% 0.018 286);
+		--paper: oklch(23% 0.014 286);
+		--paper-raised: oklch(27% 0.014 286);
+		--ink-panel: oklch(95% 0.008 286);
+		--ink-panel-fg: oklch(18% 0.012 286);
+		--rule: oklch(34% 0.018 286);
+		--rule-strong: oklch(56% 0.024 286);
+		--card-hover: color-mix(in oklch, var(--support) 8%, transparent);
+		--focus-ring: color-mix(in oklch, var(--support) 65%, transparent);
+		--status-success: oklch(70% 0.12 155);
+		--status-error: oklch(72% 0.14 28);
+		--status-warning: oklch(78% 0.12 82);
 	}
 }
 
 /* Explicit dark mode */
 :root.dark {
-	--bg: oklch(20% 0.011 78);
-	--fg: oklch(92.8% 0.014 78);
-	--accent: oklch(65% 0.135 29);
-	--accent-soft: color-mix(in oklch, var(--accent) 9%, transparent);
-	--accent-wash: color-mix(in oklch, var(--accent) 13%, var(--bg));
-	--muted: oklch(68% 0.025 78);
-	--paper: oklch(25.5% 0.012 78);
-	--paper-raised: oklch(28.5% 0.014 78);
-	--rule: oklch(34% 0.018 78);
-	--rule-strong: oklch(48% 0.023 78);
-	--card-hover: color-mix(in oklch, var(--fg) 4%, transparent);
-	--focus-ring: color-mix(in oklch, var(--accent) 50%, transparent);
-	--status-success: oklch(67% 0.12 155);
-	--status-error: oklch(70% 0.13 29);
+	--bg: oklch(18% 0.012 286);
+	--fg: oklch(94.8% 0.008 286);
+	--accent: oklch(72% 0.2 310);
+	--accent-contrast: oklch(17% 0.012 286);
+	--accent-soft: color-mix(in oklch, var(--accent) 11%, transparent);
+	--accent-wash: color-mix(in oklch, var(--accent) 15%, var(--bg));
+	--support: oklch(78% 0.13 190);
+	--support-soft: color-mix(in oklch, var(--support) 13%, var(--bg));
+	--muted: oklch(70% 0.018 286);
+	--paper: oklch(23% 0.014 286);
+	--paper-raised: oklch(27% 0.014 286);
+	--ink-panel: oklch(95% 0.008 286);
+	--ink-panel-fg: oklch(18% 0.012 286);
+	--rule: oklch(34% 0.018 286);
+	--rule-strong: oklch(56% 0.024 286);
+	--card-hover: color-mix(in oklch, var(--support) 8%, transparent);
+	--focus-ring: color-mix(in oklch, var(--support) 65%, transparent);
+	--status-success: oklch(70% 0.12 155);
+	--status-error: oklch(72% 0.14 28);
+	--status-warning: oklch(78% 0.12 82);
 }
 
 /* ===== Reset ===== */
@@ -138,12 +160,19 @@ body {
 	outline-offset: var(--s-2px);
 }
 
-/* Paper texture overlay */
+/* Subtle flat field, not paper texture. */
 body::before {
 	content: '';
 	position: fixed;
 	inset: 0;
-	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+	background: linear-gradient(
+			90deg,
+			transparent 0,
+			transparent calc(100% - var(--s-px)),
+			var(--rule) 0
+		)
+		0 0 / clamp(var(--s-8), 12vw, var(--s-12)) 100%;
+	opacity: 0.22;
 	pointer-events: none;
 	z-index: 0;
 }

@@ -13,12 +13,15 @@
 </svelte:head>
 
 <div class="login-page">
-	<header class="login-header">
-		<Masthead top_left="Members Only" top_right="Est. 2026" title="Your News" />
-		<p class="tagline">All the news that fits your interests</p>
-	</header>
+	<section class="intro-panel">
+		<header class="login-header">
+			<Masthead top_left="Members Only" top_right="Est. 2026" title="Your News" />
+			<p class="tagline">A focused daily digest from the sources you choose.</p>
+		</header>
+	</section>
 
 	<div class="form-section">
+		<p class="form-kicker">Sign in or register</p>
 		<form {...login_or_register}>
 			<div class="field">
 				<label class="field-label" for="email">Email Address</label>
@@ -68,15 +71,38 @@
 			<Button class="google" type="submit">Continue with Google</Button>
 		</form>
 
-		<p class="footer-tagline">Quality journalism, curated for you.</p>
+		<p class="footer-tagline">Reading first. Controls second.</p>
 	</div>
 </div>
 
 <style>
 	.login-page {
-		max-width: 480px;
+		display: grid;
+		grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+		gap: clamp(var(--s-6), 8vw, var(--s-12));
+		align-items: center;
+		max-width: var(--page-max-width);
+		min-height: 100vh;
 		margin: 0 auto;
-		padding: var(--s-10) var(--s-5) var(--s-8);
+		padding: clamp(var(--s-8), 8vw, var(--s-12)) clamp(var(--s-4), 5vw, var(--s-8));
+	}
+
+	.intro-panel {
+		align-self: stretch;
+		display: grid;
+		align-items: center;
+		background: var(--ink-panel);
+		color: var(--ink-panel-fg);
+		padding: clamp(var(--s-5), 6vw, var(--s-10));
+	}
+
+	.intro-panel :global(.masthead h1),
+	.intro-panel :global(.header-label) {
+		color: var(--ink-panel-fg);
+	}
+
+	.intro-panel :global(.header-rule) {
+		background: color-mix(in oklch, var(--ink-panel-fg) 35%, transparent);
 	}
 
 	.login-header {
@@ -84,16 +110,25 @@
 	}
 
 	.tagline {
-		text-align: center;
-		font-family: var(--font-display);
-		font-size: var(--text-md);
-		font-style: italic;
-		color: var(--muted);
-		margin-bottom: var(--s-6);
+		max-width: 34ch;
+		font-size: var(--text-xl);
+		font-weight: 650;
+		line-height: 1.25;
+		color: color-mix(in oklch, var(--ink-panel-fg) 78%, transparent);
 	}
 
 	.form-section {
+		padding: var(--s-6) 0;
 		animation: fade-up 0.5s var(--ease-out-expo) 0.2s both;
+	}
+
+	.form-kicker {
+		margin-bottom: var(--s-5);
+		font-size: var(--text-xs);
+		font-weight: 800;
+		letter-spacing: var(--tracking-6);
+		text-transform: uppercase;
+		color: var(--accent);
 	}
 
 	.field {
@@ -118,10 +153,11 @@
 
 	.field input {
 		width: 100%;
-		padding: var(--s-3);
-		background: var(--paper-raised);
+		padding: var(--s-3) 0;
+		background: transparent;
 		color: var(--fg);
-		border: var(--s-px) solid var(--rule);
+		border: 0;
+		border-bottom: var(--s-2px) solid var(--rule-strong);
 		border-radius: 0;
 		font-family: var(--font-body);
 		font-size: var(--text-base);
@@ -135,12 +171,11 @@
 
 	.field input:focus {
 		outline: none;
-		border-color: var(--accent);
+		border-bottom-color: var(--accent);
 	}
 
 	.error-message {
-		color: var(--accent);
-		text-align: center;
+		color: var(--status-error);
 		font-size: var(--text-sm);
 		margin-bottom: var(--s-4);
 	}
@@ -152,10 +187,21 @@
 	}
 
 	.footer-tagline {
-		text-align: center;
 		font-size: var(--text-sm);
 		color: var(--muted);
 		margin-top: var(--s-6);
+	}
+
+	@media (max-width: 840px) {
+		.login-page {
+			grid-template-columns: 1fr;
+			align-items: start;
+			min-height: auto;
+		}
+
+		.intro-panel {
+			min-height: 60vh;
+		}
 	}
 
 	form :global(.google) {

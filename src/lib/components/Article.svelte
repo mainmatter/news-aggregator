@@ -41,11 +41,10 @@
 
 <style>
 	.grid-article {
-		--_pad-block: var(--s-5);
 		display: grid;
-		grid-template-columns: clamp(var(--s-8), 10vw, var(--s-12)) minmax(0, 1fr);
-		column-gap: clamp(var(--s-4), 3vw, var(--s-6));
-		padding: var(--_pad-block) 0;
+		grid-template-columns: clamp(var(--s-6), 8vw, var(--s-10)) minmax(0, 1fr);
+		column-gap: clamp(var(--s-4), 4vw, var(--s-8));
+		padding: var(--s-5) var(--s-3) var(--s-5) 0;
 		border-bottom: var(--s-px) solid var(--rule);
 		animation: fade-up 0.5s var(--ease-out-expo) both;
 		animation-delay: calc(var(--i, 0) * 100ms + 200ms);
@@ -71,12 +70,11 @@
 		display: flex;
 		align-items: flex-start;
 		justify-content: flex-end;
-		font-family: var(--font-display);
-		font-size: var(--text-3xl);
-		font-weight: 300;
-		font-variation-settings: 'opsz' 72;
+		font-family: var(--font-body);
+		font-size: var(--text-2xl);
+		font-weight: 850;
 		line-height: 1;
-		color: var(--rule);
+		color: var(--rule-strong);
 		padding-top: var(--s-1);
 		transition: color 0.2s var(--ease-out-expo);
 	}
@@ -87,11 +85,11 @@
 
 	.grid-headline {
 		font-family: var(--font-display);
-		font-size: var(--text-xl);
-		font-weight: 500;
-		font-variation-settings: 'opsz' 32;
-		line-height: 1.25;
-		max-width: 24ch;
+		font-size: var(--text-2xl);
+		font-weight: 800;
+		line-height: 1.05;
+		letter-spacing: -0.03em;
+		max-width: 28ch;
 		text-wrap: balance;
 	}
 
@@ -107,7 +105,7 @@
 
 	.grid-summary {
 		font-size: var(--text-base);
-		line-height: 1.65;
+		line-height: 1.55;
 		color: var(--muted);
 		max-width: var(--measure);
 	}
@@ -128,7 +126,7 @@
 		border-top: var(--s-px) solid var(--rule);
 		font-size: var(--text-xs);
 		text-transform: uppercase;
-		letter-spacing: var(--tracking-3);
+		letter-spacing: var(--tracking-4);
 	}
 
 	.grid-footer .source {
@@ -139,25 +137,19 @@
 	.read-link-small {
 		color: var(--accent);
 		text-decoration: none;
-		font-weight: 500;
+		font-weight: 800;
 		position: relative;
 		padding-bottom: var(--s-2px);
 		white-space: nowrap;
 	}
 
-	.read-link-small::after {
-		content: '';
-		position: absolute;
-		left: 0;
-		bottom: 0;
-		width: 0;
-		height: var(--s-px);
-		background: var(--accent);
-		transition: width 0.25s var(--ease-out-expo);
+	.read-link-small span {
+		display: inline-block;
+		transition: transform 0.2s var(--ease-out-expo);
 	}
 
-	.read-link-small:hover::after {
-		width: 100%;
+	.read-link-small:hover span {
+		transform: translateX(var(--s-1));
 	}
 
 	@media (max-width: 760px) {

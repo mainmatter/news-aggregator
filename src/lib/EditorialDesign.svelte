@@ -300,24 +300,27 @@
 
 	.edition-state-panel {
 		display: grid;
-		gap: var(--s-3);
+		gap: var(--s-4);
 		max-width: var(--measure);
 		padding: clamp(var(--s-6), 6vw, var(--s-10)) 0;
+		border-top: var(--s-2px) solid var(--fg);
+		border-bottom: var(--s-px) solid var(--rule-strong);
 	}
 
 	.state-eyebrow {
 		font-size: var(--text-xs);
-		font-weight: 500;
+		font-weight: 800;
 		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
-		color: var(--muted);
+		color: var(--accent);
 	}
 
 	.edition-state-panel h2 {
 		font-family: var(--font-display);
 		font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
-		font-weight: 400;
-		line-height: 1.15;
+		font-weight: 850;
+		line-height: 1;
+		letter-spacing: -0.04em;
 		text-wrap: balance;
 	}
 
@@ -333,10 +336,10 @@
 	.sign-out-btn {
 		font-family: var(--font-body);
 		font-size: var(--text-xs);
-		font-weight: 500;
+		font-weight: 800;
 		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
-		color: var(--muted);
+		color: var(--fg);
 		background: none;
 		border: none;
 		cursor: pointer;
@@ -346,8 +349,6 @@
 
 	.sign-out-btn:hover {
 		color: var(--accent);
-		text-decoration: underline;
-		text-underline-offset: 0.2em;
 	}
 
 	.generation-form {
@@ -361,10 +362,10 @@
 		padding: var(--s-3) var(--s-5);
 		border: var(--s-px) solid var(--accent);
 		background: var(--accent);
-		color: var(--bg);
+		color: var(--accent-contrast);
 		font-family: var(--font-body);
 		font-size: var(--text-xs);
-		font-weight: 600;
+		font-weight: 800;
 		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
 		text-decoration: none;
@@ -376,7 +377,8 @@
 	}
 
 	.generation-button:hover {
-		background: transparent;
-		color: var(--accent);
+		background: var(--fg);
+		border-color: var(--fg);
+		color: var(--bg);
 	}
 </style>

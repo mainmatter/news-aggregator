@@ -154,18 +154,18 @@
 		display: flex;
 		align-items: center;
 		gap: var(--s-3);
-		border-top: var(--s-px) solid var(--rule);
-		border-bottom: var(--s-px) solid var(--rule);
-		padding: var(--s-2) 0;
+		border-top: var(--s-2px) solid var(--fg);
+		border-bottom: var(--s-px) solid var(--rule-strong);
+		padding: var(--s-3) 0;
 	}
 
 	.editions-label {
 		font-family: var(--font-body);
 		font-size: var(--text-xs);
-		font-weight: 600;
+		font-weight: 800;
 		letter-spacing: var(--tracking-6);
 		text-transform: uppercase;
-		color: var(--muted);
+		color: var(--fg);
 		flex-shrink: 0;
 		user-select: none;
 	}
@@ -202,11 +202,11 @@
 		display: flex;
 		align-items: center;
 		gap: var(--s-1);
-		padding: var(--s-1) var(--s-2);
+		padding: var(--s-2) var(--s-3);
 		font-family: var(--font-body);
 		font-size: var(--text-sm);
-		font-weight: 450;
-		letter-spacing: var(--tracking-1);
+		font-weight: 700;
+		letter-spacing: var(--tracking-2);
 		color: var(--muted);
 		text-decoration: none;
 		white-space: nowrap;
@@ -223,9 +223,9 @@
 	}
 
 	.edition-pill.active {
-		color: var(--fg);
-		font-weight: 550;
-		background: var(--accent-wash);
+		color: var(--accent-contrast);
+		font-weight: 800;
+		background: var(--accent);
 
 		&::before {
 			view-transition-name: active-pill-underline;
@@ -235,7 +235,7 @@
 			left: 0;
 			right: 0;
 			height: var(--s-2px);
-			background: var(--accent);
+			background: var(--support);
 		}
 	}
 
@@ -270,16 +270,19 @@
 	.view-all {
 		font-family: var(--font-body);
 		font-size: var(--text-xs);
-		font-weight: 500;
-		color: var(--muted);
+		font-weight: 800;
+		color: var(--fg);
 		text-decoration: none;
 		white-space: nowrap;
 		flex-shrink: 0;
 		letter-spacing: var(--tracking-1);
-		transition: color 0.15s var(--ease-out-expo);
+		transition:
+			color 0.15s var(--ease-out-expo),
+			transform 0.15s var(--ease-out-expo);
 	}
 
 	.view-all:hover {
 		color: var(--accent);
+		transform: translateX(var(--s-1));
 	}
 </style>
