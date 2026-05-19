@@ -3,7 +3,7 @@ name: sandbox
 description: Creates isolated Linux MicroVMs using Vercel Sandbox SDK. Use when building code execution environments, running untrusted code, spinning up dev servers, testing in isolation, or when the user mentions "sandbox", "microvm", "isolated execution", or "@vercel/sandbox".
 metadata:
   author: Vercel Inc.
-  version: "1.0"
+  version: '1.0'
 ---
 
 ## _CRITICAL_: Always Use Correct `@vercel/sandbox` Documentation
@@ -24,20 +24,20 @@ Follow these instructions before starting on any sandbox-related tasks:
 
 ```typescript
 // Core SDK
-import { Sandbox, Snapshot, Command, CommandFinished } from "@vercel/sandbox";
-import { APIError, StreamError } from "@vercel/sandbox";
+import { Sandbox, Snapshot, Command, CommandFinished } from '@vercel/sandbox';
+import { APIError, StreamError } from '@vercel/sandbox';
 
 // For advanced network policy with credential brokering
-import type { NetworkPolicyRule, NetworkTransformer } from "@vercel/sandbox";
+import type { NetworkPolicyRule, NetworkTransformer } from '@vercel/sandbox';
 
 // For timeouts
-import ms from "ms"; // e.g., ms("5m"), ms("1h")
+import ms from 'ms'; // e.g., ms("5m"), ms("1h")
 ```
 
 **Available runtimes:**
 
 ```typescript
-type RUNTIMES = "node24" | "node22" | "python3.13";
+type RUNTIMES = 'node24' | 'node22' | 'python3.13';
 ```
 
 ## Creating Sandboxes
@@ -45,14 +45,14 @@ type RUNTIMES = "node24" | "node22" | "python3.13";
 ### Basic Creation
 
 ```typescript
-import { Sandbox } from "@vercel/sandbox";
+import { Sandbox } from '@vercel/sandbox';
 
 const sandbox = await Sandbox.create({
-  runtime: "node24",
-  resources: { vcpus: 4 }, // 2048 MB RAM per vCPU
-  ports: [3000], // Expose up to 15 ports
-  timeout: ms("10m"), // Default: 5 minutes
-  env: { NODE_ENV: "production" }, // Env vars inherited by all commands
+	runtime: 'node24',
+	resources: { vcpus: 4 }, // 2048 MB RAM per vCPU
+	ports: [3000], // Expose up to 15 ports
+	timeout: ms('10m'), // Default: 5 minutes
+	env: { NODE_ENV: 'production' } // Env vars inherited by all commands
 });
 ```
 
@@ -60,14 +60,14 @@ const sandbox = await Sandbox.create({
 
 ```typescript
 const sandbox = await Sandbox.create({
-  source: {
-    type: "git",
-    url: "https://github.com/vercel/sandbox-example-next.git",
-    depth: 1, // Shallow clone (optional)
-    revision: "main", // Branch, tag, or commit (optional)
-  },
-  runtime: "node24",
-  ports: [3000],
+	source: {
+		type: 'git',
+		url: 'https://github.com/vercel/sandbox-example-next.git',
+		depth: 1, // Shallow clone (optional)
+		revision: 'main' // Branch, tag, or commit (optional)
+	},
+	runtime: 'node24',
+	ports: [3000]
 });
 ```
 
@@ -75,13 +75,13 @@ const sandbox = await Sandbox.create({
 
 ```typescript
 const sandbox = await Sandbox.create({
-  source: {
-    type: "git",
-    url: "https://github.com/org/private-repo.git",
-    username: process.env.GIT_USERNAME!,
-    password: process.env.GIT_TOKEN!, // Use PAT for password
-  },
-  runtime: "node24",
+	source: {
+		type: 'git',
+		url: 'https://github.com/org/private-repo.git',
+		username: process.env.GIT_USERNAME!,
+		password: process.env.GIT_TOKEN! // Use PAT for password
+	},
+	runtime: 'node24'
 });
 ```
 
@@ -89,12 +89,12 @@ const sandbox = await Sandbox.create({
 
 ```typescript
 const sandbox = await Sandbox.create({
-  source: {
-    type: "tarball",
-    url: "https://example.com/project.tar.gz",
-  },
-  runtime: "node24",
-  ports: [3000],
+	source: {
+		type: 'tarball',
+		url: 'https://example.com/project.tar.gz'
+	},
+	runtime: 'node24',
+	ports: [3000]
 });
 ```
 
@@ -102,11 +102,11 @@ const sandbox = await Sandbox.create({
 
 ```typescript
 const sandbox = await Sandbox.create({
-  source: {
-    type: "snapshot",
-    snapshotId: "snap_abc123",
-  },
-  ports: [3000],
+	source: {
+		type: 'snapshot',
+		snapshotId: 'snap_abc123'
+	},
+	ports: [3000]
 });
 ```
 
@@ -116,9 +116,9 @@ Use `await using` for automatic cleanup:
 
 ```typescript
 async function runInSandbox() {
-  await using sandbox = await Sandbox.create();
-  // Sandbox automatically stopped when scope exits
-  await sandbox.runCommand("echo", ["Hello"]);
+	await using sandbox = await Sandbox.create();
+	// Sandbox automatically stopped when scope exits
+	await sandbox.runCommand('echo', ['Hello']);
 }
 ```
 
@@ -127,9 +127,9 @@ async function runInSandbox() {
 ### Basic Command Execution
 
 ```typescript
-const result = await sandbox.runCommand("npm", ["install"]);
+const result = await sandbox.runCommand('npm', ['install']);
 if (result.exitCode !== 0) {
-  console.error("Install failed:", await result.stderr());
+	console.error('Install failed:', await result.stderr());
 }
 ```
 
@@ -137,13 +137,13 @@ if (result.exitCode !== 0) {
 
 ```typescript
 const result = await sandbox.runCommand({
-  cmd: "npm",
-  args: ["run", "build"],
-  cwd: "/vercel/sandbox/app",
-  env: { NODE_ENV: "production" },
-  sudo: false,
-  stdout: process.stdout, // Stream output
-  stderr: process.stderr,
+	cmd: 'npm',
+	args: ['run', 'build'],
+	cwd: '/vercel/sandbox/app',
+	env: { NODE_ENV: 'production' },
+	sudo: false,
+	stdout: process.stdout, // Stream output
+	stderr: process.stderr
 });
 ```
 
@@ -152,25 +152,25 @@ const result = await sandbox.runCommand({
 ```typescript
 // Start dev server in background
 const devServer = await sandbox.runCommand({
-  cmd: "npm",
-  args: ["run", "dev"],
-  detached: true, // Returns immediately
-  stdout: process.stdout,
+	cmd: 'npm',
+	args: ['run', 'dev'],
+	detached: true, // Returns immediately
+	stdout: process.stdout
 });
 
 // Later: wait for completion or kill
 const finished = await devServer.wait();
 // Supported signals: SIGHUP, SIGINT, SIGQUIT, SIGKILL, SIGTERM, SIGCONT, SIGSTOP (or numeric)
-await devServer.kill("SIGTERM");
+await devServer.kill('SIGTERM');
 ```
 
 ### Root Access
 
 ```typescript
 await sandbox.runCommand({
-  cmd: "dnf",
-  args: ["install", "-y", "golang"],
-  sudo: true, // Execute as root
+	cmd: 'dnf',
+	args: ['install', '-y', 'golang'],
+	sudo: true // Execute as root
 });
 ```
 
@@ -180,14 +180,14 @@ await sandbox.runCommand({
 
 ```typescript
 await sandbox.writeFiles([
-  {
-    path: "/vercel/sandbox/config.json",
-    content: Buffer.from(JSON.stringify({ key: "value" })),
-  },
-  {
-    path: "/vercel/sandbox/script.sh",
-    content: Buffer.from("#!/bin/bash\necho 'Hello'"),
-  },
+	{
+		path: '/vercel/sandbox/config.json',
+		content: Buffer.from(JSON.stringify({ key: 'value' }))
+	},
+	{
+		path: '/vercel/sandbox/script.sh',
+		content: Buffer.from("#!/bin/bash\necho 'Hello'")
+	}
 ]);
 ```
 
@@ -196,12 +196,12 @@ await sandbox.writeFiles([
 ```typescript
 // Returns a Buffer object
 const buffer = await sandbox.readFileToBuffer({
-  path: "/vercel/sandbox/output.txt",
+	path: '/vercel/sandbox/output.txt'
 });
 
 // Returns a NodeJS.ReadableStream
 const stream = await sandbox.readFile({
-  path: "/vercel/sandbox/large-file.bin",
+	path: '/vercel/sandbox/large-file.bin'
 });
 ```
 
@@ -209,16 +209,16 @@ const stream = await sandbox.readFile({
 
 ```typescript
 const localPath = await sandbox.downloadFile(
-  { path: "/vercel/sandbox/report.pdf" }, // source path on the sandbox
-  { path: "./downloads/report.pdf" }, // destination path on the local machine
-  { mkdirRecursive: true },
+	{ path: '/vercel/sandbox/report.pdf' }, // source path on the sandbox
+	{ path: './downloads/report.pdf' }, // destination path on the local machine
+	{ mkdirRecursive: true }
 );
 ```
 
 ### Create Directories
 
 ```typescript
-await sandbox.mkDir("/vercel/sandbox/my-app/src");
+await sandbox.mkDir('/vercel/sandbox/my-app/src');
 ```
 
 ## Network Policy
@@ -227,7 +227,7 @@ await sandbox.mkDir("/vercel/sandbox/my-app/src");
 
 ```typescript
 const sandbox = await Sandbox.create({
-  networkPolicy: "allow-all",
+	networkPolicy: 'allow-all'
 });
 ```
 
@@ -235,7 +235,7 @@ const sandbox = await Sandbox.create({
 
 ```typescript
 const sandbox = await Sandbox.create({
-  networkPolicy: "deny-all",
+	networkPolicy: 'deny-all'
 });
 ```
 
@@ -243,18 +243,18 @@ const sandbox = await Sandbox.create({
 
 ```typescript
 const sandbox = await Sandbox.create({
-  networkPolicy: {
-    allow: ["*.npmjs.org", "github.com", "registry.yarnpkg.com"],
-    subnets: {
-      allow: ["10.0.0.0/8"],
-      deny: ["10.1.0.0/16"], // Takes precedence over allowed
-    },
-  },
+	networkPolicy: {
+		allow: ['*.npmjs.org', 'github.com', 'registry.yarnpkg.com'],
+		subnets: {
+			allow: ['10.0.0.0/8'],
+			deny: ['10.1.0.0/16'] // Takes precedence over allowed
+		}
+	}
 });
 
 // Update policy at runtime
 await sandbox.updateNetworkPolicy({
-  allow: ["api.openai.com"],
+	allow: ['api.openai.com']
 });
 ```
 
@@ -262,20 +262,20 @@ await sandbox.updateNetworkPolicy({
 
 ```typescript
 const sandbox = await Sandbox.create({
-  networkPolicy: {
-    allow: {
-      "ai-gateway.vercel.sh": [
-        {
-          transform: [
-            {
-              headers: { authorization: "Bearer ..." },
-            },
-          ],
-        },
-      ],
-      "*": [], // Allow all other domains without transforms
-    },
-  },
+	networkPolicy: {
+		allow: {
+			'ai-gateway.vercel.sh': [
+				{
+					transform: [
+						{
+							headers: { authorization: 'Bearer ...' }
+						}
+					]
+				}
+			],
+			'*': [] // Allow all other domains without transforms
+		}
+	}
 });
 ```
 
@@ -286,16 +286,16 @@ Snapshots save the entire sandbox filesystem to be reused later on, for any numb
 ### Create a Snapshot
 
 ```typescript
-const sandbox = await Sandbox.create({ runtime: "node24" });
+const sandbox = await Sandbox.create({ runtime: 'node24' });
 
 // Install dependencies
-await sandbox.runCommand("npm", ["install"]);
+await sandbox.runCommand('npm', ['install']);
 
 // Create snapshot (stops the sandbox)
 const snapshot = await sandbox.snapshot({
-  expiration: ms("14d"), // Default: 30 days, use 0 for no expiration
+	expiration: ms('14d') // Default: 30 days, use 0 for no expiration
 });
-console.log("Snapshot ID:", snapshot.snapshotId);
+console.log('Snapshot ID:', snapshot.snapshotId);
 ```
 
 ### List and Manage Snapshots
@@ -305,7 +305,7 @@ console.log("Snapshot ID:", snapshot.snapshotId);
 const { snapshots, pagination } = await Snapshot.list();
 
 // Get a specific snapshot
-const snapshot = await Snapshot.get({ snapshotId: "snap_abc123" });
+const snapshot = await Snapshot.get({ snapshotId: 'snap_abc123' });
 
 // Delete snapshot
 await snapshot.delete();
@@ -315,7 +315,7 @@ await snapshot.delete();
 
 ```typescript
 const sandbox = await Sandbox.create({
-  ports: [3000, 8080],
+	ports: [3000, 8080]
 });
 
 // Get public URL for a port
@@ -323,18 +323,18 @@ const url = sandbox.domain(3000);
 // Returns: https://subdomain.vercel.run
 
 // Open in browser
-spawn("open", [url]);
+spawn('open', [url]);
 ```
 
 ## Timeout Management
 
 ```typescript
 const sandbox = await Sandbox.create({
-  timeout: ms("10m"), // Initial timeout, default of 5 minutes
+	timeout: ms('10m') // Initial timeout, default of 5 minutes
 });
 
 // Extend timeout by 5 more minutes
-await sandbox.extendTimeout(ms("5m"));
+await sandbox.extendTimeout(ms('5m'));
 // New total: 15 minutes
 ```
 
@@ -354,27 +354,27 @@ The SDK automatically uses `VERCEL_OIDC_TOKEN` from environment.
 
 ```typescript
 const sandbox = await Sandbox.create({
-  teamId: process.env.VERCEL_TEAM_ID!,
-  projectId: process.env.VERCEL_PROJECT_ID!,
-  token: process.env.VERCEL_TOKEN!,
-  // ... other options
+	teamId: process.env.VERCEL_TEAM_ID!,
+	projectId: process.env.VERCEL_PROJECT_ID!,
+	token: process.env.VERCEL_TOKEN!
+	// ... other options
 });
 ```
 
 ## Error Handling
 
 ```typescript
-import { APIError, StreamError } from "@vercel/sandbox";
+import { APIError, StreamError } from '@vercel/sandbox';
 
 try {
-  const sandbox = await Sandbox.create();
+	const sandbox = await Sandbox.create();
 } catch (error) {
-  if (error instanceof APIError) {
-    console.error("API Error:", error.message, error.statusCode);
-  } else if (error instanceof StreamError) {
-    console.error("Stream Error:", error.message);
-  }
-  throw error;
+	if (error instanceof APIError) {
+		console.error('API Error:', error.message, error.statusCode);
+	} else if (error instanceof StreamError) {
+		console.error('Stream Error:', error.message);
+	}
+	throw error;
 }
 ```
 
@@ -387,13 +387,13 @@ const controller = new AbortController();
 setTimeout(() => controller.abort(), 30000);
 
 const sandbox = await Sandbox.create({
-  signal: controller.signal,
+	signal: controller.signal
 });
 
 const result = await sandbox.runCommand({
-  cmd: "npm",
-  args: ["test"],
-  signal: controller.signal,
+	cmd: 'npm',
+	args: ['test'],
+	signal: controller.signal
 });
 ```
 
@@ -417,9 +417,9 @@ Install additional packages with sudo:
 
 ```typescript
 await sandbox.runCommand({
-  cmd: "dnf",
-  args: ["install", "-y", "package-name"],
-  sudo: true,
+	cmd: 'dnf',
+	args: ['install', '-y', 'package-name'],
+	sudo: true
 });
 ```
 
@@ -470,33 +470,33 @@ sandbox config network-policy <sandbox-id> --network-policy deny-all
 
 ```typescript
 const sandbox = await Sandbox.create({
-  source: { type: "git", url: "https://github.com/org/repo.git" },
-  ports: [3000],
-  timeout: ms("30m"),
+	source: { type: 'git', url: 'https://github.com/org/repo.git' },
+	ports: [3000],
+	timeout: ms('30m')
 });
 
-await sandbox.runCommand("npm", ["install"]);
-await sandbox.runCommand({ cmd: "npm", args: ["run", "dev"], detached: true });
+await sandbox.runCommand('npm', ['install']);
+await sandbox.runCommand({ cmd: 'npm', args: ['run', 'dev'], detached: true });
 
 // Wait for server to start
 await new Promise((r) => setTimeout(r, 2000));
-console.log("App running at:", sandbox.domain(3000));
+console.log('App running at:', sandbox.domain(3000));
 ```
 
 ### Build and Test Pattern
 
 ```typescript
 await using sandbox = await Sandbox.create({
-  source: { type: "git", url: repoUrl },
+	source: { type: 'git', url: repoUrl }
 });
 
-const install = await sandbox.runCommand("npm", ["ci"]);
-if (install.exitCode !== 0) throw new Error("Install failed");
+const install = await sandbox.runCommand('npm', ['ci']);
+if (install.exitCode !== 0) throw new Error('Install failed');
 
-const build = await sandbox.runCommand("npm", ["run", "build"]);
-if (build.exitCode !== 0) throw new Error("Build failed");
+const build = await sandbox.runCommand('npm', ['run', 'build']);
+if (build.exitCode !== 0) throw new Error('Build failed');
 
-const test = await sandbox.runCommand("npm", ["test"]);
+const test = await sandbox.runCommand('npm', ['test']);
 process.exit(test.exitCode);
 ```
 
@@ -505,21 +505,19 @@ process.exit(test.exitCode);
 ```typescript
 // First time: create snapshot with dependencies installed
 async function createBaseSnapshot() {
-  const sandbox = await Sandbox.create({ runtime: "node24" });
-  await sandbox.runCommand("npm", ["install", "-g", "typescript", "tsx"]);
-  const snapshot = await sandbox.snapshot();
-  return snapshot.snapshotId;
+	const sandbox = await Sandbox.create({ runtime: 'node24' });
+	await sandbox.runCommand('npm', ['install', '-g', 'typescript', 'tsx']);
+	const snapshot = await sandbox.snapshot();
+	return snapshot.snapshotId;
 }
 
 // Subsequent runs: fast start from snapshot
 async function runFromSnapshot(snapshotId: string, code: string) {
-  await using sandbox = await Sandbox.create({
-    source: { type: "snapshot", snapshotId },
-  });
-  await sandbox.writeFiles([
-    { path: "/vercel/sandbox/index.ts", content: Buffer.from(code) },
-  ]);
-  return sandbox.runCommand("tsx", ["index.ts"]);
+	await using sandbox = await Sandbox.create({
+		source: { type: 'snapshot', snapshotId }
+	});
+	await sandbox.writeFiles([{ path: '/vercel/sandbox/index.ts', content: Buffer.from(code) }]);
+	return sandbox.runCommand('tsx', ['index.ts']);
 }
 ```
 
@@ -548,7 +546,7 @@ IMPORTANT:
 ### New Exports
 
 ```typescript
-import { Session } from "@vercel/sandbox";
+import { Session } from '@vercel/sandbox';
 ```
 
 ### Migration from Stable (`1.x`) to Beta (`2.x`)
@@ -557,14 +555,14 @@ import { Session } from "@vercel/sandbox";
 
 ```typescript
 // Stable (1.x): anonymous, ephemeral sandboxes identified by sandboxId
-const sandbox = await Sandbox.create({ runtime: "node24" });
+const sandbox = await Sandbox.create({ runtime: 'node24' });
 console.log(sandbox.sandboxId);
 
 // Beta (2.x): persistent sandboxes identified by name
 const sandbox = await Sandbox.create({
-  name: "my-dev-env", // Optional, random if omitted. Unique per project.
-  runtime: "node24",
-  persistent: true, // Default: true. Auto-snapshots on shutdown and restores on resume.
+	name: 'my-dev-env', // Optional, random if omitted. Unique per project.
+	runtime: 'node24',
+	persistent: true // Default: true. Auto-snapshots on shutdown and restores on resume.
 });
 console.log(sandbox.name);
 ```
@@ -573,13 +571,13 @@ console.log(sandbox.name);
 
 ```typescript
 // Stable (1.x)
-const sandbox = await Sandbox.get({ sandboxId: "sbx_abc123" });
+const sandbox = await Sandbox.get({ sandboxId: 'sbx_abc123' });
 
 // Beta (2.x) — retrieves by name.
-const sandbox = await Sandbox.get({ name: "my-dev-env" });
+const sandbox = await Sandbox.get({ name: 'my-dev-env' });
 // Pass `resume: true` to to automatically resume the sandbox. Otherwise, it will
 // be resumed when the next command is run.
-const sandbox = await Sandbox.get({ name: "my-dev-env", resume: false });
+const sandbox = await Sandbox.get({ name: 'my-dev-env', resume: false });
 ```
 
 #### Listing sandboxes — pagination and filtering changes
@@ -587,14 +585,14 @@ const sandbox = await Sandbox.get({ name: "my-dev-env", resume: false });
 ```typescript
 // Stable (1.x): used since/until for pagination
 const {
-  json: { sandboxes },
+	json: { sandboxes }
 } = await Sandbox.list({ since, until });
 
 // Beta (2.x): cursor-based pagination, new filtering params
 const { sandboxes, pagination } = await Sandbox.list({
-  cursor: pagination.next, // string token (replaces since/until)
-  namePrefix: "my-app-", // Filter by name prefix
-  sortBy: "name", // "createdAt" (default) or "name"
+	cursor: pagination.next, // string token (replaces since/until)
+	namePrefix: 'my-app-', // Filter by name prefix
+	sortBy: 'name' // "createdAt" (default) or "name"
 });
 ```
 
@@ -603,7 +601,7 @@ const { sandboxes, pagination } = await Sandbox.list({
 ```typescript
 // Beta (2.x): filter snapshots by sandbox name
 const { snapshots } = await Snapshot.list({
-  name: "my-dev-env", // Only snapshots belonging to this sandbox
+	name: 'my-dev-env' // Only snapshots belonging to this sandbox
 });
 ```
 
@@ -627,14 +625,14 @@ console.log(session.status); // "pending" | "running" | "stopping" | "stopped" |
 
 ```typescript
 // Stable (1.x)
-await sandbox.updateNetworkPolicy("deny-all");
+await sandbox.updateNetworkPolicy('deny-all');
 
 // Beta (2.x) — updateNetworkPolicy still works but is deprecated
 await sandbox.update({
-  networkPolicy: "deny-all",
-  persistent: false,
-  resources: { vcpus: 4 },
-  timeout: ms("30m"),
+	networkPolicy: 'deny-all',
+	persistent: false,
+	resources: { vcpus: 4 },
+	timeout: ms('30m')
 });
 ```
 

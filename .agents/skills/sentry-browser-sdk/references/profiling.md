@@ -21,12 +21,12 @@ Sampling rate: **100Hz (10ms intervals)** — runs unobtrusively in production.
 
 ## Browser Compatibility
 
-| Browser | Supported | Notes |
-|---------|-----------|-------|
-| Chrome / Chromium | ✅ Yes | Primary support target |
-| Edge (Chromium) | ✅ Yes | Same engine as Chrome |
-| Firefox | ❌ No | JS Self-Profiling API not implemented |
-| Safari / iOS Safari | ❌ No | JS Self-Profiling API not implemented |
+| Browser             | Supported | Notes                                 |
+| ------------------- | --------- | ------------------------------------- |
+| Chrome / Chromium   | ✅ Yes    | Primary support target                |
+| Edge (Chromium)     | ✅ Yes    | Same engine as Chrome                 |
+| Firefox             | ❌ No     | JS Self-Profiling API not implemented |
+| Safari / iOS Safari | ❌ No     | JS Self-Profiling API not implemented |
 
 > ⚠️ **Sampling bias:** Profile data is collected **only** from Chromium users. Firefox and Safari sessions are silently excluded — no error is thrown, no overhead is added.
 
@@ -45,18 +45,20 @@ Without this header, the JS Self-Profiling API is blocked by the browser and no 
 ### Platform-Specific Header Setup
 
 **Vercel (`vercel.json`):**
+
 ```json
 {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [{ "key": "Document-Policy", "value": "js-profiling" }]
-    }
-  ]
+	"headers": [
+		{
+			"source": "/(.*)",
+			"headers": [{ "key": "Document-Policy", "value": "js-profiling" }]
+		}
+	]
 }
 ```
 
 **Netlify (`netlify.toml`):**
+
 ```toml
 [[headers]]
   for = "/*"
@@ -65,20 +67,23 @@ Without this header, the JS Self-Profiling API is blocked by the browser and no 
 ```
 
 **Netlify (`_headers` file):**
+
 ```
 /*
   Document-Policy: js-profiling
 ```
 
 **Express / Node.js:**
+
 ```javascript
 app.use((req, res, next) => {
-  res.set("Document-Policy", "js-profiling");
-  next();
+	res.set('Document-Policy', 'js-profiling');
+	next();
 });
 ```
 
 **Nginx:**
+
 ```nginx
 add_header Document-Policy "js-profiling";
 ```
@@ -88,16 +93,13 @@ add_header Document-Policy "js-profiling";
 ## Basic Setup
 
 ```javascript
-import * as Sentry from "@sentry/browser";
+import * as Sentry from '@sentry/browser';
 
 Sentry.init({
-  dsn: "___PUBLIC_DSN___",
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.browserProfilingIntegration(),
-  ],
-  tracesSampleRate: 1.0,
-  profileSessionSampleRate: 1.0, // Profile 100% of sessions (lower in production)
+	dsn: '___PUBLIC_DSN___',
+	integrations: [Sentry.browserTracingIntegration(), Sentry.browserProfilingIntegration()],
+	tracesSampleRate: 1.0,
+	profileSessionSampleRate: 1.0 // Profile 100% of sessions (lower in production)
 });
 ```
 
@@ -107,16 +109,16 @@ Sentry.init({
 
 ## Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `profileSessionSampleRate` | `number` (0–1) | — | Fraction of sessions to profile. Evaluated **once** per page load. |
-| `profileLifecycle` | `'manual'` \| `'trace'` | `'manual'` | Controls when profiling starts and stops (see [Profiling Modes](#profiling-modes)). |
+| Option                     | Type                    | Default    | Description                                                                         |
+| -------------------------- | ----------------------- | ---------- | ----------------------------------------------------------------------------------- |
+| `profileSessionSampleRate` | `number` (0–1)          | —          | Fraction of sessions to profile. Evaluated **once** per page load.                  |
+| `profileLifecycle`         | `'manual'` \| `'trace'` | `'manual'` | Controls when profiling starts and stops (see [Profiling Modes](#profiling-modes)). |
 
 ### `profilesSampleRate` vs `profileSessionSampleRate`
 
-| Option | SDK Version | Description |
-|--------|-------------|-------------|
-| `profilesSampleRate` | Legacy (< 10.27.0) | Transaction-based — tied to individual transaction sampling. **Deprecated.** |
+| Option                     | SDK Version         | Description                                                                    |
+| -------------------------- | ------------------- | ------------------------------------------------------------------------------ |
+| `profilesSampleRate`       | Legacy (< 10.27.0)  | Transaction-based — tied to individual transaction sampling. **Deprecated.**   |
 | `profileSessionSampleRate` | Current (≥ 10.27.0) | Session-based — evaluated once per page load. **Use this for all new setups.** |
 
 ---
@@ -129,14 +131,11 @@ Profiler starts and stops automatically in sync with every active root span (tra
 
 ```javascript
 Sentry.init({
-  dsn: "___PUBLIC_DSN___",
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.browserProfilingIntegration(),
-  ],
-  tracesSampleRate: 1.0,
-  profileSessionSampleRate: 0.1, // Profile 10% of sessions
-  profileLifecycle: "trace",     // Profile automatically with each trace
+	dsn: '___PUBLIC_DSN___',
+	integrations: [Sentry.browserTracingIntegration(), Sentry.browserProfilingIntegration()],
+	tracesSampleRate: 1.0,
+	profileSessionSampleRate: 0.1, // Profile 10% of sessions
+	profileLifecycle: 'trace' // Profile automatically with each trace
 });
 ```
 
@@ -146,14 +145,11 @@ Start and stop the profiler explicitly around specific code you want to measure.
 
 ```javascript
 Sentry.init({
-  dsn: "___PUBLIC_DSN___",
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.browserProfilingIntegration(),
-  ],
-  tracesSampleRate: 1.0,
-  profileSessionSampleRate: 1.0,
-  profileLifecycle: "manual", // default
+	dsn: '___PUBLIC_DSN___',
+	integrations: [Sentry.browserTracingIntegration(), Sentry.browserProfilingIntegration()],
+	tracesSampleRate: 1.0,
+	profileSessionSampleRate: 1.0,
+	profileLifecycle: 'manual' // default
 });
 
 // Somewhere in your application
@@ -175,14 +171,11 @@ Profiling adds CPU overhead. Use conservative rates in production:
 
 ```javascript
 Sentry.init({
-  dsn: "___PUBLIC_DSN___",
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.browserProfilingIntegration(),
-  ],
-  tracesSampleRate: 0.2,           // Sample 20% of traces
-  profileSessionSampleRate: 0.1,   // Profile 10% of sessions
-  profileLifecycle: "trace",
+	dsn: '___PUBLIC_DSN___',
+	integrations: [Sentry.browserTracingIntegration(), Sentry.browserProfilingIntegration()],
+	tracesSampleRate: 0.2, // Sample 20% of traces
+	profileSessionSampleRate: 0.1, // Profile 10% of sessions
+	profileLifecycle: 'trace'
 });
 ```
 
@@ -203,23 +196,23 @@ Sentry.init({
 
 ## Known Limitations
 
-| Limitation | Details |
-|------------|---------|
-| Chromium-only | Firefox and Safari do not implement the JS Self-Profiling API. Profile data represents only Chromium users. |
-| `Document-Policy` header required | Every served document must include the header. Static hosts that can't set custom headers cannot enable profiling. |
-| Chrome DevTools conflict | With `browserProfilingIntegration` active, Chrome DevTools may display SDK activity as "profiling overhead" in the Performance panel. This is cosmetic. |
-| Beta status | The API may change between minor releases. |
+| Limitation                        | Details                                                                                                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chromium-only                     | Firefox and Safari do not implement the JS Self-Profiling API. Profile data represents only Chromium users.                                             |
+| `Document-Policy` header required | Every served document must include the header. Static hosts that can't set custom headers cannot enable profiling.                                      |
+| Chrome DevTools conflict          | With `browserProfilingIntegration` active, Chrome DevTools may display SDK activity as "profiling overhead" in the Performance panel. This is cosmetic. |
+| Beta status                       | The API may change between minor releases.                                                                                                              |
 
 ---
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| No profiles in Sentry | Missing `Document-Policy: js-profiling` header | Add the header to all document responses |
-| No profiles in Sentry | `browserTracingIntegration()` not added | Profiling requires tracing — add it and set `tracesSampleRate > 0` |
-| No profiles in Sentry | `profileSessionSampleRate` not set | Set it (e.g., `1.0` for dev, `0.1` for production) |
-| Profiles appear with minified names | Source maps not uploaded | Upload source maps to Sentry via the build plugin |
-| No profiles for Firefox/Safari users | Expected — those browsers don't support the API | No fix needed; this is by design |
-| Chrome DevTools shows extra overhead | False positive from profiling integration | Expected; ignore in DevTools, check Sentry instead |
-| `uiProfiler.startProfiler` is undefined | SDK version < 10.27.0 or wrong `profileLifecycle` | Upgrade SDK; `uiProfiler` is only available in manual mode |
+| Symptom                                 | Cause                                             | Fix                                                                |
+| --------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------ |
+| No profiles in Sentry                   | Missing `Document-Policy: js-profiling` header    | Add the header to all document responses                           |
+| No profiles in Sentry                   | `browserTracingIntegration()` not added           | Profiling requires tracing — add it and set `tracesSampleRate > 0` |
+| No profiles in Sentry                   | `profileSessionSampleRate` not set                | Set it (e.g., `1.0` for dev, `0.1` for production)                 |
+| Profiles appear with minified names     | Source maps not uploaded                          | Upload source maps to Sentry via the build plugin                  |
+| No profiles for Firefox/Safari users    | Expected — those browsers don't support the API   | No fix needed; this is by design                                   |
+| Chrome DevTools shows extra overhead    | False positive from profiling integration         | Expected; ignore in DevTools, check Sentry instead                 |
+| `uiProfiler.startProfiler` is undefined | SDK version < 10.27.0 or wrong `profileLifecycle` | Upgrade SDK; `uiProfiler` is only available in manual mode         |

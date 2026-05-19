@@ -11,11 +11,11 @@ Profiling captures V8 CPU call stacks at ~100 samples/second alongside your trac
 
 Profiling is **Node.js only**:
 
-| Runtime | Profiling | Notes |
-|---------|-----------|-------|
-| Node.js ≥18 | ✅ | Full support via `@sentry/profiling-node` |
-| Bun | ❌ | Native addon not supported |
-| Deno | ❌ | Native addon not supported |
+| Runtime     | Profiling | Notes                                     |
+| ----------- | --------- | ----------------------------------------- |
+| Node.js ≥18 | ✅        | Full support via `@sentry/profiling-node` |
+| Bun         | ❌        | Native addon not supported                |
+| Deno        | ❌        | Native addon not supported                |
 
 ---
 
@@ -65,23 +65,21 @@ npm install @sentry/node@latest @sentry/profiling-node@latest
 Profiles auto-attach to all sampled spans with no additional code:
 
 ```typescript
-import * as Sentry from "@sentry/node";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+	dsn: process.env.SENTRY_DSN,
 
-  integrations: [
-    nodeProfilingIntegration(),
-  ],
+	integrations: [nodeProfilingIntegration()],
 
-  tracesSampleRate: 1.0,
+	tracesSampleRate: 1.0,
 
-  // Session-level sampling: decision made once at process startup
-  profileSessionSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+	// Session-level sampling: decision made once at process startup
+	profileSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 
-  // "trace" = profiles auto-attach to every sampled span
-  profileLifecycle: "trace",
+	// "trace" = profiles auto-attach to every sampled span
+	profileLifecycle: 'trace'
 });
 ```
 
@@ -90,15 +88,15 @@ Sentry.init({
 Start and stop profiling around specific code paths:
 
 ```typescript
-import * as Sentry from "@sentry/node";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  integrations: [nodeProfilingIntegration()],
-  tracesSampleRate: 1.0,
-  profileSessionSampleRate: 1.0,
-  profileLifecycle: "manual",
+	dsn: process.env.SENTRY_DSN,
+	integrations: [nodeProfilingIntegration()],
+	tracesSampleRate: 1.0,
+	profileSessionSampleRate: 1.0,
+	profileLifecycle: 'manual'
 });
 
 // Explicit start/stop around critical code:
@@ -114,12 +112,12 @@ Sentry.profiler.stopProfiler();
 For long-running processes, batch jobs, or background workers that don't map cleanly to request spans, use the profiler API directly:
 
 ```typescript
-import * as Sentry from "@sentry/node";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  integrations: [nodeProfilingIntegration()],
+	dsn: process.env.SENTRY_DSN,
+	integrations: [nodeProfilingIntegration()]
 });
 
 // Start profiling at process startup
@@ -129,9 +127,9 @@ Sentry.profiler.startProfiler();
 // All spans created during this window have profile data attached
 
 // Stop when done (e.g. graceful shutdown)
-process.on("SIGTERM", () => {
-  Sentry.profiler.stopProfiler();
-  process.exit(0);
+process.on('SIGTERM', () => {
+	Sentry.profiler.stopProfiler();
+	process.exit(0);
 });
 ```
 
@@ -182,16 +180,16 @@ Sentry.profiler.stopProfiler();
 ```typescript
 // Profile a specific batch job, not the entire process
 async function runNightlyBatch() {
-  Sentry.profiler.startProfiler();
-  try {
-    await Sentry.startSpan({ op: "batch", name: "nightly-sync" }, async () => {
-      await syncUsers();
-      await syncOrders();
-      await syncInventory();
-    });
-  } finally {
-    Sentry.profiler.stopProfiler();
-  }
+	Sentry.profiler.startProfiler();
+	try {
+		await Sentry.startSpan({ op: 'batch', name: 'nightly-sync' }, async () => {
+			await syncUsers();
+			await syncOrders();
+			await syncInventory();
+		});
+	} finally {
+		Sentry.profiler.stopProfiler();
+	}
 }
 ```
 
@@ -199,11 +197,11 @@ async function runNightlyBatch() {
 
 ## Configuration Reference
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `profileSessionSampleRate` | `0.0–1.0` | Session-level sampling. Decision made once at process startup. |
-| `profileLifecycle` | `"trace" \| "manual"` | `"trace"` = auto-attach to spans; `"manual"` = explicit `startProfiler()`/`stopProfiler()` |
-| `nodeProfilingIntegration()` | integration | Enables V8 CpuProfiler. Must be in `integrations` array. |
+| Parameter                    | Type                  | Description                                                                                |
+| ---------------------------- | --------------------- | ------------------------------------------------------------------------------------------ |
+| `profileSessionSampleRate`   | `0.0–1.0`             | Session-level sampling. Decision made once at process startup.                             |
+| `profileLifecycle`           | `"trace" \| "manual"` | `"trace"` = auto-attach to spans; `"manual"` = explicit `startProfiler()`/`stopProfiler()` |
+| `nodeProfilingIntegration()` | integration           | Enables V8 CpuProfiler. Must be in `integrations` array.                                   |
 
 ### `profileSessionSampleRate` Semantics
 
@@ -213,14 +211,14 @@ A "profiling session" either opts in or opts out for its entire lifetime. Within
 
 ```typescript
 // 10% of Node.js processes will profile all their requests
-profileSessionSampleRate: 0.1
+profileSessionSampleRate: 0.1;
 ```
 
 ### `profileLifecycle` Modes
 
-| Mode | Trigger | Best for |
-|------|---------|----------|
-| `"trace"` | Auto-attached to every sampled span | Broad production coverage, web servers |
+| Mode       | Trigger                              | Best for                                  |
+| ---------- | ------------------------------------ | ----------------------------------------- |
+| `"trace"`  | Auto-attached to every sampled span  | Broad production coverage, web servers    |
 | `"manual"` | `startProfiler()` / `stopProfiler()` | Batch jobs, specific hot paths, CLI tools |
 
 ---
@@ -229,15 +227,15 @@ profileSessionSampleRate: 0.1
 
 Precompiled native binaries are available for:
 
-| OS | Architecture | Node.js |
-|----|--------------|---------|
-| macOS | x64 (Intel) | 18–24 |
-| macOS | ARM64 (Apple Silicon) | 18–24 |
-| Linux (glibc) | x64 | 18–24 |
-| Linux (glibc) | ARM64 | 18–24 |
-| Linux (musl/Alpine) | x64 | 18–24 |
-| Linux (musl/Alpine) | ARM64 | 18–24 |
-| Windows | x64 | 18–24 |
+| OS                  | Architecture          | Node.js |
+| ------------------- | --------------------- | ------- |
+| macOS               | x64 (Intel)           | 18–24   |
+| macOS               | ARM64 (Apple Silicon) | 18–24   |
+| Linux (glibc)       | x64                   | 18–24   |
+| Linux (glibc)       | ARM64                 | 18–24   |
+| Linux (musl/Alpine) | x64                   | 18–24   |
+| Linux (musl/Alpine) | ARM64                 | 18–24   |
+| Windows             | x64                   | 18–24   |
 
 > ❌ **FreeBSD, 32-bit systems, Bun, and Deno are not supported.**  
 > The native addon requires Node.js — it cannot run in other runtimes.
@@ -252,6 +250,7 @@ RUN npm install --include=optional
 ```
 
 Or rebuild from source:
+
 ```dockerfile
 RUN apk add --no-cache python3 make g++ && npm rebuild @sentry/profiling-node
 ```
@@ -279,10 +278,10 @@ SENTRY_PROFILER_LOGGING_MODE=lazy node server.js
 
 ```typescript
 Sentry.init({
-  integrations: [nodeProfilingIntegration()],
-  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
-  profileSessionSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
-  profileLifecycle: "trace",
+	integrations: [nodeProfilingIntegration()],
+	tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+	profileSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+	profileLifecycle: 'trace'
 });
 ```
 
@@ -298,7 +297,7 @@ For high-traffic servers, start conservative:
 
 ```typescript
 // Start at 1–5% and increase after measuring overhead
-profileSessionSampleRate: 0.01
+profileSessionSampleRate: 0.01;
 ```
 
 ---
@@ -307,34 +306,32 @@ profileSessionSampleRate: 0.01
 
 ```typescript
 // instrument.ts (loaded before app code)
-import * as Sentry from "@sentry/node";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+	dsn: process.env.SENTRY_DSN,
 
-  integrations: [
-    nodeProfilingIntegration(),
-  ],
+	integrations: [nodeProfilingIntegration()],
 
-  tracesSampleRate: process.env.NODE_ENV === "development" ? 1.0 : 0.1,
-  profileSessionSampleRate: process.env.NODE_ENV === "development" ? 1.0 : 0.1,
-  profileLifecycle: "trace",
+	tracesSampleRate: process.env.NODE_ENV === 'development' ? 1.0 : 0.1,
+	profileSessionSampleRate: process.env.NODE_ENV === 'development' ? 1.0 : 0.1,
+	profileLifecycle: 'trace'
 });
 ```
 
 ```typescript
 // app.ts
-import "./instrument"; // Must be first import
-import express from "express";
-import * as Sentry from "@sentry/node";
+import './instrument'; // Must be first import
+import express from 'express';
+import * as Sentry from '@sentry/node';
 
 const app = express();
 
-app.get("/api/users", async (req, res) => {
-  // Automatically traced + profiled (in profiling sessions)
-  const users = await db.query("SELECT * FROM users");
-  res.json(users);
+app.get('/api/users', async (req, res) => {
+	// Automatically traced + profiled (in profiling sessions)
+	const users = await db.query('SELECT * FROM users');
+	res.json(users);
 });
 
 Sentry.setupExpressErrorHandler(app);
@@ -345,15 +342,15 @@ app.listen(3000);
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| No profiles appearing in Sentry | Verify `@sentry/profiling-node` version exactly matches `@sentry/node` version (`npm ls @sentry/profiling-node`) |
-| `Cannot find module '@sentry/profiling-node'` | Run `npm install @sentry/profiling-node` and confirm it's in `dependencies` (not `devDependencies`) |
-| Native addon fails to load | Check you're on Node.js ≥18; check OS/arch is in the supported platforms table |
-| Profiles not linked to spans | Confirm `profileLifecycle: "trace"` is set and `tracesSampleRate` > 0; both are required |
-| High CPU usage | Lower `profileSessionSampleRate`; use `SENTRY_PROFILER_LOGGING_MODE=lazy` |
-| Alpine/musl Linux binary error | Run `npm rebuild @sentry/profiling-node` after installing build tools (`apk add python3 make g++`) |
-| Profiling works locally but not in Docker | Ensure `npm install --include=optional` runs in the Docker build; musl variant must be present |
-| Flame graphs show minified names | Upload source maps via `authToken` in Sentry config; use `NODE_OPTIONS=--enable-source-maps` |
-| Last ~60s of data lost on shutdown | Call `Sentry.profiler.stopProfiler()` in your SIGTERM/SIGINT handler before `process.exit()` |
-| Bun or Deno profiling doesn't work | Native addon only supports Node.js — profiling is not available in Bun or Deno |
+| Issue                                         | Solution                                                                                                         |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| No profiles appearing in Sentry               | Verify `@sentry/profiling-node` version exactly matches `@sentry/node` version (`npm ls @sentry/profiling-node`) |
+| `Cannot find module '@sentry/profiling-node'` | Run `npm install @sentry/profiling-node` and confirm it's in `dependencies` (not `devDependencies`)              |
+| Native addon fails to load                    | Check you're on Node.js ≥18; check OS/arch is in the supported platforms table                                   |
+| Profiles not linked to spans                  | Confirm `profileLifecycle: "trace"` is set and `tracesSampleRate` > 0; both are required                         |
+| High CPU usage                                | Lower `profileSessionSampleRate`; use `SENTRY_PROFILER_LOGGING_MODE=lazy`                                        |
+| Alpine/musl Linux binary error                | Run `npm rebuild @sentry/profiling-node` after installing build tools (`apk add python3 make g++`)               |
+| Profiling works locally but not in Docker     | Ensure `npm install --include=optional` runs in the Docker build; musl variant must be present                   |
+| Flame graphs show minified names              | Upload source maps via `authToken` in Sentry config; use `NODE_OPTIONS=--enable-source-maps`                     |
+| Last ~60s of data lost on shutdown            | Call `Sentry.profiler.stopProfiler()` in your SIGTERM/SIGINT handler before `process.exit()`                     |
+| Bun or Deno profiling doesn't work            | Native addon only supports Node.js — profiling is not available in Bun or Deno                                   |

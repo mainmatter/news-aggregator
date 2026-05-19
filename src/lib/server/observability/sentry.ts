@@ -101,7 +101,6 @@ export function report_generation_exception(args: generation_exception_report) {
 	});
 }
 
-
 export function build_sandbox_observability_env({
 	sentry_trace,
 	baggage,

@@ -1,18 +1,18 @@
 #### Design Health Score
 
-| # | Heuristic | Score | Key Issue |
-|---|-----------|-------|-----------|
-| 1 | Visibility of System Status | 2 | Auth submission has no clear pending or disabled state. |
-| 2 | Match System / Real World | 3 | Field labels are clear, but `Name (for registration)` exposes implementation logic. |
-| 3 | User Control and Freedom | 2 | No password reset or explicit mode switch. |
-| 4 | Consistency and Standards | 3 | Component vocabulary is consistent, but dual submit buttons make auth mode unusual. |
-| 5 | Error Prevention | 2 | Users can choose the wrong auth action from the same filled form. |
-| 6 | Recognition Rather Than Recall | 2 | Users must infer when the name field matters. |
-| 7 | Flexibility and Efficiency | 2 | Google sign-in helps, but returning-user shortcuts and recovery are missing. |
-| 8 | Aesthetic and Minimalist Design | 3 | Strong editorial restraint, but the masthead competes with the form. |
-| 9 | Error Recovery | 2 | Error text is a dead end without next-step recovery. |
-| 10 | Help and Documentation | 1 | No contextual help, reset path, or auth expectation setting. |
-| **Total** | | **24/40** | **Solid visual base, weak auth UX and recovery paths.** |
+| #         | Heuristic                       | Score     | Key Issue                                                                           |
+| --------- | ------------------------------- | --------- | ----------------------------------------------------------------------------------- |
+| 1         | Visibility of System Status     | 2         | Auth submission has no clear pending or disabled state.                             |
+| 2         | Match System / Real World       | 3         | Field labels are clear, but `Name (for registration)` exposes implementation logic. |
+| 3         | User Control and Freedom        | 2         | No password reset or explicit mode switch.                                          |
+| 4         | Consistency and Standards       | 3         | Component vocabulary is consistent, but dual submit buttons make auth mode unusual. |
+| 5         | Error Prevention                | 2         | Users can choose the wrong auth action from the same filled form.                   |
+| 6         | Recognition Rather Than Recall  | 2         | Users must infer when the name field matters.                                       |
+| 7         | Flexibility and Efficiency      | 2         | Google sign-in helps, but returning-user shortcuts and recovery are missing.        |
+| 8         | Aesthetic and Minimalist Design | 3         | Strong editorial restraint, but the masthead competes with the form.                |
+| 9         | Error Recovery                  | 2         | Error text is a dead end without next-step recovery.                                |
+| 10        | Help and Documentation          | 1         | No contextual help, reset path, or auth expectation setting.                        |
+| **Total** |                                 | **24/40** | **Solid visual base, weak auth UX and recovery paths.**                             |
 
 #### Anti-Patterns Verdict
 

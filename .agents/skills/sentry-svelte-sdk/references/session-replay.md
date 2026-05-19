@@ -14,21 +14,21 @@ Session Replay is bundled in `@sentry/sveltekit` and `@sentry/svelte` — no sep
 ### SvelteKit — hooks.client.ts
 
 ```typescript
-import * as Sentry from "@sentry/sveltekit";
+import * as Sentry from '@sentry/sveltekit';
 
 Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
+	dsn: import.meta.env.VITE_SENTRY_DSN,
 
-  // Sample rates live on init, NOT on the integration
-  replaysSessionSampleRate: 0.1,   // record 10% of all sessions
-  replaysOnErrorSampleRate: 1.0,   // record 100% of sessions that encounter an error
+	// Sample rates live on init, NOT on the integration
+	replaysSessionSampleRate: 0.1, // record 10% of all sessions
+	replaysOnErrorSampleRate: 1.0, // record 100% of sessions that encounter an error
 
-  integrations: [
-    Sentry.replayIntegration({
-      maskAllText: true,      // default: true
-      blockAllMedia: true,    // default: true
-    }),
-  ],
+	integrations: [
+		Sentry.replayIntegration({
+			maskAllText: true, // default: true
+			blockAllMedia: true // default: true
+		})
+	]
 });
 
 export const handleError = Sentry.handleErrorWithSentry();
@@ -37,25 +37,25 @@ export const handleError = Sentry.handleErrorWithSentry();
 ### Standalone Svelte — main.ts
 
 ```typescript
-import * as Sentry from "@sentry/svelte";
-import App from "./App.svelte";
+import * as Sentry from '@sentry/svelte';
+import App from './App.svelte';
 
 Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
+	dsn: import.meta.env.VITE_SENTRY_DSN,
 
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
+	replaysSessionSampleRate: 0.1,
+	replaysOnErrorSampleRate: 1.0,
 
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration({
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
-  ],
+	integrations: [
+		Sentry.browserTracingIntegration(),
+		Sentry.replayIntegration({
+			maskAllText: true,
+			blockAllMedia: true
+		})
+	]
 });
 
-const app = new App({ target: document.getElementById("app")! });
+const app = new App({ target: document.getElementById('app')! });
 export default app;
 ```
 
@@ -63,19 +63,19 @@ export default app;
 
 ## Sample Rates
 
-| Option | Location | Behavior |
-|--------|----------|----------|
-| `replaysSessionSampleRate` | `Sentry.init({})` | Fraction of all sessions recorded from start |
+| Option                     | Location          | Behavior                                                              |
+| -------------------------- | ----------------- | --------------------------------------------------------------------- |
+| `replaysSessionSampleRate` | `Sentry.init({})` | Fraction of all sessions recorded from start                          |
 | `replaysOnErrorSampleRate` | `Sentry.init({})` | Fraction of error sessions — includes ~60s of replay before the error |
 
 Recommended values by traffic volume:
 
-| Volume | `replaysSessionSampleRate` | `replaysOnErrorSampleRate` |
-|--------|---------------------------|---------------------------|
-| High (100k+ sessions/day) | `0.01` | `1.0` |
-| Medium (10k–100k/day) | `0.1` | `1.0` |
-| Low (<10k/day) | `0.25` | `1.0` |
-| Errors-only strategy | `0` | `1.0` |
+| Volume                    | `replaysSessionSampleRate` | `replaysOnErrorSampleRate` |
+| ------------------------- | -------------------------- | -------------------------- |
+| High (100k+ sessions/day) | `0.01`                     | `1.0`                      |
+| Medium (10k–100k/day)     | `0.1`                      | `1.0`                      |
+| Low (<10k/day)            | `0.25`                     | `1.0`                      |
+| Errors-only strategy      | `0`                        | `1.0`                      |
 
 "Errors-only" (`replaysSessionSampleRate: 0`, `replaysOnErrorSampleRate: 1.0`) minimizes overhead by not recording sessions unless an error occurs.
 
@@ -85,24 +85,24 @@ Recommended values by traffic volume:
 
 ### Recording Control
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `stickySession` | `boolean` | `true` | Persist session across page refreshes |
-| `minReplayDuration` | `number` | `5000` | Min ms before a session-based replay is sent |
-| `maxReplayDuration` | `number` | `3600000` | Max replay length (1 hour hard cap) |
-| `workerUrl` | `string` | — | Self-host the compression Web Worker |
+| Option              | Type      | Default   | Description                                  |
+| ------------------- | --------- | --------- | -------------------------------------------- |
+| `stickySession`     | `boolean` | `true`    | Persist session across page refreshes        |
+| `minReplayDuration` | `number`  | `5000`    | Min ms before a session-based replay is sent |
+| `maxReplayDuration` | `number`  | `3600000` | Max replay length (1 hour hard cap)          |
+| `workerUrl`         | `string`  | —         | Self-host the compression Web Worker         |
 
 ### Mutation Limits (DOM thrash protection)
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `mutationLimit` | `number` | `10000` | Stop recording after N DOM mutations |
-| `mutationBreadcrumbLimit` | `number` | `750` | Emit a warning breadcrumb after N mutations |
+| Option                    | Type     | Default | Description                                 |
+| ------------------------- | -------- | ------- | ------------------------------------------- |
+| `mutationLimit`           | `number` | `10000` | Stop recording after N DOM mutations        |
+| `mutationBreadcrumbLimit` | `number` | `750`   | Emit a warning breadcrumb after N mutations |
 
 ```typescript
 Sentry.replayIntegration({
-  mutationBreadcrumbLimit: 1000,
-  mutationLimit: 1500,
+	mutationBreadcrumbLimit: 1000,
+	mutationLimit: 1500
 });
 ```
 
@@ -114,22 +114,22 @@ Replay defaults to **privacy-first**: all text is masked and all media is blocke
 
 ### Default behavior
 
-| Element type | Default action |
-|-------------|----------------|
-| All text content | Replaced with `*` (length-preserving) |
-| All inputs | Values replaced with `*` |
+| Element type                                                        | Default action                          |
+| ------------------------------------------------------------------- | --------------------------------------- |
+| All text content                                                    | Replaced with `*` (length-preserving)   |
+| All inputs                                                          | Values replaced with `*`                |
 | `img`, `svg`, `video`, `audio`, `picture`, `embed`, `map`, `object` | Replaced with same-size placeholder box |
 
 ### Global masking overrides
 
 ```typescript
 Sentry.replayIntegration({
-  maskAllText: true,     // default: true — set false to unmask everything
-  maskAllInputs: true,   // default: true
-  blockAllMedia: true,   // default: true
+	maskAllText: true, // default: true — set false to unmask everything
+	maskAllInputs: true, // default: true
+	blockAllMedia: true, // default: true
 
-  // Custom masking function (override default * replacement)
-  maskFn: (text) => "█".repeat(text.length),
+	// Custom masking function (override default * replacement)
+	maskFn: (text) => '█'.repeat(text.length)
 });
 ```
 
@@ -137,16 +137,16 @@ Sentry.replayIntegration({
 
 ```typescript
 Sentry.replayIntegration({
-  // Additional selectors to mask/block (additive to defaults)
-  mask: [".sensitive-field", "[data-pii]"],
-  block: [".payment-widget", "#credit-card-iframe"],
-  ignore: ["#search-input"],         // ignore input value changes for this field
+	// Additional selectors to mask/block (additive to defaults)
+	mask: ['.sensitive-field', '[data-pii]'],
+	block: ['.payment-widget', '#credit-card-iframe'],
+	ignore: ['#search-input'], // ignore input value changes for this field
 
-  // UNBLOCK specific elements from maskAllText=true
-  unmask: [".username-display", ".public-label"],
+	// UNBLOCK specific elements from maskAllText=true
+	unmask: ['.username-display', '.public-label'],
 
-  // UNBLOCK specific elements from blockAllMedia=true
-  unblock: [".product-thumbnail", ".avatar-image"],
+	// UNBLOCK specific elements from blockAllMedia=true
+	unblock: ['.product-thumbnail', '.avatar-image']
 });
 ```
 
@@ -172,8 +172,8 @@ Attribute selectors (`data-sentry-*`) are automatically recognized by the SDK. C
 
 ```typescript
 Sentry.replayIntegration({
-  unmask: [".sentry-unmask, [data-sentry-unmask]"],
-  unblock: [".sentry-unblock, [data-sentry-unblock]"],
+	unmask: ['.sentry-unmask, [data-sentry-unmask]'],
+	unblock: ['.sentry-unblock, [data-sentry-unblock]']
 });
 ```
 
@@ -185,22 +185,23 @@ By default, only URL, method, status code, and response size are recorded for ne
 
 ```typescript
 Sentry.replayIntegration({
-  networkDetailAllowUrls: [
-    window.location.origin,          // same-origin requests
-    "api.example.com",               // substring match
-    /^https:\/\/api\.example\.com/,  // regex match
-  ],
-  networkDetailDenyUrls: [
-    "https://analytics.third-party.com",  // takes precedence over allow
-  ],
+	networkDetailAllowUrls: [
+		window.location.origin, // same-origin requests
+		'api.example.com', // substring match
+		/^https:\/\/api\.example\.com/ // regex match
+	],
+	networkDetailDenyUrls: [
+		'https://analytics.third-party.com' // takes precedence over allow
+	],
 
-  networkCaptureBodies: true,                    // capture req/res bodies (default: true when URLs allowed)
-  networkRequestHeaders: ["Cache-Control", "X-Request-ID"],
-  networkResponseHeaders: ["Referrer-Policy", "X-Response-Time"],
+	networkCaptureBodies: true, // capture req/res bodies (default: true when URLs allowed)
+	networkRequestHeaders: ['Cache-Control', 'X-Request-ID'],
+	networkResponseHeaders: ['Referrer-Policy', 'X-Response-Time']
 });
 ```
 
 Constraints:
+
 - Body truncation limit: **150,000 characters** max
 - Default captured headers: `Content-Type`, `Content-Length`, `Accept`
 - No bodies/extra headers captured unless URLs are in `networkDetailAllowUrls`
@@ -213,10 +214,7 @@ Requires a second integration:
 
 ```typescript
 Sentry.init({
-  integrations: [
-    Sentry.replayIntegration(),
-    Sentry.replayCanvasIntegration(),
-  ],
+	integrations: [Sentry.replayIntegration(), Sentry.replayCanvasIntegration()]
 });
 ```
 
@@ -226,14 +224,14 @@ Use when canvas content changes outside normal render cycles:
 
 ```typescript
 Sentry.init({
-  integrations: [
-    Sentry.replayIntegration(),
-    Sentry.replayCanvasIntegration({ enableManualSnapshot: true }),
-  ],
+	integrations: [
+		Sentry.replayIntegration(),
+		Sentry.replayCanvasIntegration({ enableManualSnapshot: true })
+	]
 });
 
 // Trigger snapshot manually when needed
-const canvasIntegration = Sentry.getClient()?.getIntegrationByName("ReplayCanvas");
+const canvasIntegration = Sentry.getClient()?.getIntegrationByName('ReplayCanvas');
 canvasIntegration?.snapshot(canvasElement);
 ```
 
@@ -246,19 +244,19 @@ Defer loading the replay bundle to improve initial page load performance:
 ```typescript
 // Initialize without replay
 Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
-  integrations: [],
+	dsn: import.meta.env.VITE_SENTRY_DSN,
+	integrations: []
 });
 
 // Load on demand (e.g., after login, or on idle)
 async function enableReplay() {
-  const { replayIntegration } = await import("@sentry/sveltekit");
-  Sentry.addIntegration(
-    replayIntegration({
-      maskAllText: true,
-      blockAllMedia: true,
-    })
-  );
+	const { replayIntegration } = await import('@sentry/sveltekit');
+	Sentry.addIntegration(
+		replayIntegration({
+			maskAllText: true,
+			blockAllMedia: true
+		})
+	);
 }
 ```
 
@@ -268,21 +266,21 @@ async function enableReplay() {
 
 ```typescript
 Sentry.replayIntegration({
-  // Filter/drop individual recording events before they are buffered
-  beforeAddRecordingEvent: (event) => {
-    // Drop debug console entries from replay
-    if (event.data?.payload?.level === "debug") return null;
-    return event;
-  },
+	// Filter/drop individual recording events before they are buffered
+	beforeAddRecordingEvent: (event) => {
+		// Drop debug console entries from replay
+		if (event.data?.payload?.level === 'debug') return null;
+		return event;
+	},
 
-  // Control which errors trigger error-rate sampling
-  beforeErrorSampling: (event) => {
-    // Don't start replay for NetworkErrors
-    return event.exception?.values?.[0]?.type !== "NetworkError";
-  },
+	// Control which errors trigger error-rate sampling
+	beforeErrorSampling: (event) => {
+		// Don't start replay for NetworkErrors
+		return event.exception?.values?.[0]?.type !== 'NetworkError';
+	},
 
-  // Disable slow/rage-click detection on noisy elements
-  slowClickIgnoreSelectors: [".loading-spinner", "#carousel"],
+	// Disable slow/rage-click detection on noisy elements
+	slowClickIgnoreSelectors: ['.loading-spinner', '#carousel']
 });
 ```
 
@@ -290,13 +288,13 @@ Sentry.replayIntegration({
 
 ## SvelteKit-Specific Considerations
 
-| Topic | Note |
-|-------|-------|
-| Server-side rendering | Replay records the **browser DOM** after hydration, not the raw SSR HTML |
-| Navigation tracking | SvelteKit client-side navigations are recorded as replay navigation breadcrumbs |
+| Topic                 | Note                                                                             |
+| --------------------- | -------------------------------------------------------------------------------- |
+| Server-side rendering | Replay records the **browser DOM** after hydration, not the raw SSR HTML         |
+| Navigation tracking   | SvelteKit client-side navigations are recorded as replay navigation breadcrumbs  |
 | `+error.svelte` pages | Errors triggering error pages are captured; replay buffers the preceding session |
-| Ad-blocker bypass | Set `tunnel: "/sentry-tunnel"` to prevent replay data from being blocked |
-| Cloudflare adapter | Replay is client-only; no adapter-specific concerns |
+| Ad-blocker bypass     | Set `tunnel: "/sentry-tunnel"` to prevent replay data from being blocked         |
+| Cloudflare adapter    | Replay is client-only; no adapter-specific concerns                              |
 
 ---
 
@@ -315,7 +313,7 @@ The SDK uses a Web Worker (`blob:` URL) for compression.
 
 ```typescript
 Sentry.replayIntegration({
-  workerUrl: "/assets/sentry-replay-worker.min.js",
+	workerUrl: '/assets/sentry-replay-worker.min.js'
 });
 ```
 
@@ -345,14 +343,14 @@ Download the worker from the `@sentry/replay` package `worker/` directory and se
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Replay not recording | Confirm `replayIntegration()` is in `hooks.client.ts` — never in `hooks.server.ts` |
-| All text shown as `*` | Expected with `maskAllText: true`; add `data-sentry-unmask` to elements that are safe to show |
-| Replay missing after error | Check `replaysOnErrorSampleRate` is > 0; verify `replaysSessionSampleRate` is not overriding |
-| Network requests missing in replay | Add your API domains to `networkDetailAllowUrls` |
-| Worker CSP errors in browser console | Add `worker-src 'self' blob:;` to your CSP headers |
-| Canvas not recording | Add `replayCanvasIntegration()` alongside `replayIntegration()` |
-| High bandwidth usage | Lower `replaysSessionSampleRate`; enable `mutationLimit`; disable network body capture |
-| Replay blocked by ad-blocker | Set `tunnel: "/sentry-tunnel"` in `Sentry.init()` and implement server relay |
-| `beforeAddRecordingEvent` not filtering | Ensure the function returns `null` (not `undefined`) to drop events |
+| Issue                                   | Solution                                                                                      |
+| --------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Replay not recording                    | Confirm `replayIntegration()` is in `hooks.client.ts` — never in `hooks.server.ts`            |
+| All text shown as `*`                   | Expected with `maskAllText: true`; add `data-sentry-unmask` to elements that are safe to show |
+| Replay missing after error              | Check `replaysOnErrorSampleRate` is > 0; verify `replaysSessionSampleRate` is not overriding  |
+| Network requests missing in replay      | Add your API domains to `networkDetailAllowUrls`                                              |
+| Worker CSP errors in browser console    | Add `worker-src 'self' blob:;` to your CSP headers                                            |
+| Canvas not recording                    | Add `replayCanvasIntegration()` alongside `replayIntegration()`                               |
+| High bandwidth usage                    | Lower `replaysSessionSampleRate`; enable `mutationLimit`; disable network body capture        |
+| Replay blocked by ad-blocker            | Set `tunnel: "/sentry-tunnel"` in `Sentry.init()` and implement server relay                  |
+| `beforeAddRecordingEvent` not filtering | Ensure the function returns `null` (not `undefined`) to drop events                           |

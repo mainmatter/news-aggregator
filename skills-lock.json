@@ -1,49 +1,49 @@
 {
-  "version": 1,
-  "skills": {
-    "frontend-design": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
-    },
-    "grill-me": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "computedHash": "784f0dbb7403b0f00324bce9a112f715342777a0daee7bbb7385f9c6f0a170ea"
-    },
-    "sandbox": {
-      "source": "vercel/sandbox",
-      "sourceType": "github",
-      "computedHash": "4ddc9e05ef1b6f3c333790fc7ddf504d2cd9033dc43cdd41e4b048bd4f661eab"
-    },
-    "sentry-browser-sdk": {
-      "source": "getsentry/sentry-for-ai",
-      "sourceType": "github",
-      "skillPath": "skills/sentry-browser-sdk/SKILL.md",
-      "computedHash": "0ca21f883fefc9fc71dea0b8dc1e38fb9e03203923d49a93ec652addf297f2eb"
-    },
-    "sentry-feature-setup": {
-      "source": "getsentry/sentry-for-ai",
-      "sourceType": "github",
-      "skillPath": "skills/sentry-feature-setup/SKILL.md",
-      "computedHash": "526bb0e8d8812621cb4051fe12a7125b4a76b592ded7990837c169464e2bdc85"
-    },
-    "sentry-node-sdk": {
-      "source": "getsentry/sentry-for-ai",
-      "sourceType": "github",
-      "skillPath": "skills/sentry-node-sdk/SKILL.md",
-      "computedHash": "a286d43e87159cd971c7e191e10f47894bfbc7fdc352c06aec37e6f6a251d7d3"
-    },
-    "sentry-svelte-sdk": {
-      "source": "getsentry/sentry-for-ai",
-      "sourceType": "github",
-      "skillPath": "skills/sentry-svelte-sdk/SKILL.md",
-      "computedHash": "7b534f841456f2bb3dab813c2b0de58752dfcf144a5eb828f01c3b354b36d6c2"
-    },
-    "workflow": {
-      "source": "vercel/workflow",
-      "sourceType": "github",
-      "computedHash": "dfb59009ebfb21747e6dc89fd4c683c052c459ae2592b3b966c120e2a7fb7601"
-    }
-  }
+	"version": 1,
+	"skills": {
+		"frontend-design": {
+			"source": "anthropics/skills",
+			"sourceType": "github",
+			"computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+		},
+		"grill-me": {
+			"source": "mattpocock/skills",
+			"sourceType": "github",
+			"computedHash": "784f0dbb7403b0f00324bce9a112f715342777a0daee7bbb7385f9c6f0a170ea"
+		},
+		"sandbox": {
+			"source": "vercel/sandbox",
+			"sourceType": "github",
+			"computedHash": "4ddc9e05ef1b6f3c333790fc7ddf504d2cd9033dc43cdd41e4b048bd4f661eab"
+		},
+		"sentry-browser-sdk": {
+			"source": "getsentry/sentry-for-ai",
+			"sourceType": "github",
+			"skillPath": "skills/sentry-browser-sdk/SKILL.md",
+			"computedHash": "0ca21f883fefc9fc71dea0b8dc1e38fb9e03203923d49a93ec652addf297f2eb"
+		},
+		"sentry-feature-setup": {
+			"source": "getsentry/sentry-for-ai",
+			"sourceType": "github",
+			"skillPath": "skills/sentry-feature-setup/SKILL.md",
+			"computedHash": "526bb0e8d8812621cb4051fe12a7125b4a76b592ded7990837c169464e2bdc85"
+		},
+		"sentry-node-sdk": {
+			"source": "getsentry/sentry-for-ai",
+			"sourceType": "github",
+			"skillPath": "skills/sentry-node-sdk/SKILL.md",
+			"computedHash": "a286d43e87159cd971c7e191e10f47894bfbc7fdc352c06aec37e6f6a251d7d3"
+		},
+		"sentry-svelte-sdk": {
+			"source": "getsentry/sentry-for-ai",
+			"sourceType": "github",
+			"skillPath": "skills/sentry-svelte-sdk/SKILL.md",
+			"computedHash": "7b534f841456f2bb3dab813c2b0de58752dfcf144a5eb828f01c3b354b36d6c2"
+		},
+		"workflow": {
+			"source": "vercel/workflow",
+			"sourceType": "github",
+			"computedHash": "dfb59009ebfb21747e6dc89fd4c683c052c459ae2592b3b966c120e2a7fb7601"
+		}
+	}
 }
