@@ -223,9 +223,8 @@
 	}
 
 	.edition-pill.active {
-		color: var(--accent-contrast);
+		color: var(--fg);
 		font-weight: 800;
-		background: var(--accent);
 
 		&::before {
 			view-transition-name: active-pill-underline;
@@ -235,7 +234,7 @@
 			left: 0;
 			right: 0;
 			height: var(--s-2px);
-			background: var(--support);
+			background: var(--accent);
 		}
 	}
 
