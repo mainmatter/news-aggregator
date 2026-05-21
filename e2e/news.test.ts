@@ -39,6 +39,20 @@ test.describe('news', () => {
 		await expect(page.locator('.date-long').first()).toBeHidden();
 		await expect(page.locator('.date-short').first()).toBeVisible();
 		await expect(page.locator('.date-short').first()).toHaveText('Mar 23, 2026');
+
+		await page.setViewportSize({ width: 1280, height: 720 });
+		await page.goto('/editions');
+
+		await expect(page.locator('.edition-card .date-long')).toBeVisible();
+		await expect(page.locator('.edition-card .date-long')).toHaveText('Monday, March 23, 2026');
+		await expect(page.locator('.edition-card .date-short')).toBeHidden();
+
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto('/editions');
+
+		await expect(page.locator('.edition-card .date-long')).toBeHidden();
+		await expect(page.locator('.edition-card .date-short')).toBeVisible();
+		await expect(page.locator('.edition-card .date-short')).toHaveText('Mar 23, 2026');
 	});
 
 	test('shows manage sources CTA when user has no sources', async ({ page }) => {

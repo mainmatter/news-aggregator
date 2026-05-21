@@ -5,20 +5,10 @@
 	import NavLink from '$lib/components/NavLink.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
+	import { format_edition_date } from '$lib/date_format';
 	import { create_edition, delete_edition, get_editions } from '$lib/editions.remote';
 
 	const editions = $derived(await get_editions());
-
-	function format_date(date_str: string) {
-		const [year, month, day] = date_str.split('-').map(Number);
-		const date = new Date(year, month - 1, day);
-		return date.toLocaleDateString('en-US', {
-			weekday: 'long',
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric'
-		});
-	}
 
 	function get_today() {
 		const now = new Date();
@@ -97,10 +87,14 @@
 			<ul class="editions">
 				{#each editions as edition (edition.id)}
 					{@const delete_form = delete_edition.for(edition.id)}
+					{@const edition_date = format_edition_date(edition.edition_date)}
 					<li class="edition-card">
 						<div class="edition-header">
 							<div class="edition-identity">
-								<h3 class="edition-date">{format_date(edition.edition_date)}</h3>
+								<h3 class="edition-date">
+									<span class="date-long">{edition_date.long}</span>
+									<span class="date-short">{edition_date.short}</span>
+								</h3>
 								<span class={['status-badge', get_status_class(edition.status)]}>
 									{format_status(edition.status)}
 								</span>
@@ -112,7 +106,7 @@
 									{...delete_form.enhance(async ({ submit }) => {
 										if (
 											!confirm(
-												`Delete the edition for ${format_date(edition.edition_date)}? This cannot be undone.`
+												`Delete the edition for ${edition_date.long}? This cannot be undone.`
 											)
 										) {
 											return;
@@ -130,7 +124,7 @@
 										variant="ghost"
 										type="submit"
 										class="delete-button"
-										aria-label={`Delete edition for ${format_date(edition.edition_date)}`}
+										aria-label={`Delete edition for ${edition_date.long}`}
 									>
 										Delete
 									</Button>
@@ -425,6 +419,10 @@
 		line-height: 1.3;
 	}
 
+	.date-short {
+		display: none;
+	}
+
 	/* --- Status badges --- */
 	.status-badge {
 		font-size: var(--text-xs);
@@ -522,6 +520,14 @@
 
 	/* --- Responsive --- */
 	@media (max-width: 640px) {
+		.date-long {
+			display: none;
+		}
+
+		.date-short {
+			display: inline;
+		}
+
 		.add-form-fields {
 			grid-template-columns: 1fr;
 		}
