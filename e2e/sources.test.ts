@@ -4,16 +4,6 @@ test.describe('sources', () => {
 	test('handles validation and CRUD operations', async ({ page, db, schema }) => {
 		await page.goto('/sources');
 
-		const settings_form = page.locator('.settings-form');
-		const settings_textarea = settings_form.getByLabel('Article selection guidance');
-		const settings_save_button = settings_form.getByRole('button', { name: 'SAVE' });
-
-		await settings_textarea.fill('   Prefer deep reporting on climate\nwith policy context.   ');
-		await settings_save_button.click();
-		await expect(settings_textarea).toHaveValue(
-			'Prefer deep reporting on climate\nwith policy context.'
-		);
-
 		const add_form = page.locator('.add-form');
 
 		await page.getByRole('button', { name: 'ADD SOURCE' }).click();
@@ -77,24 +67,6 @@ test.describe('sources', () => {
 		);
 		await expect(reloaded_card.getByLabel('LABEL')).toHaveValue('World');
 		await expect(reloaded_card.getByRole('checkbox', { name: 'ACTIVE' })).not.toBeChecked();
-		await expect(settings_textarea).toHaveValue(
-			'Prefer deep reporting on climate\nwith policy context.'
-		);
-
-		await settings_textarea.fill('  Focus on accountability reporting and labor news.  ');
-		await settings_save_button.click();
-		await expect(settings_textarea).toHaveValue(
-			'Focus on accountability reporting and labor news.'
-		);
-
-		await page.reload();
-		await expect(settings_textarea).toHaveValue(
-			'Focus on accountability reporting and labor news.'
-		);
-
-		await settings_textarea.fill('');
-		await settings_save_button.click();
-		await expect(settings_textarea).toHaveValue('');
 
 		await reloaded_card.getByLabel('DISPLAY NAME').fill('Reader Alias');
 		await reloaded_card.getByRole('button', { name: 'SAVE' }).click();
@@ -111,11 +83,6 @@ test.describe('sources', () => {
 				);
 			})
 			.toBe('Reader Alias');
-
-		const user_setting_rows = await db.select().from(schema.user_settings).all();
-
-		expect(user_setting_rows).toHaveLength(1);
-		expect(user_setting_rows[0]?.article_selection_prompt).toBeNull();
 
 		await reloaded_card.getByRole('button', { name: 'DELETE' }).click();
 		await second_source_card.getByRole('button', { name: 'DELETE' }).click();

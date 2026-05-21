@@ -5,7 +5,6 @@
 		update_user_source,
 		delete_user_source
 	} from '$lib/sources.remote';
-	import { get_user_settings, update_user_settings } from '$lib/settings.remote';
 	import Masthead from '$lib/components/Masthead.svelte';
 	import NavLink from '$lib/components/NavLink.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
@@ -14,10 +13,7 @@
 	import Button from '$lib/components/Button.svelte';
 
 	const user_sources = $derived(await get_user_sources());
-	const user_settings = $derived(await get_user_settings());
 
-	const settings_form = update_user_settings;
-	let settings_save_button: Button | undefined = $state();
 	let source_save_buttons: Record<string, Button | undefined> = {};
 
 	const forms = $derived.by(() => {
@@ -46,61 +42,11 @@
 		top_right="Manage Feeds"
 		title="Your Sources"
 	>
-		<NavLink href="/news">&larr; Back to News</NavLink>
+		<NavLink href="/settings">&larr; Back to Settings</NavLink>
 	</Masthead>
 </header>
 
 <main class="content">
-	<section class="settings">
-		<h2 class="section-label">Settings</h2>
-
-		<form
-			class="settings-form"
-			{...settings_form.enhance(async ({ data, submit }) => {
-				try {
-					const article_selection_prompt = data.article_selection_prompt?.trim() || null;
-
-					await submit().updates(
-						get_user_settings().withOverride((settings) => ({
-							...settings,
-							article_selection_prompt
-						}))
-					);
-
-					settings_save_button?.show_feedback('success');
-				} catch (error) {
-					settings_save_button?.show_feedback('error');
-					throw error;
-				}
-			})}
-		>
-			<div class="field">
-				<label class="field-label" for="article-selection-guidance"
-					>Article selection guidance</label
-				>
-				<p class="settings-copy">
-					Specify what you would like to see in your daily edition. Tell the AI what you are
-					interested in. This affects article choice only, not summary tone/formatting.
-				</p>
-				<textarea
-					{...settings_form.fields.article_selection_prompt.as(
-						'text',
-						user_settings.article_selection_prompt ?? ''
-					)}
-					id="article-selection-guidance"
-					placeholder="Prefer investigations, local accountability reporting, and labor coverage…"
-				></textarea>
-				<FieldErrors field={settings_form.fields.article_selection_prompt} />
-			</div>
-
-			<div class="settings-actions">
-				<Button bind:this={settings_save_button} type="submit">Save</Button>
-			</div>
-		</form>
-	</section>
-
-	<SectionRule />
-
 	<section class="add-source">
 		<h2 class="section-label">Add a Source</h2>
 
@@ -340,24 +286,6 @@
 		}
 	}
 
-	.settings {
-		padding: var(--s-5) 0;
-	}
-
-	.settings-copy {
-		font-size: var(--text-sm);
-		color: var(--muted);
-		margin-bottom: var(--s-3);
-	}
-
-	.settings-actions {
-		margin-top: var(--s-4);
-		& :global(button) {
-			display: block;
-			margin-left: auto;
-		}
-	}
-
 	/* --- Fields --- */
 	.field {
 		display: flex;
@@ -380,8 +308,7 @@
 		font-weight: 400;
 	}
 
-	.field input:not([type='hidden']):not([type='checkbox']),
-	.field textarea {
+	.field input:not([type='hidden']):not([type='checkbox']) {
 		width: 100%;
 		padding: var(--s-3) 0;
 		background: transparent;
@@ -394,19 +321,12 @@
 		transition: border-color 0.2s var(--ease-out-expo);
 	}
 
-	.field textarea {
-		min-height: calc(var(--s-10) * 2);
-		resize: vertical;
-	}
-
-	.field input::placeholder,
-	.field textarea::placeholder {
+	.field input::placeholder {
 		color: var(--muted);
 		opacity: 0.5;
 	}
 
-	.field input:focus,
-	.field textarea:focus {
+	.field input:focus {
 		outline: none;
 		border-bottom-color: var(--accent);
 	}

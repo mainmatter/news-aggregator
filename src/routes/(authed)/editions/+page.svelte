@@ -84,7 +84,7 @@
 	top_right="Manage"
 	title="Your Editions"
 >
-	<NavLink href="/news">&larr; Back to News</NavLink>
+	<NavLink href="/settings">&larr; Back to Settings</NavLink>
 </Masthead>
 
 <main class="content">
