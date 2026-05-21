@@ -126,11 +126,4 @@
 		padding: clamp(var(--s-4), 3vw, var(--s-6)) clamp(var(--s-4), 4vw, var(--s-6))
 			clamp(var(--s-6), 5vw, var(--s-8));
 	}
-
-	@media (max-width: 34rem) {
-		.authed-nav-inner {
-			align-items: flex-start;
-			flex-direction: column;
-		}
-	}
 </style>
