@@ -154,9 +154,6 @@
 		display: flex;
 		align-items: center;
 		gap: var(--s-3);
-		border-top: var(--s-2px) solid var(--fg);
-		border-bottom: var(--s-px) solid var(--rule-strong);
-		padding: var(--s-3) 0;
 	}
 
 	.editions-label {

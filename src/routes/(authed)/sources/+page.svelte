@@ -39,295 +39,271 @@
 	<title>Sources — Editorial</title>
 </svelte:head>
 
-<div class="page-container">
-	<header class="page-header">
-		<Masthead top_left="Sources" top_right="Manage Feeds" title="Your Sources" />
-		<div class="header-nav">
-			<span class="source-total"
-				>{user_sources.length} {user_sources.length === 1 ? 'Source' : 'Sources'}</span
-			>
-			<NavLink href="/news">&larr; Back to News</NavLink>
-		</div>
-	</header>
+<header class="page-header">
+	<Masthead
+		top_left="Sources"
+		top_center={`${user_sources.length} ${user_sources.length === 1 ? 'Source' : 'Sources'}`}
+		top_right="Manage Feeds"
+		title="Your Sources"
+	>
+		<NavLink href="/news">&larr; Back to News</NavLink>
+	</Masthead>
+</header>
 
-	<SectionRule />
+<main class="content">
+	<section class="settings">
+		<h2 class="section-label">Settings</h2>
 
-	<main class="content">
-		<section class="settings">
-			<h2 class="section-label">Settings</h2>
-
-			<form
-				class="settings-form"
-				{...settings_form.enhance(async ({ data, submit }) => {
-					try {
-						const article_selection_prompt = data.article_selection_prompt?.trim() || null;
-
-						await submit().updates(
-							get_user_settings().withOverride((settings) => ({
-								...settings,
-								article_selection_prompt
-							}))
-						);
-
-						settings_save_button?.show_feedback('success');
-					} catch (error) {
-						settings_save_button?.show_feedback('error');
-						throw error;
-					}
-				})}
-			>
-				<div class="field">
-					<label class="field-label" for="article-selection-guidance"
-						>Article selection guidance</label
-					>
-					<p class="settings-copy">
-						Specify what you would like to see in your daily edition. Tell the AI what you are
-						interested in. This affects article choice only, not summary tone/formatting.
-					</p>
-					<textarea
-						{...settings_form.fields.article_selection_prompt.as(
-							'text',
-							user_settings.article_selection_prompt ?? ''
-						)}
-						id="article-selection-guidance"
-						placeholder="Prefer investigations, local accountability reporting, and labor coverage…"
-					></textarea>
-					<FieldErrors field={settings_form.fields.article_selection_prompt} />
-				</div>
-
-				<div class="settings-actions">
-					<Button bind:this={settings_save_button} type="submit">Save</Button>
-				</div>
-			</form>
-		</section>
-
-		<SectionRule />
-
-		<section class="add-source">
-			<h2 class="section-label">Add a Source</h2>
-
-			<form
-				class="add-form"
-				{...create_user_source.enhance(async ({ form, data, submit }) => {
-					const optimistic_entry = {
-						user_source_id: crypto.randomUUID(),
-						source_id: crypto.randomUUID(),
-						canonical_url: data.canonical_url,
-						display_name: data.display_name,
-						source_kind: 'rss',
-						label: data.label ?? null,
-						is_active: true,
-						created_at: new Date(),
-						updated_at: new Date()
-					};
+		<form
+			class="settings-form"
+			{...settings_form.enhance(async ({ data, submit }) => {
+				try {
+					const article_selection_prompt = data.article_selection_prompt?.trim() || null;
 
 					await submit().updates(
-						get_user_sources().withOverride((sources) => [...sources, optimistic_entry])
+						get_user_settings().withOverride((settings) => ({
+							...settings,
+							article_selection_prompt
+						}))
 					);
 
-					form.reset();
-				})}
-			>
-				<div class="add-form-fields">
-					<div class="field">
-						<label class="field-label" for="new-url">Feed URL</label>
-						<input
-							{...create_user_source.fields.canonical_url.as('url')}
-							id="new-url"
-							placeholder="https://example.com/feed.xml"
-						/>
-						<FieldErrors field={create_user_source.fields.canonical_url} />
-					</div>
+					settings_save_button?.show_feedback('success');
+				} catch (error) {
+					settings_save_button?.show_feedback('error');
+					throw error;
+				}
+			})}
+		>
+			<div class="field">
+				<label class="field-label" for="article-selection-guidance"
+					>Article selection guidance</label
+				>
+				<p class="settings-copy">
+					Specify what you would like to see in your daily edition. Tell the AI what you are
+					interested in. This affects article choice only, not summary tone/formatting.
+				</p>
+				<textarea
+					{...settings_form.fields.article_selection_prompt.as(
+						'text',
+						user_settings.article_selection_prompt ?? ''
+					)}
+					id="article-selection-guidance"
+					placeholder="Prefer investigations, local accountability reporting, and labor coverage…"
+				></textarea>
+				<FieldErrors field={settings_form.fields.article_selection_prompt} />
+			</div>
 
-					<div class="field">
-						<label class="field-label" for="new-name">Display Name</label>
-						<input
-							{...create_user_source.fields.display_name.as('text')}
-							id="new-name"
-							placeholder="My Favorite Blog"
-						/>
-						<FieldErrors field={create_user_source.fields.display_name} />
-					</div>
-
-					<div class="field">
-						<label class="field-label" for="new-label"
-							>Label <span class="optional">(optional)</span></label
-						>
-						<input
-							{...create_user_source.fields.label.as('text')}
-							id="new-label"
-							placeholder="Tech, Politics, etc."
-						/>
-						<FieldErrors field={create_user_source.fields.label} />
-					</div>
-				</div>
-
-				<div class="add-form-actions">
-					<Button variant="primary" type="submit">Add Source</Button>
-				</div>
-			</form>
-		</section>
-
-		<SectionRule />
-
-		<section class="source-list">
-			<h2 class="section-label">Your Sources</h2>
-
-			{#if user_sources.length === 0}
-				<p class="empty-state">No sources yet. Add one above to get started.</p>
-			{:else}
-				<ul class="sources">
-					{#each forms as { edit, remove, source } (source.user_source_id)}
-						<li class="source-card">
-							<form
-								class="source-edit-form"
-								{...edit.enhance(async ({ data, submit }) => {
-									try {
-										const updated_display_name = data.display_name ?? source.display_name;
-										const updated_label = data.label ?? null;
-										const updated_url = data.canonical_url ?? source.canonical_url;
-										const updated_active = data.is_active ?? false;
-
-										await submit().updates(
-											get_user_sources().withOverride((sources) =>
-												sources.map((s) =>
-													s.user_source_id === source.user_source_id
-														? {
-																...s,
-																display_name: updated_display_name,
-																label: updated_label,
-																canonical_url: updated_url,
-																is_active: updated_active
-															}
-														: s
-												)
-											)
-										);
-										source_save_buttons[source.user_source_id]?.show_feedback('success');
-									} catch (error) {
-										source_save_buttons[source.user_source_id]?.show_feedback('error');
-										throw error;
-									}
-								})}
-							>
-								<input {...edit.fields.user_source_id.as('hidden', source.user_source_id)} />
-
-								<div class="source-header">
-									<div class="source-identity">
-										<h3 class="source-name">{source.display_name}</h3>
-										<span class="source-kind">{source.source_kind}</span>
-									</div>
-
-									<label class="active-toggle">
-										<input
-											{...source.is_active
-												? edit.fields.is_active.as('checkbox', true)
-												: edit.fields.is_active.as('checkbox', false)}
-										/>
-										<span class="toggle-label">Active</span>
-									</label>
-								</div>
-
-								<div class="source-fields">
-									<div class="field field-inline">
-										<label class="field-label" for="url-{source.user_source_id}">Feed URL</label>
-										<input
-											{...edit.fields.canonical_url.as('url', source.canonical_url)}
-											id="url-{source.user_source_id}"
-											placeholder="https://..."
-										/>
-										<FieldErrors field={edit.fields.canonical_url} />
-									</div>
-
-									<div class="field field-inline">
-										<label class="field-label" for="name-{source.user_source_id}"
-											>Display Name</label
-										>
-										<input
-											{...edit.fields.display_name.as('text', source.display_name)}
-											id="name-{source.user_source_id}"
-											placeholder="Source name"
-										/>
-										<FieldErrors field={edit.fields.display_name} />
-									</div>
-
-									<div class="field field-inline">
-										<label class="field-label" for="label-{source.user_source_id}"
-											>Label (optional)</label
-										>
-										<input
-											{...edit.fields.label.as('text', source.label ?? '')}
-											id="label-{source.user_source_id}"
-											placeholder="Add a label…"
-										/>
-										<FieldErrors field={edit.fields.label} />
-									</div>
-								</div>
-
-								<div class="source-actions">
-									<Button bind:this={source_save_buttons[source.user_source_id]} type="submit">
-										Save
-									</Button>
-								</div>
-							</form>
-
-							<form
-								class="delete-form"
-								{...remove.enhance(async ({ submit }) => {
-									await submit().updates(
-										get_user_sources().withOverride((sources) =>
-											sources.filter((s) => s.user_source_id !== source.user_source_id)
-										)
-									);
-								})}
-							>
-								<input {...remove.fields.user_source_id.as('hidden', source.user_source_id)} />
-								<Button variant="ghost" type="submit">Delete</Button>
-							</form>
-						</li>
-					{/each}
-				</ul>
-			{/if}
-		</section>
-	</main>
+			<div class="settings-actions">
+				<Button bind:this={settings_save_button} type="submit">Save</Button>
+			</div>
+		</form>
+	</section>
 
 	<SectionRule />
 
-	<PageFooter
-		tagline="Curate your world."
-		subtitle="Add, edit, and manage the sources that power your daily edition."
-	/>
-</div>
+	<section class="add-source">
+		<h2 class="section-label">Add a Source</h2>
+
+		<form
+			class="add-form"
+			{...create_user_source.enhance(async ({ form, data, submit }) => {
+				const optimistic_entry = {
+					user_source_id: crypto.randomUUID(),
+					source_id: crypto.randomUUID(),
+					canonical_url: data.canonical_url,
+					display_name: data.display_name,
+					source_kind: 'rss',
+					label: data.label ?? null,
+					is_active: true,
+					created_at: new Date(),
+					updated_at: new Date()
+				};
+
+				await submit().updates(
+					get_user_sources().withOverride((sources) => [...sources, optimistic_entry])
+				);
+
+				form.reset();
+			})}
+		>
+			<div class="add-form-fields">
+				<div class="field">
+					<label class="field-label" for="new-url">Feed URL</label>
+					<input
+						{...create_user_source.fields.canonical_url.as('url')}
+						id="new-url"
+						placeholder="https://example.com/feed.xml"
+					/>
+					<FieldErrors field={create_user_source.fields.canonical_url} />
+				</div>
+
+				<div class="field">
+					<label class="field-label" for="new-name">Display Name</label>
+					<input
+						{...create_user_source.fields.display_name.as('text')}
+						id="new-name"
+						placeholder="My Favorite Blog"
+					/>
+					<FieldErrors field={create_user_source.fields.display_name} />
+				</div>
+
+				<div class="field">
+					<label class="field-label" for="new-label"
+						>Label <span class="optional">(optional)</span></label
+					>
+					<input
+						{...create_user_source.fields.label.as('text')}
+						id="new-label"
+						placeholder="Tech, Politics, etc."
+					/>
+					<FieldErrors field={create_user_source.fields.label} />
+				</div>
+			</div>
+
+			<div class="add-form-actions">
+				<Button variant="primary" type="submit">Add Source</Button>
+			</div>
+		</form>
+	</section>
+
+	<SectionRule />
+
+	<section class="source-list">
+		<h2 class="section-label">Your Sources</h2>
+
+		{#if user_sources.length === 0}
+			<p class="empty-state">No sources yet. Add one above to get started.</p>
+		{:else}
+			<ul class="sources">
+				{#each forms as { edit, remove, source } (source.user_source_id)}
+					<li class="source-card">
+						<form
+							class="source-edit-form"
+							{...edit.enhance(async ({ data, submit }) => {
+								try {
+									const updated_display_name = data.display_name ?? source.display_name;
+									const updated_label = data.label ?? null;
+									const updated_url = data.canonical_url ?? source.canonical_url;
+									const updated_active = data.is_active ?? false;
+
+									await submit().updates(
+										get_user_sources().withOverride((sources) =>
+											sources.map((s) =>
+												s.user_source_id === source.user_source_id
+													? {
+															...s,
+															display_name: updated_display_name,
+															label: updated_label,
+															canonical_url: updated_url,
+															is_active: updated_active
+														}
+													: s
+											)
+										)
+									);
+									source_save_buttons[source.user_source_id]?.show_feedback('success');
+								} catch (error) {
+									source_save_buttons[source.user_source_id]?.show_feedback('error');
+									throw error;
+								}
+							})}
+						>
+							<input {...edit.fields.user_source_id.as('hidden', source.user_source_id)} />
+
+							<div class="source-header">
+								<div class="source-identity">
+									<h3 class="source-name">{source.display_name}</h3>
+									<span class="source-kind">{source.source_kind}</span>
+								</div>
+
+								<label class="active-toggle">
+									<input
+										{...source.is_active
+											? edit.fields.is_active.as('checkbox', true)
+											: edit.fields.is_active.as('checkbox', false)}
+									/>
+									<span class="toggle-label">Active</span>
+								</label>
+							</div>
+
+							<div class="source-fields">
+								<div class="field field-inline">
+									<label class="field-label" for="url-{source.user_source_id}">Feed URL</label>
+									<input
+										{...edit.fields.canonical_url.as('url', source.canonical_url)}
+										id="url-{source.user_source_id}"
+										placeholder="https://..."
+									/>
+									<FieldErrors field={edit.fields.canonical_url} />
+								</div>
+
+								<div class="field field-inline">
+									<label class="field-label" for="name-{source.user_source_id}">Display Name</label>
+									<input
+										{...edit.fields.display_name.as('text', source.display_name)}
+										id="name-{source.user_source_id}"
+										placeholder="Source name"
+									/>
+									<FieldErrors field={edit.fields.display_name} />
+								</div>
+
+								<div class="field field-inline">
+									<label class="field-label" for="label-{source.user_source_id}"
+										>Label (optional)</label
+									>
+									<input
+										{...edit.fields.label.as('text', source.label ?? '')}
+										id="label-{source.user_source_id}"
+										placeholder="Add a label…"
+									/>
+									<FieldErrors field={edit.fields.label} />
+								</div>
+							</div>
+
+							<div class="source-actions">
+								<Button bind:this={source_save_buttons[source.user_source_id]} type="submit">
+									Save
+								</Button>
+							</div>
+						</form>
+
+						<form
+							class="delete-form"
+							{...remove.enhance(async ({ submit }) => {
+								await submit().updates(
+									get_user_sources().withOverride((sources) =>
+										sources.filter((s) => s.user_source_id !== source.user_source_id)
+									)
+								);
+							})}
+						>
+							<input {...remove.fields.user_source_id.as('hidden', source.user_source_id)} />
+							<Button variant="ghost" type="submit">Delete</Button>
+						</form>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</section>
+</main>
+
+<PageFooter
+	tagline="Curate your world."
+	subtitle="Add, edit, and manage the sources that power your daily edition."
+/>
 
 <style>
-	.page-container {
-		position: relative;
-		z-index: 1;
-		max-width: var(--page-max-width);
-		margin: 0 auto;
-		padding: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-4), 4vw, var(--s-6))
-			clamp(var(--s-8), 6vw, var(--s-10));
-	}
-
 	.page-header {
 		animation: fade-down 0.55s var(--ease-out-expo);
 	}
 
 	.header-nav {
 		display: flex;
-		justify-content: space-between;
+		justify-content: flex-end;
 		align-items: center;
 		padding: var(--s-4) 0;
 		border-top: var(--s-2px) solid var(--fg);
 		border-bottom: var(--s-px) solid var(--rule-strong);
-	}
-
-	.source-total {
-		font-size: var(--text-sm);
-		font-weight: 800;
-		letter-spacing: var(--tracking-5);
-		text-transform: uppercase;
-		color: var(--muted);
 	}
 
 	.content {

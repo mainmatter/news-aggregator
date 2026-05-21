@@ -50,19 +50,8 @@
 		}
 	}
 
-	function get_status_copy(status: string, article_count: number) {
-		const article_label = `${article_count} ${article_count === 1 ? 'Article' : 'Articles'}`;
-
-		switch (status) {
-			case 'generating':
-				return `Generating · ${article_label}`;
-			case 'failed':
-				return `Failed · ${article_label}`;
-			case 'published':
-				return `Published · ${article_label}`;
-			default:
-				return `Draft · ${article_label}`;
-		}
+	function get_status_copy(article_count: number) {
+		return `${article_count} ${article_count === 1 ? 'Article' : 'Articles'}`;
 	}
 
 	const date_param = $derived(page.params.date!);
@@ -128,620 +117,584 @@
 	<title>{edition ? (edition.title ?? formatted_date) : 'Edition Not Found'} — Editorial</title>
 </svelte:head>
 
-<div class="page-container">
-	<header class="page-header">
-		<Masthead
-			top_left="Edition"
-			top_right={formatted_date}
-			title={edition ? (edition.title ?? 'Untitled Edition') : 'Edition Not Found'}
-		/>
-		<div class="header-nav">
-			<span class="edition-status">
-				{#if edition}
-					{get_status_copy(edition.status, edition.articles.length)}
-				{:else}
-					No Edition
-				{/if}
-			</span>
-			<NavLink href="/editions">&larr; All Editions</NavLink>
+<Masthead
+	top_left="Edition"
+	top_center={edition ? get_status_copy(edition.articles.length) : 'No Edition'}
+	top_right={formatted_date}
+	title={edition ? (edition.title ?? 'Untitled Edition') : 'Edition Not Found'}
+>
+	<NavLink href="/editions">&larr; All Editions</NavLink>
+</Masthead>
+
+{#if !edition}
+	<main class="content">
+		<div class="empty-state">
+			<p>No edition found for {formatted_date}.</p>
+			<p>
+				<NavLink href="/editions">Return to editions</NavLink>
+			</p>
 		</div>
-	</header>
-
-	<SectionRule />
-
-	{#if !edition}
-		<main class="content">
-			<div class="empty-state">
-				<p>No edition found for {formatted_date}.</p>
-				<p>
-					<NavLink href="/editions">Return to editions</NavLink>
+	</main>
+{:else}
+	{#if edition.status === 'generating'}
+		<div class="status-banner status-banner-generating" role="status" aria-live="polite">
+			<div>
+				<p class="banner-eyebrow">{get_status_label(edition.status)}</p>
+				<p class="banner-copy">
+					This edition is currently being assembled. You can review the page, but the lineup may
+					still change as generation completes.
 				</p>
 			</div>
-		</main>
-	{:else}
-		{#if edition.status === 'generating'}
-			<div class="status-banner status-banner-generating" role="status" aria-live="polite">
-				<div>
-					<p class="banner-eyebrow">{get_status_label(edition.status)}</p>
-					<p class="banner-copy">
-						This edition is currently being assembled. You can review the page, but the lineup may
-						still change as generation completes.
-					</p>
-				</div>
+		</div>
+	{:else if edition.status === 'failed'}
+		<div class="status-banner status-banner-failed" role="status" aria-live="polite">
+			<div>
+				<p class="banner-eyebrow">{get_status_label(edition.status)}</p>
+				<p class="banner-copy">
+					The latest generation attempt did not complete. Review the edition details or return later
+					after the underlying issue has been resolved.
+				</p>
 			</div>
-		{:else if edition.status === 'failed'}
-			<div class="status-banner status-banner-failed" role="status" aria-live="polite">
-				<div>
-					<p class="banner-eyebrow">{get_status_label(edition.status)}</p>
-					<p class="banner-copy">
-						The latest generation attempt did not complete. Review the edition details or return
-						later after the underlying issue has been resolved.
-					</p>
-				</div>
-			</div>
-		{/if}
+		</div>
+	{/if}
 
-		<main class="content">
-			<!-- ═══ 1. Edition Metadata ═══ -->
-			<section class="edition-meta">
-				<h2 class="section-label">Edition Details</h2>
+	<main class="content">
+		<!-- ═══ 1. Edition Metadata ═══ -->
+		<section class="edition-meta">
+			<h2 class="section-label">Edition Details</h2>
 
-				{#if meta_form}
-					<form
-						class="meta-form"
-						{...meta_form.enhance(async ({ data, submit }) => {
-							try {
-								await submit().updates(
-									get_edition_editor(date_param).withOverride((prev) => {
-										if (!prev) return prev;
-										return {
-											...prev,
-											title: data.title ?? prev.title,
-											summary: data.summary ?? prev.summary,
-											status: data.status ?? prev.status
-										};
-									})
-								);
-
-								meta_save_button?.show_feedback('success');
-							} catch (error) {
-								meta_save_button?.show_feedback('error');
-								throw error;
-							}
-						})}
-					>
-						<input {...meta_form.fields.edition_id.as('hidden', edition.id)} />
-
-						<div class="meta-date">
-							<span class="field-label">Date</span>
-							<span class="date-display">{formatted_date}</span>
-						</div>
-
-						<div class="meta-fields">
-							<div class="field">
-								<label class="field-label" for="meta-title">Title</label>
-								<input
-									{...meta_form.fields.title.as('text', edition.title ?? '')}
-									id="meta-title"
-									placeholder="Edition headline"
-								/>
-								<FieldErrors field={meta_form.fields.title} />
-							</div>
-
-							<div class="field">
-								<label class="field-label" for="meta-status">Status</label>
-								<select {...meta_form.fields.status.as('text', edition.status)} id="meta-status">
-									<option value="draft">Draft</option>
-									<option value="generating">Generating</option>
-									<option value="failed">Failed</option>
-									<option value="published">Published</option>
-								</select>
-								<FieldErrors field={meta_form.fields.status} />
-							</div>
-						</div>
-
-						<div class="field field-full">
-							<label class="field-label" for="meta-summary">Summary</label>
-							<textarea
-								{...meta_form.fields.summary.as('text', edition.summary ?? '')}
-								id="meta-summary"
-								rows="3"
-								placeholder="A brief description of this edition"
-							></textarea>
-							<FieldErrors field={meta_form.fields.summary} />
-						</div>
-
-						<div class="meta-actions">
-							<Button bind:this={meta_save_button} type="submit">Save</Button>
-						</div>
-					</form>
-				{/if}
-			</section>
-
-			<SectionRule />
-
-			<!-- ═══ 2. Article Search / Add ═══ -->
-			<section class="article-search">
-				<h2 class="section-label">Add Articles</h2>
-
-				<form class="search-form" method="get">
-					<div class="search-field field">
-						<label class="field-label" for="search-articles">Search Articles</label>
-						<div class="search-input-row">
-							<input
-								type="text"
-								id="search-articles"
-								name="q"
-								bind:value={search_term}
-								placeholder="Search by title, URL, or category"
-							/>
-							<Button type="submit">Search</Button>
-						</div>
-					</div>
-				</form>
-
-				{#if candidates.length > 0}
-					<ul class="candidate-list">
-						{#each candidates as candidate (candidate.id)}
-							{@const add_form = add_edition_article.for(candidate.id)}
-							<li class="candidate-card">
-								<div class="candidate-info">
-									<h3 class="candidate-title">{candidate.title}</h3>
-									<div class="candidate-meta">
-										{#if candidate.source_name}
-											<span class="candidate-source">{candidate.source_name}</span>
-										{/if}
-										{#if candidate.category}
-											<span class="candidate-category">{candidate.category}</span>
-										{/if}
-										{#if candidate.published_at}
-											<time class="candidate-date">
-												{new Date(candidate.published_at).toLocaleDateString('en-US', {
-													month: 'short',
-													day: 'numeric'
-												})}
-											</time>
-										{/if}
-									</div>
-									{#if candidate.summary}
-										<p class="candidate-summary">{candidate.summary}</p>
-									{/if}
-								</div>
-								<form
-									class="candidate-action"
-									{...add_form.enhance(async ({ submit }) => {
-										await submit().updates(
-											get_edition_editor(date_param).withOverride((prev) => {
-												if (!prev) return prev;
-												return {
-													...prev,
-													articles: [
-														...prev.articles,
-														{
-															id: crypto.randomUUID(),
-															article_id: candidate.id,
-															position: prev.articles.length,
-															section: null,
-															reason: null,
-															custom_title: null,
-															custom_summary: null,
-															custom_category: null,
-															canonical_url: candidate.canonical_url,
-															title: candidate.title,
-															summary: candidate.summary,
-															category: candidate.category,
-															published_at: candidate.published_at
-														}
-													]
-												};
-											}),
-											search_editable_articles({
-												edition_id: edition.id,
-												search_term: search_term || undefined
-											})
-										);
-									})}
-								>
-									<input {...add_form.fields.edition_id.as('hidden', edition.id)} />
-									<input {...add_form.fields.article_id.as('hidden', candidate.id)} />
-									<Button type="submit">Add</Button>
-								</form>
-							</li>
-						{/each}
-					</ul>
-				{:else if search_term}
-					<p class="empty-state">No articles found matching "{search_term}".</p>
-				{/if}
-			</section>
-
-			<SectionRule />
-
-			<!-- ═══ 3. Manual Article Creation ═══ -->
-			<details class="manual-article">
-				<summary class="collapsible-toggle">
-					<h2 class="section-label">Manual Article Form</h2>
-					<span class="toggle-indicator"></span>
-				</summary>
-
+			{#if meta_form}
 				<form
-					class="manual-form"
-					{...create_manual_article.enhance(async ({ form, submit }) => {
-						await submit().updates(
-							get_edition_editor(date_param),
-							search_editable_articles({
-								edition_id: edition.id,
-								search_term: search_term || undefined
-							})
-						);
-						form.reset();
+					class="meta-form"
+					{...meta_form.enhance(async ({ data, submit }) => {
+						try {
+							await submit().updates(
+								get_edition_editor(date_param).withOverride((prev) => {
+									if (!prev) return prev;
+									return {
+										...prev,
+										title: data.title ?? prev.title,
+										summary: data.summary ?? prev.summary,
+										status: data.status ?? prev.status
+									};
+								})
+							);
+
+							meta_save_button?.show_feedback('success');
+						} catch (error) {
+							meta_save_button?.show_feedback('error');
+							throw error;
+						}
 					})}
 				>
-					<input {...create_manual_article.fields.edition_id.as('hidden', edition.id)} />
+					<input {...meta_form.fields.edition_id.as('hidden', edition.id)} />
 
-					<div class="manual-fields">
+					<div class="meta-date">
+						<span class="field-label">Date</span>
+						<span class="date-display">{formatted_date}</span>
+					</div>
+
+					<div class="meta-fields">
 						<div class="field">
-							<label class="field-label" for="manual-source">Source</label>
-							<select {...create_manual_article.fields.source_id.as('text')} id="manual-source">
-								<option value="">Select a source</option>
-								{#each sources as src (src.source_id)}
-									<option value={src.source_id}>{src.display_name}</option>
-								{/each}
+							<label class="field-label" for="meta-title">Title</label>
+							<input
+								{...meta_form.fields.title.as('text', edition.title ?? '')}
+								id="meta-title"
+								placeholder="Edition headline"
+							/>
+							<FieldErrors field={meta_form.fields.title} />
+						</div>
+
+						<div class="field">
+							<label class="field-label" for="meta-status">Status</label>
+							<select {...meta_form.fields.status.as('text', edition.status)} id="meta-status">
+								<option value="draft">Draft</option>
+								<option value="generating">Generating</option>
+								<option value="failed">Failed</option>
+								<option value="published">Published</option>
 							</select>
-							<FieldErrors field={create_manual_article.fields.source_id} />
-						</div>
-
-						<div class="field">
-							<label class="field-label" for="manual-url">URL</label>
-							<input
-								{...create_manual_article.fields.canonical_url.as('url')}
-								id="manual-url"
-								placeholder="https://example.com/article"
-							/>
-							<FieldErrors field={create_manual_article.fields.canonical_url} />
-						</div>
-
-						<div class="field">
-							<label class="field-label" for="manual-title">Title</label>
-							<input
-								{...create_manual_article.fields.title.as('text')}
-								id="manual-title"
-								placeholder="Article title"
-							/>
-							<FieldErrors field={create_manual_article.fields.title} />
-						</div>
-
-						<div class="field">
-							<label class="field-label" for="manual-category"
-								>Category <span class="optional">(optional)</span></label
-							>
-							<input
-								{...create_manual_article.fields.category.as('text')}
-								id="manual-category"
-								placeholder="e.g. Technology, Politics"
-							/>
-							<FieldErrors field={create_manual_article.fields.category} />
-						</div>
-
-						<div class="field">
-							<label class="field-label" for="manual-published"
-								>Published At <span class="optional">(optional)</span></label
-							>
-							<input
-								{...create_manual_article.fields.published_at.as('text')}
-								type="datetime-local"
-								id="manual-published"
-							/>
-							<FieldErrors field={create_manual_article.fields.published_at} />
+							<FieldErrors field={meta_form.fields.status} />
 						</div>
 					</div>
 
 					<div class="field field-full">
-						<label class="field-label" for="manual-summary"
-							>Summary <span class="optional">(optional)</span></label
-						>
+						<label class="field-label" for="meta-summary">Summary</label>
 						<textarea
-							{...create_manual_article.fields.summary.as('text')}
-							id="manual-summary"
-							rows="2"
-							placeholder="Brief summary"
+							{...meta_form.fields.summary.as('text', edition.summary ?? '')}
+							id="meta-summary"
+							rows="3"
+							placeholder="A brief description of this edition"
 						></textarea>
-						<FieldErrors field={create_manual_article.fields.summary} />
+						<FieldErrors field={meta_form.fields.summary} />
 					</div>
 
-					<div class="manual-actions">
-						<Button variant="primary" type="submit">Create Article</Button>
+					<div class="meta-actions">
+						<Button bind:this={meta_save_button} type="submit">Save</Button>
 					</div>
 				</form>
-			</details>
+			{/if}
+		</section>
 
-			<SectionRule />
+		<SectionRule />
 
-			<!-- ═══ 4. Current Articles ═══ -->
-			<section class="current-articles">
-				<h2 class="section-label">
-					Article Lineup
-					<span class="article-count">({edition.articles.length})</span>
-				</h2>
+		<!-- ═══ 2. Article Search / Add ═══ -->
+		<section class="article-search">
+			<h2 class="section-label">Add Articles</h2>
 
-				{#if edition.articles.length === 0}
-					<p class="empty-state">No articles in this edition yet. Search and add articles above.</p>
-				{:else}
-					<ol class="article-lineup">
-						{#each article_forms as { article, rendered_index, edit, remove_form, move_up, move_down } (article.id)}
-							<li class="article-card">
-								<div class="article-header">
-									<div class="article-identity">
-										<span class="position-number">{rendered_index + 1}</span>
-										<h3 class="article-title">
-											{article.custom_title ?? article.title}
-										</h3>
-									</div>
+			<form class="search-form" method="get">
+				<div class="search-field field">
+					<label class="field-label" for="search-articles">Search Articles</label>
+					<div class="search-input-row">
+						<input
+							type="text"
+							id="search-articles"
+							name="q"
+							bind:value={search_term}
+							placeholder="Search by title, URL, or category"
+						/>
+						<Button type="submit">Search</Button>
+					</div>
+				</div>
+			</form>
 
-									<div class="reorder-buttons">
-										<form
-											{...move_up.enhance(async ({ submit }) => {
-												if (rendered_index <= 0) return;
-
-												await submit().updates(
-													get_edition_editor(date_param).withOverride((prev) => {
-														if (!prev) return prev;
-														return {
-															...prev,
-															articles: move_item_by_index(
-																prev.articles,
-																rendered_index,
-																rendered_index - 1
-															)
-														};
-													})
-												);
-											})}
-										>
-											<input {...move_up.fields.edition_id.as('hidden', edition.id)} />
-											<input {...move_up.fields.edition_article_id.as('hidden', article.id)} />
-											<input
-												{...move_up.fields.new_position.as('number')}
-												type="hidden"
-												value={rendered_index - 1}
-											/>
-											<Button variant="ghost" type="submit" disabled={rendered_index <= 0}>
-												Up
-											</Button>
-										</form>
-										<form
-											{...move_down.enhance(async ({ submit }) => {
-												if (rendered_index >= edition.articles.length - 1) return;
-
-												await submit().updates(
-													get_edition_editor(date_param).withOverride((prev) => {
-														if (!prev) return prev;
-														return {
-															...prev,
-															articles: move_item_by_index(
-																prev.articles,
-																rendered_index,
-																rendered_index + 1
-															)
-														};
-													})
-												);
-											})}
-										>
-											<input {...move_down.fields.edition_id.as('hidden', edition.id)} />
-											<input {...move_down.fields.edition_article_id.as('hidden', article.id)} />
-											<input
-												{...move_down.fields.new_position.as('number')}
-												type="hidden"
-												value={rendered_index + 1}
-											/>
-											<Button
-												variant="ghost"
-												type="submit"
-												disabled={rendered_index >= edition.articles.length - 1}
-											>
-												Down
-											</Button>
-										</form>
-									</div>
-								</div>
-
-								<div class="article-meta-row">
-									{#if article.custom_category ?? article.category}
-										<span class="article-category"
-											>{article.custom_category ?? article.category}</span
-										>
+			{#if candidates.length > 0}
+				<ul class="candidate-list">
+					{#each candidates as candidate (candidate.id)}
+						{@const add_form = add_edition_article.for(candidate.id)}
+						<li class="candidate-card">
+							<div class="candidate-info">
+								<h3 class="candidate-title">{candidate.title}</h3>
+								<div class="candidate-meta">
+									{#if candidate.source_name}
+										<span class="candidate-source">{candidate.source_name}</span>
 									{/if}
-									{#if article.published_at}
-										<time class="article-date">
-											{new Date(article.published_at).toLocaleDateString('en-US', {
+									{#if candidate.category}
+										<span class="candidate-category">{candidate.category}</span>
+									{/if}
+									{#if candidate.published_at}
+										<time class="candidate-date">
+											{new Date(candidate.published_at).toLocaleDateString('en-US', {
 												month: 'short',
-												day: 'numeric',
-												year: 'numeric'
+												day: 'numeric'
 											})}
 										</time>
 									{/if}
-									{#if article.section}
-										<span class="article-section">{article.section}</span>
-									{/if}
+								</div>
+								{#if candidate.summary}
+									<p class="candidate-summary">{candidate.summary}</p>
+								{/if}
+							</div>
+							<form
+								class="candidate-action"
+								{...add_form.enhance(async ({ submit }) => {
+									await submit().updates(
+										get_edition_editor(date_param).withOverride((prev) => {
+											if (!prev) return prev;
+											return {
+												...prev,
+												articles: [
+													...prev.articles,
+													{
+														id: crypto.randomUUID(),
+														article_id: candidate.id,
+														position: prev.articles.length,
+														section: null,
+														reason: null,
+														custom_title: null,
+														custom_summary: null,
+														custom_category: null,
+														canonical_url: candidate.canonical_url,
+														title: candidate.title,
+														summary: candidate.summary,
+														category: candidate.category,
+														published_at: candidate.published_at
+													}
+												]
+											};
+										}),
+										search_editable_articles({
+											edition_id: edition.id,
+											search_term: search_term || undefined
+										})
+									);
+								})}
+							>
+								<input {...add_form.fields.edition_id.as('hidden', edition.id)} />
+								<input {...add_form.fields.article_id.as('hidden', candidate.id)} />
+								<Button type="submit">Add</Button>
+							</form>
+						</li>
+					{/each}
+				</ul>
+			{:else if search_term}
+				<p class="empty-state">No articles found matching "{search_term}".</p>
+			{/if}
+		</section>
+
+		<SectionRule />
+
+		<!-- ═══ 3. Manual Article Creation ═══ -->
+		<details class="manual-article">
+			<summary class="collapsible-toggle">
+				<h2 class="section-label">Manual Article Form</h2>
+				<span class="toggle-indicator"></span>
+			</summary>
+
+			<form
+				class="manual-form"
+				{...create_manual_article.enhance(async ({ form, submit }) => {
+					await submit().updates(
+						get_edition_editor(date_param),
+						search_editable_articles({
+							edition_id: edition.id,
+							search_term: search_term || undefined
+						})
+					);
+					form.reset();
+				})}
+			>
+				<input {...create_manual_article.fields.edition_id.as('hidden', edition.id)} />
+
+				<div class="manual-fields">
+					<div class="field">
+						<label class="field-label" for="manual-source">Source</label>
+						<select {...create_manual_article.fields.source_id.as('text')} id="manual-source">
+							<option value="">Select a source</option>
+							{#each sources as src (src.source_id)}
+								<option value={src.source_id}>{src.display_name}</option>
+							{/each}
+						</select>
+						<FieldErrors field={create_manual_article.fields.source_id} />
+					</div>
+
+					<div class="field">
+						<label class="field-label" for="manual-url">URL</label>
+						<input
+							{...create_manual_article.fields.canonical_url.as('url')}
+							id="manual-url"
+							placeholder="https://example.com/article"
+						/>
+						<FieldErrors field={create_manual_article.fields.canonical_url} />
+					</div>
+
+					<div class="field">
+						<label class="field-label" for="manual-title">Title</label>
+						<input
+							{...create_manual_article.fields.title.as('text')}
+							id="manual-title"
+							placeholder="Article title"
+						/>
+						<FieldErrors field={create_manual_article.fields.title} />
+					</div>
+
+					<div class="field">
+						<label class="field-label" for="manual-category"
+							>Category <span class="optional">(optional)</span></label
+						>
+						<input
+							{...create_manual_article.fields.category.as('text')}
+							id="manual-category"
+							placeholder="e.g. Technology, Politics"
+						/>
+						<FieldErrors field={create_manual_article.fields.category} />
+					</div>
+
+					<div class="field">
+						<label class="field-label" for="manual-published"
+							>Published At <span class="optional">(optional)</span></label
+						>
+						<input
+							{...create_manual_article.fields.published_at.as('text')}
+							type="datetime-local"
+							id="manual-published"
+						/>
+						<FieldErrors field={create_manual_article.fields.published_at} />
+					</div>
+				</div>
+
+				<div class="field field-full">
+					<label class="field-label" for="manual-summary"
+						>Summary <span class="optional">(optional)</span></label
+					>
+					<textarea
+						{...create_manual_article.fields.summary.as('text')}
+						id="manual-summary"
+						rows="2"
+						placeholder="Brief summary"
+					></textarea>
+					<FieldErrors field={create_manual_article.fields.summary} />
+				</div>
+
+				<div class="manual-actions">
+					<Button variant="primary" type="submit">Create Article</Button>
+				</div>
+			</form>
+		</details>
+
+		<SectionRule />
+
+		<!-- ═══ 4. Current Articles ═══ -->
+		<section class="current-articles">
+			<h2 class="section-label">
+				Article Lineup
+				<span class="article-count">({edition.articles.length})</span>
+			</h2>
+
+			{#if edition.articles.length === 0}
+				<p class="empty-state">No articles in this edition yet. Search and add articles above.</p>
+			{:else}
+				<ol class="article-lineup">
+					{#each article_forms as { article, rendered_index, edit, remove_form, move_up, move_down } (article.id)}
+						<li class="article-card">
+							<div class="article-header">
+								<div class="article-identity">
+									<span class="position-number">{rendered_index + 1}</span>
+									<h3 class="article-title">
+										{article.custom_title ?? article.title}
+									</h3>
 								</div>
 
-								{#if article.custom_summary ?? article.summary}
-									<p class="article-summary">
-										{article.custom_summary ?? article.summary}
-									</p>
-								{/if}
-
-								<details class="article-overrides">
-									<summary class="collapsible-toggle">
-										<span class="toggle-text">Edit Overrides</span>
-										<span class="toggle-indicator"></span>
-									</summary>
-
+								<div class="reorder-buttons">
 									<form
-										class="article-edit-form"
-										{...edit.enhance(async ({ data, submit }) => {
-											try {
-												await submit().updates(
-													get_edition_editor(date_param).withOverride((prev) => {
-														if (!prev) return prev;
-														return {
-															...prev,
-															articles: prev.articles.map((a) =>
-																a.id === article.id
-																	? {
-																			...a,
-																			custom_title: data.custom_title ?? a.custom_title,
-																			custom_summary: data.custom_summary ?? a.custom_summary,
-																			custom_category: data.custom_category ?? a.custom_category,
-																			section: data.section ?? a.section,
-																			reason: data.reason ?? a.reason
-																		}
-																	: a
-															)
-														};
-													})
-												);
+										{...move_up.enhance(async ({ submit }) => {
+											if (rendered_index <= 0) return;
 
-												override_save_buttons[article.id]?.show_feedback('success');
-											} catch (error) {
-												override_save_buttons[article.id]?.show_feedback('error');
-												throw error;
-											}
+											await submit().updates(
+												get_edition_editor(date_param).withOverride((prev) => {
+													if (!prev) return prev;
+													return {
+														...prev,
+														articles: move_item_by_index(
+															prev.articles,
+															rendered_index,
+															rendered_index - 1
+														)
+													};
+												})
+											);
 										})}
 									>
-										<input {...edit.fields.edition_article_id.as('hidden', article.id)} />
-										<input {...edit.fields.edition_id.as('hidden', edition.id)} />
-
-										<div class="edit-fields">
-											<div class="field">
-												<label class="field-label" for="ct-{article.id}">Title</label>
-												<input
-													{...edit.fields.custom_title.as('text', article.custom_title ?? '')}
-													id="ct-{article.id}"
-													placeholder={article.title ?? 'Title'}
-												/>
-												<FieldErrors field={edit.fields.custom_title} />
-											</div>
-
-											<div class="field">
-												<label class="field-label" for="cc-{article.id}">Category</label>
-												<input
-													{...edit.fields.custom_category.as('text', article.custom_category ?? '')}
-													id="cc-{article.id}"
-													placeholder={article.category ?? 'Category'}
-												/>
-												<FieldErrors field={edit.fields.custom_category} />
-											</div>
-
-											<div class="field">
-												<label class="field-label" for="sec-{article.id}">Section</label>
-												<input
-													{...edit.fields.section.as('text', article.section ?? '')}
-													id="sec-{article.id}"
-													placeholder="e.g. Front Page, Opinion"
-												/>
-												<FieldErrors field={edit.fields.section} />
-											</div>
-
-											<div class="field">
-												<label class="field-label" for="rsn-{article.id}">Reason</label>
-												<input
-													{...edit.fields.reason.as('text', article.reason ?? '')}
-													id="rsn-{article.id}"
-													placeholder="Why this article?"
-												/>
-												<FieldErrors field={edit.fields.reason} />
-											</div>
-										</div>
-
-										<div class="field field-full">
-											<label class="field-label" for="cs-{article.id}">Summary</label>
-											<textarea
-												{...edit.fields.custom_summary.as('text', article.custom_summary ?? '')}
-												id="cs-{article.id}"
-												rows="2"
-												placeholder={article.summary ?? 'Summary'}
-											></textarea>
-											<FieldErrors field={edit.fields.custom_summary} />
-										</div>
-
-										<div class="edit-actions">
-											<!-- eslint-disable-next-line svelte/no-unused-svelte-ignore -->
-											<!-- svelte-ignore binding_property_non_reactive -->
-											<Button bind:this={override_save_buttons[article.id]} type="submit"
-												>Save</Button
-											>
-										</div>
+										<input {...move_up.fields.edition_id.as('hidden', edition.id)} />
+										<input {...move_up.fields.edition_article_id.as('hidden', article.id)} />
+										<input
+											{...move_up.fields.new_position.as('number')}
+											type="hidden"
+											value={rendered_index - 1}
+										/>
+										<Button variant="ghost" type="submit" disabled={rendered_index <= 0}>Up</Button>
 									</form>
-								</details>
+									<form
+										{...move_down.enhance(async ({ submit }) => {
+											if (rendered_index >= edition.articles.length - 1) return;
+
+											await submit().updates(
+												get_edition_editor(date_param).withOverride((prev) => {
+													if (!prev) return prev;
+													return {
+														...prev,
+														articles: move_item_by_index(
+															prev.articles,
+															rendered_index,
+															rendered_index + 1
+														)
+													};
+												})
+											);
+										})}
+									>
+										<input {...move_down.fields.edition_id.as('hidden', edition.id)} />
+										<input {...move_down.fields.edition_article_id.as('hidden', article.id)} />
+										<input
+											{...move_down.fields.new_position.as('number')}
+											type="hidden"
+											value={rendered_index + 1}
+										/>
+										<Button
+											variant="ghost"
+											type="submit"
+											disabled={rendered_index >= edition.articles.length - 1}
+										>
+											Down
+										</Button>
+									</form>
+								</div>
+							</div>
+
+							<div class="article-meta-row">
+								{#if article.custom_category ?? article.category}
+									<span class="article-category">{article.custom_category ?? article.category}</span
+									>
+								{/if}
+								{#if article.published_at}
+									<time class="article-date">
+										{new Date(article.published_at).toLocaleDateString('en-US', {
+											month: 'short',
+											day: 'numeric',
+											year: 'numeric'
+										})}
+									</time>
+								{/if}
+								{#if article.section}
+									<span class="article-section">{article.section}</span>
+								{/if}
+							</div>
+
+							{#if article.custom_summary ?? article.summary}
+								<p class="article-summary">
+									{article.custom_summary ?? article.summary}
+								</p>
+							{/if}
+
+							<details class="article-overrides">
+								<summary class="collapsible-toggle">
+									<span class="toggle-text">Edit Overrides</span>
+									<span class="toggle-indicator"></span>
+								</summary>
 
 								<form
-									class="remove-form"
-									{...remove_form.enhance(async ({ submit }) => {
-										await submit().updates(
-											get_edition_editor(date_param).withOverride((prev) => {
-												if (!prev) return prev;
-												return {
-													...prev,
-													articles: prev.articles.filter((a) => a.id !== article.id)
-												};
-											}),
-											search_editable_articles({
-												edition_id: edition.id,
-												search_term: search_term || undefined
-											})
-										);
+									class="article-edit-form"
+									{...edit.enhance(async ({ data, submit }) => {
+										try {
+											await submit().updates(
+												get_edition_editor(date_param).withOverride((prev) => {
+													if (!prev) return prev;
+													return {
+														...prev,
+														articles: prev.articles.map((a) =>
+															a.id === article.id
+																? {
+																		...a,
+																		custom_title: data.custom_title ?? a.custom_title,
+																		custom_summary: data.custom_summary ?? a.custom_summary,
+																		custom_category: data.custom_category ?? a.custom_category,
+																		section: data.section ?? a.section,
+																		reason: data.reason ?? a.reason
+																	}
+																: a
+														)
+													};
+												})
+											);
+
+											override_save_buttons[article.id]?.show_feedback('success');
+										} catch (error) {
+											override_save_buttons[article.id]?.show_feedback('error');
+											throw error;
+										}
 									})}
 								>
-									<input {...remove_form.fields.edition_article_id.as('hidden', article.id)} />
-									<input {...remove_form.fields.edition_id.as('hidden', edition.id)} />
-									<Button variant="ghost" type="submit">Remove</Button>
+									<input {...edit.fields.edition_article_id.as('hidden', article.id)} />
+									<input {...edit.fields.edition_id.as('hidden', edition.id)} />
+
+									<div class="edit-fields">
+										<div class="field">
+											<label class="field-label" for="ct-{article.id}">Title</label>
+											<input
+												{...edit.fields.custom_title.as('text', article.custom_title ?? '')}
+												id="ct-{article.id}"
+												placeholder={article.title ?? 'Title'}
+											/>
+											<FieldErrors field={edit.fields.custom_title} />
+										</div>
+
+										<div class="field">
+											<label class="field-label" for="cc-{article.id}">Category</label>
+											<input
+												{...edit.fields.custom_category.as('text', article.custom_category ?? '')}
+												id="cc-{article.id}"
+												placeholder={article.category ?? 'Category'}
+											/>
+											<FieldErrors field={edit.fields.custom_category} />
+										</div>
+
+										<div class="field">
+											<label class="field-label" for="sec-{article.id}">Section</label>
+											<input
+												{...edit.fields.section.as('text', article.section ?? '')}
+												id="sec-{article.id}"
+												placeholder="e.g. Front Page, Opinion"
+											/>
+											<FieldErrors field={edit.fields.section} />
+										</div>
+
+										<div class="field">
+											<label class="field-label" for="rsn-{article.id}">Reason</label>
+											<input
+												{...edit.fields.reason.as('text', article.reason ?? '')}
+												id="rsn-{article.id}"
+												placeholder="Why this article?"
+											/>
+											<FieldErrors field={edit.fields.reason} />
+										</div>
+									</div>
+
+									<div class="field field-full">
+										<label class="field-label" for="cs-{article.id}">Summary</label>
+										<textarea
+											{...edit.fields.custom_summary.as('text', article.custom_summary ?? '')}
+											id="cs-{article.id}"
+											rows="2"
+											placeholder={article.summary ?? 'Summary'}
+										></textarea>
+										<FieldErrors field={edit.fields.custom_summary} />
+									</div>
+
+									<div class="edit-actions">
+										<!-- eslint-disable-next-line svelte/no-unused-svelte-ignore -->
+										<!-- svelte-ignore binding_property_non_reactive -->
+										<Button bind:this={override_save_buttons[article.id]} type="submit">Save</Button
+										>
+									</div>
 								</form>
-							</li>
-						{/each}
-					</ol>
-				{/if}
-			</section>
-		</main>
-	{/if}
+							</details>
 
-	<SectionRule />
+							<form
+								class="remove-form"
+								{...remove_form.enhance(async ({ submit }) => {
+									await submit().updates(
+										get_edition_editor(date_param).withOverride((prev) => {
+											if (!prev) return prev;
+											return {
+												...prev,
+												articles: prev.articles.filter((a) => a.id !== article.id)
+											};
+										}),
+										search_editable_articles({
+											edition_id: edition.id,
+											search_term: search_term || undefined
+										})
+									);
+								})}
+							>
+								<input {...remove_form.fields.edition_article_id.as('hidden', article.id)} />
+								<input {...remove_form.fields.edition_id.as('hidden', edition.id)} />
+								<Button variant="ghost" type="submit">Remove</Button>
+							</form>
+						</li>
+					{/each}
+				</ol>
+			{/if}
+		</section>
+	</main>
+{/if}
 
-	<PageFooter
-		tagline="Shape the narrative."
-		subtitle="Curate, order, and refine the articles that define this edition."
-	/>
-</div>
+<PageFooter
+	tagline="Shape the narrative."
+	subtitle="Curate, order, and refine the articles that define this edition."
+/>
 
 <style>
-	.page-container {
-		position: relative;
-		z-index: 1;
-		max-width: var(--page-max-width);
-		margin: 0 auto;
-		padding: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-4), 4vw, var(--s-6))
-			clamp(var(--s-8), 6vw, var(--s-10));
-	}
-
 	.page-header {
 		animation: fade-down 0.55s var(--ease-out-expo);
 	}
 
 	.header-nav {
 		display: flex;
-		justify-content: space-between;
+		justify-content: flex-end;
 		align-items: center;
 		padding: var(--s-4) 0;
 		border-top: var(--s-2px) solid var(--fg);
 		border-bottom: var(--s-px) solid var(--rule-strong);
-	}
-
-	.edition-status {
-		font-size: var(--text-sm);
-		font-weight: 800;
-		letter-spacing: var(--tracking-5);
-		text-transform: uppercase;
-		color: var(--muted);
 	}
 
 	.content {

@@ -1,40 +1,72 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	let {
 		top_left,
+		top_center,
 		top_right,
-		title
+		title,
+		children
 	}: {
 		top_left: string;
+		top_center?: string;
 		top_right: string;
 		title: string;
+		children?: Snippet;
 	} = $props();
 </script>
 
-<div class="header-top">
-	<span class="header-label">{top_left}</span>
-	<span class="header-rule"></span>
-	<span class="header-label">{top_right}</span>
-</div>
-<div class="masthead">
-	<h1>{title}</h1>
-</div>
+<header>
+	<div class="header-top">
+		<span class="header-label">{top_left}</span>
+		<span class="header-rule"></span>
+		{#if top_center}
+			<span class="header-label header-label-center">{top_center}</span>
+		{/if}
+		<span class="header-rule"></span>
+		<span class="header-label">{top_right}</span>
+	</div>
+	<div class="masthead">
+		<h1>{title}</h1>
+	</div>
+	{#if children}
+		<div class="header-nav">
+			{@render children()}
+		</div>
+	{/if}
+</header>
 
 <style>
 	.header-top {
+		position: relative;
 		display: flex;
-		flex-wrap: wrap;
 		align-items: center;
 		gap: var(--s-3);
 		margin-bottom: var(--s-4);
 	}
 
 	.header-label {
+		position: relative;
+		z-index: 1;
+		background: var(--bg);
 		font-size: var(--text-xs);
 		font-weight: 700;
 		letter-spacing: var(--tracking-5);
 		text-transform: uppercase;
 		color: var(--fg);
 		white-space: nowrap;
+	}
+
+	.header-label-center {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		padding-inline: var(--s-3);
+	}
+
+	.header-nav {
+		border-block: var(--s-px) solid var(--rule);
+		padding: var(--s-3) 0;
 	}
 
 	.header-rule {
@@ -55,7 +87,6 @@
 		line-height: 0.88;
 		letter-spacing: -0.06em;
 		color: var(--fg);
-		max-width: 9ch;
 		text-wrap: balance;
 	}
 

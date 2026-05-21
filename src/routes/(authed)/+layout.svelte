@@ -18,7 +18,9 @@
 	</div>
 </header>
 
-{@render children()}
+<div class="page-container">
+	{@render children()}
+</div>
 
 <style>
 	.authed-nav {
@@ -76,6 +78,15 @@
 
 	.sign-out-btn:hover {
 		color: var(--accent);
+	}
+
+	.page-container {
+		position: relative;
+		z-index: 1;
+		max-width: var(--page-max-width);
+		margin: 0 auto;
+		padding: clamp(var(--s-4), 3vw, var(--s-6)) clamp(var(--s-4), 4vw, var(--s-6))
+			clamp(var(--s-6), 5vw, var(--s-8));
 	}
 
 	@media (max-width: 34rem) {

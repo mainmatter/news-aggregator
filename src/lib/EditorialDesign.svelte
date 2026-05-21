@@ -1,4 +1,7 @@
 <script lang="ts">
+	import Article from '$lib/components/Article.svelte';
+	import FeaturedArticle from '$lib/components/FeaturedArticle.svelte';
+	import PageFooter from '$lib/components/PageFooter.svelte';
 	import {
 		get_edition_editor,
 		get_editions,
@@ -8,12 +11,8 @@
 		type EditionSummary
 	} from '$lib/editions.remote';
 	import type { Article as ArticleType } from '$lib/schemas';
-	import Article from '$lib/components/Article.svelte';
-	import FeaturedArticle from '$lib/components/FeaturedArticle.svelte';
-	import PageHeader from '$lib/components/PageHeader.svelte';
-	import PageFooter from '$lib/components/PageFooter.svelte';
-	import SectionRule from '$lib/components/SectionRule.svelte';
-	import NavLink from '$lib/components/NavLink.svelte';
+	import EditionsList from './components/EditionsList.svelte';
+	import Masthead from './components/Masthead.svelte';
 
 	function format_published_at(value: Date | string | null | undefined) {
 		if (!value) {
@@ -105,6 +104,7 @@
 	let { date, has_available_sources = true }: { date: string; has_available_sources?: boolean } =
 		$props();
 
+	const editions = $derived(await get_editions());
 	const edition = $derived(await get_edition_editor(date));
 	const articles = $derived(edition?.articles.map(map_edition_article) ?? []);
 	const edition_state = $derived.by(() => {
@@ -159,135 +159,116 @@
 	);
 </script>
 
-<div class="page-container">
-	{#snippet generation_form_snippet()}
-		<form
-			class="generation-form"
-			{...start_daily_edition_generation.enhance(async ({ data, submit }) => {
-				const edition_date = data.edition_date;
-				const current_edition = edition;
+{#snippet generation_form_snippet()}
+	<form
+		class="generation-form"
+		{...start_daily_edition_generation.enhance(async ({ data, submit }) => {
+			const edition_date = data.edition_date;
+			const current_edition = edition;
 
-				await submit().updates(
-					get_editions().withOverride((current) =>
-						upsert_generating_edition(current, edition_date, current_edition)
-					),
-					get_edition_editor(edition_date).withOverride((current) => ({
-						id: current?.id ?? current_edition?.id ?? crypto.randomUUID(),
-						edition_date,
-						status: 'generating',
-						title: current?.title ?? current_edition?.title ?? null,
-						summary: current?.summary ?? current_edition?.summary ?? null,
-						generated_at: current?.generated_at ?? current_edition?.generated_at ?? null,
-						articles: []
-					}))
-				);
-			})}
-		>
-			<input {...start_daily_edition_generation.fields.edition_date.as('hidden', date)} />
-			<button type="submit" class="generation-button">
-				{get_generation_button_label(edition_state)}
-			</button>
-		</form>
-	{/snippet}
-
-	<PageHeader
-		edition_label="Daily Edition"
-		date={display_date}
-		title="Your News"
-		article_count={articles.length}
+			await submit().updates(
+				get_editions().withOverride((current) =>
+					upsert_generating_edition(current, edition_date, current_edition)
+				),
+				get_edition_editor(edition_date).withOverride((current) => ({
+					id: current?.id ?? current_edition?.id ?? crypto.randomUUID(),
+					edition_date,
+					status: 'generating',
+					title: current?.title ?? current_edition?.title ?? null,
+					summary: current?.summary ?? current_edition?.summary ?? null,
+					generated_at: current?.generated_at ?? current_edition?.generated_at ?? null,
+					articles: []
+				}))
+			);
+		})}
 	>
-		{#snippet nav()}
-			<NavLink href="/sources">Manage Sources</NavLink>
-		{/snippet}
-	</PageHeader>
+		<input {...start_daily_edition_generation.fields.edition_date.as('hidden', date)} />
+		<button type="submit" class="generation-button">
+			{get_generation_button_label(edition_state)}
+		</button>
+	</form>
+{/snippet}
 
-	<SectionRule />
+<Masthead
+	top_left="Daily Edition"
+	top_center={`${articles.length} Stories`}
+	top_right={display_date}
+	title="Your News"
+>
+	<EditionsList {editions} />
+</Masthead>
 
-	<main class="content">
-		{#if edition_state === 'missing'}
-			<section class="edition-state-panel">
-				<p class="state-eyebrow">Edition unavailable</p>
-				{#if has_available_sources}
-					<h2>No edition has been created for this date yet.</h2>
-					<p>Choose another date or start a generation run to prepare this edition.</p>
-				{:else}
-					<h2>No edition can be generated yet.</h2>
-					<p>Generation needs at least one active source.</p>
-				{/if}
-				{#if show_generation_cta}
-					{@render generation_form_snippet()}
-				{:else if !has_available_sources}
-					<div class="generation-form">
-						<a href="/sources" class="generation-button">Manage sources</a>
-					</div>
-				{/if}
-			</section>
-		{:else if edition_state === 'generating'}
-			<section class="edition-state-panel">
-				<p class="state-eyebrow">Edition in progress</p>
-				<h2>Today&apos;s edition is being assembled.</h2>
-				<p>We&apos;re reviewing your saved sources and drafting the article lineup now.</p>
-			</section>
-		{:else if edition_state === 'failed'}
-			<section class="edition-state-panel">
-				<p class="state-eyebrow">Generation incomplete</p>
-				<h2>This edition could not be generated.</h2>
-				<p>
-					Start a new generation run to try again, or return later after adjusting your sources.
-				</p>
-				{#if show_generation_cta}
-					{@render generation_form_snippet()}
-				{/if}
-			</section>
-		{:else if edition_state === 'published-empty'}
-			<section class="edition-state-panel">
-				<p class="state-eyebrow">Published edition</p>
-				<h2>No new articles made it into this edition.</h2>
-				<p>The edition has been published, but there were no stories to include for this date.</p>
-			</section>
-		{:else if edition_state === 'empty'}
-			<section class="edition-state-panel">
-				<p class="state-eyebrow">Edition ready for curation</p>
-				<h2>No articles have been added yet.</h2>
-				<p>
-					This edition exists, but it still needs stories before it can read like a finished front
-					page.
-				</p>
-				{#if show_generation_cta}
-					{@render generation_form_snippet()}
-				{/if}
-			</section>
-		{:else}
-			{#if articles[0]}
-				<FeaturedArticle article={articles[0]} index={0} />
+<main class="content">
+	{#if edition_state === 'missing'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Edition unavailable</p>
+			{#if has_available_sources}
+				<h2>No edition has been created for this date yet.</h2>
+				<p>Choose another date or start a generation run to prepare this edition.</p>
+			{:else}
+				<h2>No edition can be generated yet.</h2>
+				<p>Generation needs at least one active source.</p>
 			{/if}
-
-			<SectionRule />
-
-			<div class="grid">
-				{#each articles.slice(1) as article, i (article.id)}
-					<Article {article} index={i + 1} />
-				{/each}
-			</div>
+			{#if show_generation_cta}
+				{@render generation_form_snippet()}
+			{:else if !has_available_sources}
+				<div class="generation-form">
+					<a href="/sources" class="generation-button">Manage sources</a>
+				</div>
+			{/if}
+		</section>
+	{:else if edition_state === 'generating'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Edition in progress</p>
+			<h2>Today&apos;s edition is being assembled.</h2>
+			<p>We&apos;re reviewing your saved sources and drafting the article lineup now.</p>
+		</section>
+	{:else if edition_state === 'failed'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Generation incomplete</p>
+			<h2>This edition could not be generated.</h2>
+			<p>Start a new generation run to try again, or return later after adjusting your sources.</p>
+			{#if show_generation_cta}
+				{@render generation_form_snippet()}
+			{/if}
+		</section>
+	{:else if edition_state === 'published-empty'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Published edition</p>
+			<h2>No new articles made it into this edition.</h2>
+			<p>The edition has been published, but there were no stories to include for this date.</p>
+		</section>
+	{:else if edition_state === 'empty'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Edition ready for curation</p>
+			<h2>No articles have been added yet.</h2>
+			<p>
+				This edition exists, but it still needs stories before it can read like a finished front
+				page.
+			</p>
+			{#if show_generation_cta}
+				{@render generation_form_snippet()}
+			{/if}
+		</section>
+	{:else}
+		{#if articles[0]}
+			<FeaturedArticle article={articles[0]} index={0} />
 		{/if}
-	</main>
 
-	<PageFooter
-		tagline="Carefully curated. Elegantly delivered."
-		subtitle="No algorithms, no noise — just the stories that matter."
-	/>
-</div>
+		<div class="grid">
+			{#each articles.slice(1) as article, i (article.id)}
+				<Article {article} index={i + 1} />
+			{/each}
+		</div>
+	{/if}
+</main>
+
+<PageFooter
+	tagline="Carefully curated. Elegantly delivered."
+	subtitle="No algorithms, no noise — just the stories that matter."
+/>
 
 <style>
-	.page-container {
-		position: relative;
-		z-index: 1;
-		max-width: var(--page-max-width);
-		margin: 0 auto;
-		padding: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-4), 4vw, var(--s-6))
-			clamp(var(--s-8), 6vw, var(--s-10));
-	}
-
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
@@ -299,8 +280,6 @@
 		gap: var(--s-4);
 		max-width: var(--measure);
 		padding: clamp(var(--s-6), 6vw, var(--s-10)) 0;
-		border-top: var(--s-2px) solid var(--fg);
-		border-bottom: var(--s-px) solid var(--rule-strong);
 	}
 
 	.state-eyebrow {

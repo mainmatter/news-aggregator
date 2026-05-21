@@ -78,216 +78,192 @@
 	<title>Editions — Editorial</title>
 </svelte:head>
 
-<div class="page-container">
-	<header class="page-header">
-		<Masthead top_left="Editions" top_right="Manage" title="Your Editions" />
-		<div class="header-nav">
-			<span class="edition-total"
-				>{editions.length} {editions.length === 1 ? 'Edition' : 'Editions'}</span
-			>
-			<NavLink href="/news">&larr; Back to News</NavLink>
-		</div>
-	</header>
+<Masthead
+	top_left="Editions"
+	top_center={`${editions.length} ${editions.length === 1 ? 'Edition' : 'Editions'}`}
+	top_right="Manage"
+	title="Your Editions"
+>
+	<NavLink href="/news">&larr; Back to News</NavLink>
+</Masthead>
 
-	<SectionRule />
+<main class="content">
+	<section class="edition-list">
+		<h2 class="section-label">Existing Editions</h2>
 
-	<main class="content">
-		<section class="edition-list">
-			<h2 class="section-label">Existing Editions</h2>
-
-			{#if editions.length === 0}
-				<p class="empty-state">No editions yet. Use the form below to create your first one.</p>
-			{:else}
-				<ul class="editions">
-					{#each editions as edition (edition.id)}
-						{@const delete_form = delete_edition.for(edition.id)}
-						<li class="edition-card">
-							<div class="edition-header">
-								<div class="edition-identity">
-									<h3 class="edition-date">{format_date(edition.edition_date)}</h3>
-									<span class={['status-badge', get_status_class(edition.status)]}>
-										{format_status(edition.status)}
-									</span>
-								</div>
-
-								<div class="edition-actions">
-									<form
-										class="delete-form"
-										{...delete_form.enhance(async ({ submit }) => {
-											if (
-												!confirm(
-													`Delete the edition for ${format_date(edition.edition_date)}? This cannot be undone.`
-												)
-											) {
-												return;
-											}
-
-											await submit().updates(
-												get_editions().withOverride((current) =>
-													current.filter((candidate) => candidate.id !== edition.id)
-												)
-											);
-										})}
-									>
-										<input {...delete_form.fields.edition_id.as('hidden', edition.id)} />
-										<Button
-											variant="ghost"
-											type="submit"
-											class="delete-button"
-											aria-label={`Delete edition for ${format_date(edition.edition_date)}`}
-										>
-											Delete
-										</Button>
-										{#each delete_form.fields.allIssues() as issue, index (index)}
-											<p class="delete-error" role="alert">{issue.message}</p>
-										{/each}
-									</form>
-									<NavLink href="/editions/{edition.edition_date}">Edit &rarr;</NavLink>
-								</div>
-							</div>
-
-							{#if edition.title}
-								<p class="edition-title">{edition.title}</p>
-							{/if}
-
-							{#if edition.summary}
-								<p class="edition-summary">{edition.summary}</p>
-							{/if}
-
-							<div class="edition-meta">
-								<span class="article-count">
-									{edition.article_count}
-									{edition.article_count === 1 ? 'Article' : 'Articles'}
+		{#if editions.length === 0}
+			<p class="empty-state">No editions yet. Use the form below to create your first one.</p>
+		{:else}
+			<ul class="editions">
+				{#each editions as edition (edition.id)}
+					{@const delete_form = delete_edition.for(edition.id)}
+					<li class="edition-card">
+						<div class="edition-header">
+							<div class="edition-identity">
+								<h3 class="edition-date">{format_date(edition.edition_date)}</h3>
+								<span class={['status-badge', get_status_class(edition.status)]}>
+									{format_status(edition.status)}
 								</span>
-								{#if format_generated_at(edition.generated_at)}
-									<span class="generated-at">
-										Generated {format_generated_at(edition.generated_at)}
-									</span>
-								{/if}
 							</div>
-						</li>
-					{/each}
-				</ul>
-			{/if}
-		</section>
 
-		<SectionRule />
+							<div class="edition-actions">
+								<form
+									class="delete-form"
+									{...delete_form.enhance(async ({ submit }) => {
+										if (
+											!confirm(
+												`Delete the edition for ${format_date(edition.edition_date)}? This cannot be undone.`
+											)
+										) {
+											return;
+										}
 
-		<section class="add-edition">
-			<h2 class="section-label">Create an Edition</h2>
+										await submit().updates(
+											get_editions().withOverride((current) =>
+												current.filter((candidate) => candidate.id !== edition.id)
+											)
+										);
+									})}
+								>
+									<input {...delete_form.fields.edition_id.as('hidden', edition.id)} />
+									<Button
+										variant="ghost"
+										type="submit"
+										class="delete-button"
+										aria-label={`Delete edition for ${format_date(edition.edition_date)}`}
+									>
+										Delete
+									</Button>
+									{#each delete_form.fields.allIssues() as issue, index (index)}
+										<p class="delete-error" role="alert">{issue.message}</p>
+									{/each}
+								</form>
+								<NavLink href="/editions/{edition.edition_date}">Edit &rarr;</NavLink>
+							</div>
+						</div>
 
-			<form
-				class="add-form"
-				{...create_edition.enhance(async ({ form, data, submit }) => {
-					const optimistic_entry = {
-						id: crypto.randomUUID(),
-						edition_date: data.edition_date,
-						status: data.status ?? 'draft',
-						title: data.title ?? null,
-						summary: data.summary ?? null,
-						article_count: 0,
-						generated_at: null,
-						created_at: new Date(),
-						updated_at: new Date()
-					};
+						{#if edition.title}
+							<p class="edition-title">{edition.title}</p>
+						{/if}
 
-					await submit().updates(
-						get_editions().withOverride((current) => [optimistic_entry, ...current])
-					);
+						{#if edition.summary}
+							<p class="edition-summary">{edition.summary}</p>
+						{/if}
 
-					form.reset();
-				})}
-			>
-				<div class="add-form-fields">
-					<div class="field">
-						<label class="field-label" for="new-date">Edition Date</label>
-						<input
-							{...create_edition.fields.edition_date.as('date')}
-							id="new-date"
-							value={get_today()}
-						/>
-						<FieldErrors field={create_edition.fields.edition_date} />
-					</div>
-
-					<div class="field">
-						<label class="field-label" for="new-title"
-							>Title <span class="optional">(optional)</span></label
-						>
-						<input
-							{...create_edition.fields.title.as('text')}
-							id="new-title"
-							placeholder="Morning Briefing"
-						/>
-						<FieldErrors field={create_edition.fields.title} />
-					</div>
-
-					<div class="field">
-						<label class="field-label" for="new-status">Status</label>
-						<select {...create_edition.fields.status.as('select')} id="new-status">
-							<option value="draft">Draft</option>
-							<option value="published">Published</option>
-						</select>
-						<FieldErrors field={create_edition.fields.status} />
-					</div>
-				</div>
-
-				<div class="field field-full">
-					<label class="field-label" for="new-summary"
-						>Summary <span class="optional">(optional)</span></label
-					>
-					<textarea
-						{...create_edition.fields.summary.as('text')}
-						id="new-summary"
-						placeholder="A brief overview of today's edition..."
-						rows="3"
-					></textarea>
-					<FieldErrors field={create_edition.fields.summary} />
-				</div>
-
-				<div class="add-form-actions">
-					<Button variant="primary" type="submit">Create Edition</Button>
-				</div>
-			</form>
-		</section>
-	</main>
+						<div class="edition-meta">
+							<span class="article-count">
+								{edition.article_count}
+								{edition.article_count === 1 ? 'Article' : 'Articles'}
+							</span>
+							{#if format_generated_at(edition.generated_at)}
+								<span class="generated-at">
+									Generated {format_generated_at(edition.generated_at)}
+								</span>
+							{/if}
+						</div>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</section>
 
 	<SectionRule />
 
-	<PageFooter
-		tagline="Shape the narrative."
-		subtitle="Create, organize, and publish your daily editions."
-	/>
-</div>
+	<section class="add-edition">
+		<h2 class="section-label">Create an Edition</h2>
+
+		<form
+			class="add-form"
+			{...create_edition.enhance(async ({ form, data, submit }) => {
+				const optimistic_entry = {
+					id: crypto.randomUUID(),
+					edition_date: data.edition_date,
+					status: data.status ?? 'draft',
+					title: data.title ?? null,
+					summary: data.summary ?? null,
+					article_count: 0,
+					generated_at: null,
+					created_at: new Date(),
+					updated_at: new Date()
+				};
+
+				await submit().updates(
+					get_editions().withOverride((current) => [optimistic_entry, ...current])
+				);
+
+				form.reset();
+			})}
+		>
+			<div class="add-form-fields">
+				<div class="field">
+					<label class="field-label" for="new-date">Edition Date</label>
+					<input
+						{...create_edition.fields.edition_date.as('date')}
+						id="new-date"
+						value={get_today()}
+					/>
+					<FieldErrors field={create_edition.fields.edition_date} />
+				</div>
+
+				<div class="field">
+					<label class="field-label" for="new-title"
+						>Title <span class="optional">(optional)</span></label
+					>
+					<input
+						{...create_edition.fields.title.as('text')}
+						id="new-title"
+						placeholder="Morning Briefing"
+					/>
+					<FieldErrors field={create_edition.fields.title} />
+				</div>
+
+				<div class="field">
+					<label class="field-label" for="new-status">Status</label>
+					<select {...create_edition.fields.status.as('select')} id="new-status">
+						<option value="draft">Draft</option>
+						<option value="published">Published</option>
+					</select>
+					<FieldErrors field={create_edition.fields.status} />
+				</div>
+			</div>
+
+			<div class="field field-full">
+				<label class="field-label" for="new-summary"
+					>Summary <span class="optional">(optional)</span></label
+				>
+				<textarea
+					{...create_edition.fields.summary.as('text')}
+					id="new-summary"
+					placeholder="A brief overview of today's edition..."
+					rows="3"
+				></textarea>
+				<FieldErrors field={create_edition.fields.summary} />
+			</div>
+
+			<div class="add-form-actions">
+				<Button variant="primary" type="submit">Create Edition</Button>
+			</div>
+		</form>
+	</section>
+</main>
+
+<PageFooter
+	tagline="Shape the narrative."
+	subtitle="Create, organize, and publish your daily editions."
+/>
 
 <style>
-	.page-container {
-		position: relative;
-		z-index: 1;
-		max-width: var(--page-max-width);
-		margin: 0 auto;
-		padding: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-4), 4vw, var(--s-6))
-			clamp(var(--s-8), 6vw, var(--s-10));
-	}
-
 	.page-header {
 		animation: fade-down 0.55s var(--ease-out-expo);
 	}
 
 	.header-nav {
 		display: flex;
-		justify-content: space-between;
+		justify-content: flex-end;
 		align-items: center;
 		padding: var(--s-4) 0;
 		border-top: var(--s-2px) solid var(--fg);
 		border-bottom: var(--s-px) solid var(--rule-strong);
-	}
-
-	.edition-total {
-		font-size: var(--text-sm);
-		font-weight: 800;
-		letter-spacing: var(--tracking-5);
-		text-transform: uppercase;
-		color: var(--muted);
 	}
 
 	.content {

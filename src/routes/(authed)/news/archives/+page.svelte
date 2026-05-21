@@ -3,7 +3,6 @@
 	import Masthead from '$lib/components/Masthead.svelte';
 	import NavLink from '$lib/components/NavLink.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
-	import SectionRule from '$lib/components/SectionRule.svelte';
 	import { get_editions, type EditionSummary } from '$lib/editions.remote';
 
 	await get_user();
@@ -67,117 +66,67 @@
 	<title>Archives — Editorial</title>
 </svelte:head>
 
-<div class="page-container">
-	<header class="page-header">
-		<Masthead top_left="Archives" top_right="All Editions" title="Past Editions" />
-		<div class="header-nav">
-			<span class="edition-total">{editions.length} Editions</span>
-			<div class="header-nav-center">
-				<NavLink href="/editions">Manage Editions</NavLink>
-			</div>
-			<div class="header-nav-end">
-				<NavLink href="/news">&larr; Back to Today</NavLink>
-			</div>
-		</div>
-	</header>
+<Masthead
+	top_left="Archives"
+	top_center={`${editions.length} Editions`}
+	top_right="All Editions"
+	title="Past Editions"
+>
+	<NavLink href="/news">&larr; Back to Today</NavLink>
+</Masthead>
 
-	<SectionRule />
+<main class="content">
+	{#each grouped as group, gi (group.label)}
+		{#if gi > 0}
+			<div class="month-divider"></div>
+		{/if}
 
-	<main class="content">
-		{#each grouped as group, gi (group.label)}
-			{#if gi > 0}
-				<div class="month-divider"></div>
-			{/if}
+		<section class="month-group" style:--gi={gi}>
+			<h2 class="month-label">{group.label}</h2>
 
-			<section class="month-group" style:--gi={gi}>
-				<h2 class="month-label">{group.label}</h2>
+			<ul class="edition-list">
+				{#each group.editions as edition, ei (edition.id)}
+					{@const date_info = format_edition_date(edition.edition_date)}
+					{@const today = is_today(edition.edition_date)}
+					<li class="edition-row" style:--ei={ei}>
+						<a href="/news/{edition.edition_date}" class="edition-link">
+							<span class="edition-day-col">
+								<span class="edition-day-number">{date_info.day}</span>
+								<span class="edition-weekday">{date_info.weekday}</span>
+								{#if today}
+									<span class="today-indicator">Today</span>
+								{/if}
+							</span>
 
-				<ul class="edition-list">
-					{#each group.editions as edition, ei (edition.id)}
-						{@const date_info = format_edition_date(edition.edition_date)}
-						{@const today = is_today(edition.edition_date)}
-						<li class="edition-row" style:--ei={ei}>
-							<a href="/news/{edition.edition_date}" class="edition-link">
-								<span class="edition-day-col">
-									<span class="edition-day-number">{date_info.day}</span>
-									<span class="edition-weekday">{date_info.weekday}</span>
-									{#if today}
-										<span class="today-indicator">Today</span>
-									{/if}
-								</span>
+							<span class="edition-detail-col">
+								{#if edition.title}
+									<span class="edition-title">{edition.title}</span>
+								{/if}
+								{#if edition.summary}
+									<span class="edition-summary">{edition.summary}</span>
+								{/if}
+							</span>
 
-								<span class="edition-detail-col">
-									{#if edition.title}
-										<span class="edition-title">{edition.title}</span>
-									{/if}
-									{#if edition.summary}
-										<span class="edition-summary">{edition.summary}</span>
-									{/if}
-								</span>
+							<span class="edition-meta-col">
+								<span class="edition-stories">{edition.article_count} stories</span>
+								<span class="edition-arrow">&rarr;</span>
+							</span>
+						</a>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/each}
+</main>
 
-								<span class="edition-meta-col">
-									<span class="edition-stories">{edition.article_count} stories</span>
-									<span class="edition-arrow">&rarr;</span>
-								</span>
-							</a>
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/each}
-	</main>
-
-	<SectionRule />
-
-	<PageFooter
-		tagline="Every edition, preserved."
-		subtitle="Browse through your curated news history."
-	/>
-</div>
+<PageFooter
+	tagline="Every edition, preserved."
+	subtitle="Browse through your curated news history."
+/>
 
 <style>
-	.page-container {
-		position: relative;
-		z-index: 1;
-		max-width: var(--page-max-width);
-		margin: 0 auto;
-		padding: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-4), 4vw, var(--s-6))
-			clamp(var(--s-8), 6vw, var(--s-10));
-	}
-
-	.page-header {
-		animation: fade-down 0.55s var(--ease-out-expo);
-	}
-
-	.header-nav {
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
-		align-items: center;
-		gap: var(--s-4);
-		padding: var(--s-4) 0;
-		border-top: var(--s-2px) solid var(--fg);
-		border-bottom: var(--s-px) solid var(--rule-strong);
-	}
-
-	.edition-total {
-		font-size: var(--text-sm);
-		font-weight: 800;
-		letter-spacing: var(--tracking-5);
-		text-transform: uppercase;
-		color: var(--muted);
-	}
-
-	.header-nav-center {
-		display: flex;
-		justify-content: center;
-	}
-
-	.header-nav-end {
-		display: flex;
-		justify-content: flex-end;
-	}
-
 	.content {
+		margin-top: var(--s-5);
 		animation: fade-up 0.5s var(--ease-out-expo) both;
 		animation-delay: 0.2s;
 	}

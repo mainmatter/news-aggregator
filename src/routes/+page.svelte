@@ -2,7 +2,6 @@
 	import { get_user, login_or_register, sign_in_google } from '$lib/auth.remote';
 	import Button from '$lib/components/Button.svelte';
 	import FieldErrors from '$lib/components/FieldErrors.svelte';
-	import Masthead from '$lib/components/Masthead.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
 
 	await get_user(true);
@@ -15,7 +14,7 @@
 <div class="login-page">
 	<section class="intro-panel">
 		<header class="login-header">
-			<Masthead top_left="Members Only" top_right="Est. 2026" title="Your News" />
+			<h1>Your News</h1>
 			<p class="tagline">A focused daily digest from the sources you choose.</p>
 		</header>
 	</section>
@@ -76,6 +75,15 @@
 </div>
 
 <style>
+	h1 {
+		font-family: var(--font-display);
+		font-size: var(--text-fluid-7xl);
+		font-weight: 800;
+		line-height: 0.88;
+		letter-spacing: -0.06em;
+		color: var(--bg);
+		text-wrap: balance;
+	}
 	.login-page {
 		display: grid;
 		grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
