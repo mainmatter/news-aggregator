@@ -19,11 +19,11 @@ describe('ModeToggle.svelte', () => {
 		const ModeToggle = (await import('./ModeToggle.svelte')).default;
 		render(ModeToggle);
 
-		const button = page.getByRole('button');
-		// Default is dark (theme === null), so should show "Light" label
-		await expect.element(page.getByText('Light')).toBeInTheDocument();
+		const button = page.getByRole('button', { name: 'Switch to light theme' });
 
 		await button.click();
-		await expect.element(page.getByText('Dark')).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: 'Switch to dark theme' }))
+			.toBeInTheDocument();
 	});
 });
