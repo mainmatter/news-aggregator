@@ -50,6 +50,16 @@ describe('FeaturedArticle.svelte', () => {
 		await expect.element(page.getByText(/World leaders have agreed/)).toBeInTheDocument();
 	});
 
+	it('should place the summary after the headline in reading order', async () => {
+		render(FeaturedArticle, { props: { article: make_article(), index: 0 } });
+
+		const article = page.getByRole('article');
+		await expect.element(article).toBeInTheDocument();
+		await expect.element(article).toHaveTextContent(
+			/Global Climate Summit Reaches Historic Agreement\s+World leaders have agreed/
+		);
+	});
+
 	it('should render read full article link', async () => {
 		render(FeaturedArticle, { props: { article: make_article(), index: 0 } });
 

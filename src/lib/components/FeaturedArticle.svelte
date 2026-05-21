@@ -20,17 +20,15 @@
 <style>
 	.featured {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.72fr);
-		column-gap: clamp(var(--s-5), 6vw, var(--s-10));
-		row-gap: var(--s-4);
-		padding: clamp(var(--s-6), 7vw, var(--s-12)) 0;
+		grid-template-columns: 1fr;
+		row-gap: var(--s-3);
+		padding: clamp(var(--s-4), 4vw, var(--s-8)) 0;
 		border-bottom: var(--s-2px) solid var(--fg);
 		animation: fade-up 0.65s var(--ease-out-expo) both;
 		animation-delay: calc(var(--i, 0) * 120ms + 200ms);
 	}
 
 	.lead-kicker {
-		grid-column: 1;
 		width: fit-content;
 		padding: var(--s-2) var(--s-3);
 		background: var(--support-soft);
@@ -43,16 +41,12 @@
 	}
 
 	.featured :global(.article-meta) {
-		grid-column: 2;
-		align-self: center;
-		justify-self: start;
 		max-width: 42ch;
 		font-size: var(--text-xs);
 		letter-spacing: var(--tracking-4);
 	}
 
 	.featured-headline {
-		grid-column: 1;
 		font-family: var(--font-display);
 		font-size: var(--text-fluid-5xl);
 		font-weight: 850;
@@ -64,10 +58,8 @@
 	}
 
 	.featured-body {
-		grid-column: 2;
-		align-self: end;
 		max-width: var(--measure);
-		padding-top: var(--s-4);
+		padding-top: var(--s-3);
 		border-top: var(--s-2px) solid var(--rule-strong);
 	}
 
@@ -78,7 +70,6 @@
 	}
 
 	.read-link {
-		grid-column: 2;
 		display: inline-flex;
 		align-items: center;
 		gap: var(--s-2);
@@ -105,18 +96,6 @@
 	}
 
 	@media (max-width: 760px) {
-		.featured {
-			grid-template-columns: 1fr;
-		}
-
-		.lead-kicker,
-		.featured :global(.article-meta),
-		.featured-headline,
-		.featured-body,
-		.read-link {
-			grid-column: 1;
-		}
-
 		.read-link {
 			margin-top: var(--s-2);
 		}
