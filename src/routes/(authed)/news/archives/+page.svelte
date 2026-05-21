@@ -66,12 +66,12 @@
 	<title>Archives — Editorial</title>
 </svelte:head>
 
-<Masthead
-	top_left="Archives"
-	top_center={`${editions.length} Editions`}
-	top_right="All Editions"
-	title="Past Editions"
->
+<Masthead>
+	{#snippet top_left()}Archives{/snippet}
+	{#snippet top_center()}{editions.length} Editions{/snippet}
+	{#snippet top_right()}All Editions{/snippet}
+	{#snippet title()}Past Editions{/snippet}
+
 	<NavLink href="/news">&larr; Back to Today</NavLink>
 </Masthead>
 

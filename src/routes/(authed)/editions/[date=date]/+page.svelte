@@ -6,6 +6,7 @@
 	import NavLink from '$lib/components/NavLink.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
+	import { format_edition_date } from '$lib/date_format';
 	import {
 		add_edition_article,
 		create_manual_article,
@@ -58,14 +59,7 @@
 
 	const edition = $derived(await get_edition_editor(date_param));
 
-	const formatted_date = $derived(
-		new Date(date_param + 'T00:00:00').toLocaleDateString('en-US', {
-			weekday: 'long',
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric'
-		})
-	);
+	const formatted_date = $derived(format_edition_date(date_param));
 
 	// --- Edition metadata form ---
 	const meta_form = $derived.by(() => {
@@ -114,22 +108,25 @@
 </script>
 
 <svelte:head>
-	<title>{edition ? (edition.title ?? formatted_date) : 'Edition Not Found'} — Editorial</title>
+	<title>{edition ? (edition.title ?? formatted_date.long) : 'Edition Not Found'} — Editorial</title>
 </svelte:head>
 
-<Masthead
-	top_left="Edition"
-	top_center={edition ? get_status_copy(edition.articles.length) : 'No Edition'}
-	top_right={formatted_date}
-	title={edition ? (edition.title ?? 'Untitled Edition') : 'Edition Not Found'}
->
+<Masthead>
+	{#snippet top_left()}Edition{/snippet}
+	{#snippet top_center()}{edition ? get_status_copy(edition.articles.length) : 'No Edition'}{/snippet}
+	{#snippet top_right()}
+		<span class="date-long">{formatted_date.long}</span>
+		<span class="date-short">{formatted_date.short}</span>
+	{/snippet}
+	{#snippet title()}{edition ? (edition.title ?? 'Untitled Edition') : 'Edition Not Found'}{/snippet}
+
 	<NavLink href="/editions">&larr; All Editions</NavLink>
 </Masthead>
 
 {#if !edition}
 	<main class="content">
 		<div class="empty-state">
-			<p>No edition found for {formatted_date}.</p>
+			<p>No edition found for {formatted_date.long}.</p>
 			<p>
 				<NavLink href="/editions">Return to editions</NavLink>
 			</p>
@@ -191,7 +188,10 @@
 
 					<div class="meta-date">
 						<span class="field-label">Date</span>
-						<span class="date-display">{formatted_date}</span>
+						<span class="date-display">
+							<span class="date-long">{formatted_date.long}</span>
+							<span class="date-short">{formatted_date.short}</span>
+						</span>
 					</div>
 
 					<div class="meta-fields">
@@ -702,6 +702,10 @@
 		animation-delay: 0.2s;
 	}
 
+	.date-short {
+		display: none;
+	}
+
 	/* --- Section headings --- */
 	.section-label {
 		font-family: var(--font-display);
@@ -1179,6 +1183,14 @@
 
 	/* --- Responsive --- */
 	@media (max-width: 640px) {
+		.date-long {
+			display: none;
+		}
+
+		.date-short {
+			display: inline;
+		}
+
 		.meta-fields {
 			grid-template-columns: 1fr;
 		}

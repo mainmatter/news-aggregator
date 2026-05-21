@@ -36,12 +36,12 @@
 </svelte:head>
 
 <header class="page-header">
-	<Masthead
-		top_left="Sources"
-		top_center={`${user_sources.length} ${user_sources.length === 1 ? 'Source' : 'Sources'}`}
-		top_right="Manage Feeds"
-		title="Your Sources"
-	>
+	<Masthead>
+		{#snippet top_left()}Sources{/snippet}
+		{#snippet top_center()}{user_sources.length} {user_sources.length === 1 ? 'Source' : 'Sources'}{/snippet}
+		{#snippet top_right()}Manage Feeds{/snippet}
+		{#snippet title()}Your Sources{/snippet}
+
 		<NavLink href="/settings">&larr; Back to Settings</NavLink>
 	</Masthead>
 </header>

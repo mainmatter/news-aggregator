@@ -78,12 +78,12 @@
 	<title>Editions — Editorial</title>
 </svelte:head>
 
-<Masthead
-	top_left="Editions"
-	top_center={`${editions.length} ${editions.length === 1 ? 'Edition' : 'Editions'}`}
-	top_right="Manage"
-	title="Your Editions"
->
+<Masthead>
+	{#snippet top_left()}Editions{/snippet}
+	{#snippet top_center()}{editions.length} {editions.length === 1 ? 'Edition' : 'Editions'}{/snippet}
+	{#snippet top_right()}Manage{/snippet}
+	{#snippet title()}Your Editions{/snippet}
+
 	<NavLink href="/settings">&larr; Back to Settings</NavLink>
 </Masthead>
 

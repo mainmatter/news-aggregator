@@ -8,26 +8,26 @@
 		title,
 		children
 	}: {
-		top_left: string;
-		top_center?: string;
-		top_right: string;
-		title: string;
+		top_left: Snippet;
+		top_center?: Snippet;
+		top_right: Snippet;
+		title: Snippet;
 		children?: Snippet;
 	} = $props();
 </script>
 
 <header>
 	<div class="header-top">
-		<span class="header-label">{top_left}</span>
+		<span class="header-label">{@render top_left()}</span>
 		<span class="header-rule"></span>
 		{#if top_center}
-			<span class="header-label header-label-center">{top_center}</span>
+			<span class="header-label header-label-center">{@render top_center()}</span>
 		{/if}
 		<span class="header-rule"></span>
-		<span class="header-label">{top_right}</span>
+		<span class="header-label">{@render top_right()}</span>
 	</div>
 	<div class="masthead">
-		<h1>{title}</h1>
+		<h1>{@render title()}</h1>
 	</div>
 	{#if children}
 		<div class="header-nav">

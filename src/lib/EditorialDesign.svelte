@@ -10,6 +10,7 @@
 		type EditionEditor,
 		type EditionSummary
 	} from '$lib/editions.remote';
+	import { format_edition_date } from '$lib/date_format';
 	import type { Article as ArticleType } from '$lib/schemas';
 	import EditionsList from './components/EditionsList.svelte';
 	import Masthead from './components/Masthead.svelte';
@@ -131,21 +132,7 @@
 		return 'ready';
 	});
 
-	const date_options: Intl.DateTimeFormatOptions = {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric'
-	};
-
-	let display_date = $derived.by(() => {
-		if (date) {
-			// Parse YYYY-MM-DD without timezone shift
-			const [y, m, d] = date.split('-').map(Number);
-			return new Date(y, m - 1, d).toLocaleDateString('en-US', date_options);
-		}
-		return new Date().toLocaleDateString('en-US', date_options);
-	});
+	let display_date = $derived(format_edition_date(date));
 
 	const is_today_or_future = $derived.by(() => {
 		const today = new Date().toISOString().slice(0, 10);
@@ -189,12 +176,15 @@
 	</form>
 {/snippet}
 
-<Masthead
-	top_left="Daily Edition"
-	top_center={`${articles.length} Stories`}
-	top_right={display_date}
-	title="Your News"
->
+<Masthead>
+	{#snippet top_left()}Daily Edition{/snippet}
+	{#snippet top_center()}{articles.length} Stories{/snippet}
+	{#snippet top_right()}
+		<span class="date-long">{display_date.long}</span>
+		<span class="date-short">{display_date.short}</span>
+	{/snippet}
+	{#snippet title()}Your News{/snippet}
+
 	<EditionsList {editions} />
 </Masthead>
 
@@ -221,7 +211,10 @@
 		<section class="edition-state-panel">
 			<p class="state-eyebrow">Edition in progress</p>
 			<h2>Today&apos;s edition is being assembled.</h2>
-			<p>We&apos;re reviewing your saved sources and drafting the article lineup now.</p>
+			<p>
+				We&apos;re reviewing your saved sources and drafting the article lineup now. If the page
+				doesn't refresh automatically try to refresh manually in a few minutes.
+			</p>
 		</section>
 	{:else if edition_state === 'failed'}
 		<section class="edition-state-panel">
@@ -273,6 +266,20 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
 		gap: 0;
+	}
+
+	.date-short {
+		display: none;
+	}
+
+	@media (max-width: 640px) {
+		.date-long {
+			display: none;
+		}
+
+		.date-short {
+			display: inline;
+		}
 	}
 
 	.edition-state-panel {

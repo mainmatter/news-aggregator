@@ -1,6 +1,46 @@
 import { expect, test } from './test';
 
 test.describe('news', () => {
+	test('shows responsive edition dates on news and editor pages', async ({ page, db, schema }) => {
+		const [user] = await db.select().from(schema.user).all();
+		const edition_id = crypto.randomUUID();
+		const edition_date = '2026-03-23';
+
+		await db.insert(schema.daily_edition).values({
+			id: edition_id,
+			user_id: user.id,
+			edition_date,
+			status: 'draft',
+			title: 'Responsive Date Edition'
+		});
+
+		await page.setViewportSize({ width: 1280, height: 720 });
+		await page.goto(`/news/${edition_date}`);
+
+		await expect(page.locator('.date-long')).toBeVisible();
+		await expect(page.locator('.date-long')).toHaveText('Monday, March 23, 2026');
+		await expect(page.locator('.date-short')).toBeHidden();
+
+		await page.goto(`/editions/${edition_date}`);
+
+		await expect(page.locator('.date-long').first()).toBeVisible();
+		await expect(page.locator('.date-long').first()).toHaveText('Monday, March 23, 2026');
+		await expect(page.locator('.date-short').first()).toBeHidden();
+
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto(`/news/${edition_date}`);
+
+		await expect(page.locator('.date-long')).toBeHidden();
+		await expect(page.locator('.date-short')).toBeVisible();
+		await expect(page.locator('.date-short')).toHaveText('Mar 23, 2026');
+
+		await page.goto(`/editions/${edition_date}`);
+
+		await expect(page.locator('.date-long').first()).toBeHidden();
+		await expect(page.locator('.date-short').first()).toBeVisible();
+		await expect(page.locator('.date-short').first()).toHaveText('Mar 23, 2026');
+	});
+
 	test('shows manage sources CTA when user has no sources', async ({ page }) => {
 		await page.goto('/news');
 

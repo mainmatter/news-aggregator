@@ -18,7 +18,12 @@
 </svelte:head>
 
 <header class="page-header">
-	<Masthead top_left="Settings" top_center="Preferences" top_right="Manage" title="Settings">
+	<Masthead>
+		{#snippet top_left()}Settings{/snippet}
+		{#snippet top_center()}Preferences{/snippet}
+		{#snippet top_right()}Manage{/snippet}
+		{#snippet title()}Settings{/snippet}
+
 		<NavLink href="/news">&larr; Back to News</NavLink>
 	</Masthead>
 </header>
