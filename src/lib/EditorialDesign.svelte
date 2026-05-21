@@ -14,7 +14,6 @@
 	import PageFooter from '$lib/components/PageFooter.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
 	import NavLink from '$lib/components/NavLink.svelte';
-	import { sign_out } from '$lib/auth.remote';
 
 	function format_published_at(value: Date | string | null | undefined) {
 		if (!value) {
@@ -199,9 +198,6 @@
 	>
 		{#snippet nav()}
 			<NavLink href="/sources">Manage Sources</NavLink>
-			<form {...sign_out} class="sign-out-form">
-				<button class="sign-out-btn" type="submit">Sign Out</button>
-			</form>
 		{/snippet}
 	</PageHeader>
 
@@ -327,28 +323,6 @@
 	.edition-state-panel p:last-child {
 		font-size: var(--text-md);
 		color: var(--muted);
-	}
-
-	.sign-out-form {
-		display: inline;
-	}
-
-	.sign-out-btn {
-		font-family: var(--font-body);
-		font-size: var(--text-xs);
-		font-weight: 800;
-		letter-spacing: var(--tracking-5);
-		text-transform: uppercase;
-		color: var(--fg);
-		background: none;
-		border: none;
-		cursor: pointer;
-		padding: 0;
-		transition: color 0.2s var(--ease-out-expo);
-	}
-
-	.sign-out-btn:hover {
-		color: var(--accent);
 	}
 
 	.generation-form {

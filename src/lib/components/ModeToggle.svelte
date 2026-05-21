@@ -2,6 +2,8 @@
 	import { get_theme } from '$lib/theme.remote';
 	import Button from '$lib/components/Button.svelte';
 
+	let { variant = 'button' }: { variant?: 'button' | 'text' } = $props();
+
 	let is_dark = $derived((await get_theme()) !== 'light');
 
 	function toggle() {
@@ -12,7 +14,12 @@
 	}
 </script>
 
-<Button onclick={toggle}>
+<Button
+	aria-label={is_dark ? 'Switch to light theme' : 'Switch to dark theme'}
+	class={variant === 'text' ? 'icon-toggle' : undefined}
+	variant={variant === 'text' ? 'ghost' : 'default'}
+	onclick={toggle}
+>
 	{#if is_dark}
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +42,9 @@
 			<line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
 			<line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
 		</svg>
-		<span>Light</span>
+		{#if variant === 'button'}
+			<span>Light</span>
+		{/if}
 	{:else}
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -50,6 +59,21 @@
 		>
 			<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
 		</svg>
-		<span>Dark</span>
+		{#if variant === 'button'}
+			<span>Dark</span>
+		{/if}
 	{/if}
 </Button>
+
+<style>
+	:global(button.icon-toggle) {
+		padding: 0;
+		border-color: transparent;
+		line-height: 1;
+	}
+
+	:global(button.icon-toggle:hover) {
+		border-color: transparent;
+		transform: none;
+	}
+</style>
