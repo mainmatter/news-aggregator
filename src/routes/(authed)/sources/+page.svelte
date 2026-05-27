@@ -11,6 +11,8 @@
 	import PageFooter from '$lib/components/PageFooter.svelte';
 	import FieldErrors from '$lib/components/FieldErrors.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import FormActions from '$lib/components/FormActions.svelte';
+	import FormField from '$lib/components/FormField.svelte';
 
 	const user_sources = $derived(await get_user_sources());
 
@@ -38,7 +40,8 @@
 <header class="page-header">
 	<Masthead>
 		{#snippet top_left()}Sources{/snippet}
-		{#snippet top_center()}{user_sources.length} {user_sources.length === 1 ? 'Source' : 'Sources'}{/snippet}
+		{#snippet top_center()}{user_sources.length}
+			{user_sources.length === 1 ? 'Source' : 'Sources'}{/snippet}
 		{#snippet top_right()}Manage Feeds{/snippet}
 		{#snippet title()}Your Sources{/snippet}
 
@@ -73,42 +76,37 @@
 			})}
 		>
 			<div class="add-form-fields">
-				<div class="field">
-					<label class="field-label" for="new-url">Feed URL</label>
+				<FormField label="Feed URL" for="new-url">
 					<input
 						{...create_user_source.fields.canonical_url.as('url')}
 						id="new-url"
 						placeholder="https://example.com/feed.xml"
 					/>
 					<FieldErrors field={create_user_source.fields.canonical_url} />
-				</div>
+				</FormField>
 
-				<div class="field">
-					<label class="field-label" for="new-name">Display Name</label>
+				<FormField label="Display Name" for="new-name">
 					<input
 						{...create_user_source.fields.display_name.as('text')}
 						id="new-name"
 						placeholder="My Favorite Blog"
 					/>
 					<FieldErrors field={create_user_source.fields.display_name} />
-				</div>
+				</FormField>
 
-				<div class="field">
-					<label class="field-label" for="new-label"
-						>Label <span class="optional">(optional)</span></label
-					>
+				<FormField label="Label" for="new-label" optional>
 					<input
 						{...create_user_source.fields.label.as('text')}
 						id="new-label"
 						placeholder="Tech, Politics, etc."
 					/>
 					<FieldErrors field={create_user_source.fields.label} />
-				</div>
+				</FormField>
 			</div>
 
-			<div class="add-form-actions">
+			<FormActions>
 				<Button variant="primary" type="submit">Add Source</Button>
-			</div>
+			</FormActions>
 		</form>
 	</section>
 
@@ -173,37 +171,32 @@
 							</div>
 
 							<div class="source-fields">
-								<div class="field field-inline">
-									<label class="field-label" for="url-{source.user_source_id}">Feed URL</label>
+								<FormField label="Feed URL" for="url-{source.user_source_id}">
 									<input
 										{...edit.fields.canonical_url.as('url', source.canonical_url)}
 										id="url-{source.user_source_id}"
 										placeholder="https://..."
 									/>
 									<FieldErrors field={edit.fields.canonical_url} />
-								</div>
+								</FormField>
 
-								<div class="field field-inline">
-									<label class="field-label" for="name-{source.user_source_id}">Display Name</label>
+								<FormField label="Display Name" for="name-{source.user_source_id}">
 									<input
 										{...edit.fields.display_name.as('text', source.display_name)}
 										id="name-{source.user_source_id}"
 										placeholder="Source name"
 									/>
 									<FieldErrors field={edit.fields.display_name} />
-								</div>
+								</FormField>
 
-								<div class="field field-inline">
-									<label class="field-label" for="label-{source.user_source_id}"
-										>Label (optional)</label
-									>
+								<FormField label="Label" for="label-{source.user_source_id}" optional>
 									<input
 										{...edit.fields.label.as('text', source.label ?? '')}
 										id="label-{source.user_source_id}"
 										placeholder="Add a label…"
 									/>
 									<FieldErrors field={edit.fields.label} />
-								</div>
+								</FormField>
 							</div>
 
 							<div class="source-actions">
@@ -276,59 +269,6 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 		gap: var(--s-4);
-	}
-
-	.add-form-actions {
-		margin-top: var(--s-4);
-		& :global(button) {
-			display: block;
-			margin-left: auto;
-		}
-	}
-
-	/* --- Fields --- */
-	.field {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.field-label {
-		display: block;
-		font-size: var(--text-xs);
-		font-weight: 500;
-		letter-spacing: var(--tracking-5);
-		text-transform: uppercase;
-		color: var(--muted);
-		margin-bottom: var(--s-1);
-	}
-
-	.optional {
-		text-transform: none;
-		letter-spacing: normal;
-		font-weight: 400;
-	}
-
-	.field input:not([type='hidden']):not([type='checkbox']) {
-		width: 100%;
-		padding: var(--s-3) 0;
-		background: transparent;
-		color: var(--fg);
-		border: 0;
-		border-bottom: var(--s-2px) solid var(--rule-strong);
-		border-radius: 0;
-		font-family: var(--font-body);
-		font-size: var(--text-base);
-		transition: border-color 0.2s var(--ease-out-expo);
-	}
-
-	.field input::placeholder {
-		color: var(--muted);
-		opacity: 0.5;
-	}
-
-	.field input:focus {
-		outline: none;
-		border-bottom-color: var(--accent);
 	}
 
 	/* --- Source list --- */

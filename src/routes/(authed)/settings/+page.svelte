@@ -2,6 +2,8 @@
 	import { resolve } from '$app/paths';
 	import Button from '$lib/components/Button.svelte';
 	import FieldErrors from '$lib/components/FieldErrors.svelte';
+	import FormActions from '$lib/components/FormActions.svelte';
+	import FormField from '$lib/components/FormField.svelte';
 	import Masthead from '$lib/components/Masthead.svelte';
 	import NavLink from '$lib/components/NavLink.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
@@ -52,14 +54,11 @@
 				}
 			})}
 		>
-			<div class="field">
-				<label class="field-label" for="article-selection-guidance">
-					Article selection guidance
-				</label>
-				<p class="settings-copy">
-					Specify what you would like to see in your daily edition. Tell the AI what you are
-					interested in. This affects article choice only, not summary tone/formatting.
-				</p>
+			<FormField
+				label="Article selection guidance"
+				for="article-selection-guidance"
+				description="Specify what you would like to see in your daily edition. Tell the AI what you are interested in. This affects article choice only, not summary tone/formatting."
+			>
 				<textarea
 					{...settings_form.fields.article_selection_prompt.as(
 						'text',
@@ -69,11 +68,11 @@
 					placeholder="Prefer investigations, local accountability reporting, and labor coverage..."
 				></textarea>
 				<FieldErrors field={settings_form.fields.article_selection_prompt} />
-			</div>
+			</FormField>
 
-			<div class="settings-actions">
+			<FormActions>
 				<Button bind:this={settings_save_button} type="submit">Save</Button>
-			</div>
+			</FormActions>
 		</form>
 	</section>
 
@@ -123,59 +122,8 @@
 		padding: var(--s-5) 0;
 	}
 
-	.settings-copy {
-		font-size: var(--text-sm);
-		color: var(--muted);
-		margin-bottom: var(--s-3);
-	}
-
-	.settings-actions {
-		margin-top: var(--s-4);
-
-		& :global(button) {
-			display: block;
-			margin-left: auto;
-		}
-	}
-
-	.field {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.field-label {
-		display: block;
-		font-size: var(--text-xs);
-		font-weight: 500;
-		letter-spacing: var(--tracking-5);
-		text-transform: uppercase;
-		color: var(--muted);
-		margin-bottom: var(--s-1);
-	}
-
-	.field textarea {
-		width: 100%;
+	#article-selection-guidance {
 		min-height: calc(var(--s-10) * 2);
-		padding: var(--s-3) 0;
-		background: transparent;
-		color: var(--fg);
-		border: 0;
-		border-bottom: var(--s-2px) solid var(--rule-strong);
-		border-radius: 0;
-		font-family: var(--font-body);
-		font-size: var(--text-base);
-		resize: vertical;
-		transition: border-color 0.2s var(--ease-out-expo);
-	}
-
-	.field textarea::placeholder {
-		color: var(--muted);
-		opacity: 0.5;
-	}
-
-	.field textarea:focus {
-		outline: none;
-		border-bottom-color: var(--accent);
 	}
 
 	.link-grid {

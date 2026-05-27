@@ -2,6 +2,8 @@
 	import { page } from '$app/state';
 	import Button from '$lib/components/Button.svelte';
 	import FieldErrors from '$lib/components/FieldErrors.svelte';
+	import FormActions from '$lib/components/FormActions.svelte';
+	import FormField from '$lib/components/FormField.svelte';
 	import Masthead from '$lib/components/Masthead.svelte';
 	import NavLink from '$lib/components/NavLink.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
@@ -108,17 +110,22 @@
 </script>
 
 <svelte:head>
-	<title>{edition ? (edition.title ?? formatted_date.long) : 'Edition Not Found'} — Editorial</title>
+	<title>{edition ? (edition.title ?? formatted_date.long) : 'Edition Not Found'} — Editorial</title
+	>
 </svelte:head>
 
 <Masthead>
 	{#snippet top_left()}Edition{/snippet}
-	{#snippet top_center()}{edition ? get_status_copy(edition.articles.length) : 'No Edition'}{/snippet}
+	{#snippet top_center()}{edition
+			? get_status_copy(edition.articles.length)
+			: 'No Edition'}{/snippet}
 	{#snippet top_right()}
 		<span class="date-long">{formatted_date.long}</span>
 		<span class="date-short">{formatted_date.short}</span>
 	{/snippet}
-	{#snippet title()}{edition ? (edition.title ?? 'Untitled Edition') : 'Edition Not Found'}{/snippet}
+	{#snippet title()}{edition
+			? (edition.title ?? 'Untitled Edition')
+			: 'Edition Not Found'}{/snippet}
 
 	<NavLink href="/editions">&larr; All Editions</NavLink>
 </Masthead>
@@ -187,7 +194,7 @@
 					<input {...meta_form.fields.edition_id.as('hidden', edition.id)} />
 
 					<div class="meta-date">
-						<span class="field-label">Date</span>
+						<span class="date-label">Date</span>
 						<span class="date-display">
 							<span class="date-long">{formatted_date.long}</span>
 							<span class="date-short">{formatted_date.short}</span>
@@ -195,18 +202,16 @@
 					</div>
 
 					<div class="meta-fields">
-						<div class="field">
-							<label class="field-label" for="meta-title">Title</label>
+						<FormField label="Title" for="meta-title">
 							<input
 								{...meta_form.fields.title.as('text', edition.title ?? '')}
 								id="meta-title"
 								placeholder="Edition headline"
 							/>
 							<FieldErrors field={meta_form.fields.title} />
-						</div>
+						</FormField>
 
-						<div class="field">
-							<label class="field-label" for="meta-status">Status</label>
+						<FormField label="Status" for="meta-status">
 							<select {...meta_form.fields.status.as('text', edition.status)} id="meta-status">
 								<option value="draft">Draft</option>
 								<option value="generating">Generating</option>
@@ -214,11 +219,10 @@
 								<option value="published">Published</option>
 							</select>
 							<FieldErrors field={meta_form.fields.status} />
-						</div>
+						</FormField>
 					</div>
 
-					<div class="field field-full">
-						<label class="field-label" for="meta-summary">Summary</label>
+					<FormField label="Summary" for="meta-summary" full>
 						<textarea
 							{...meta_form.fields.summary.as('text', edition.summary ?? '')}
 							id="meta-summary"
@@ -226,11 +230,11 @@
 							placeholder="A brief description of this edition"
 						></textarea>
 						<FieldErrors field={meta_form.fields.summary} />
-					</div>
+					</FormField>
 
-					<div class="meta-actions">
+					<FormActions>
 						<Button bind:this={meta_save_button} type="submit">Save</Button>
-					</div>
+					</FormActions>
 				</form>
 			{/if}
 		</section>
@@ -242,8 +246,7 @@
 			<h2 class="section-label">Add Articles</h2>
 
 			<form class="search-form" method="get">
-				<div class="search-field field">
-					<label class="field-label" for="search-articles">Search Articles</label>
+				<FormField label="Search Articles" for="search-articles">
 					<div class="search-input-row">
 						<input
 							type="text"
@@ -254,7 +257,7 @@
 						/>
 						<Button type="submit">Search</Button>
 					</div>
-				</div>
+				</FormField>
 			</form>
 
 			{#if candidates.length > 0}
@@ -356,8 +359,7 @@
 				<input {...create_manual_article.fields.edition_id.as('hidden', edition.id)} />
 
 				<div class="manual-fields">
-					<div class="field">
-						<label class="field-label" for="manual-source">Source</label>
+					<FormField label="Source" for="manual-source">
 						<select {...create_manual_article.fields.source_id.as('text')} id="manual-source">
 							<option value="">Select a source</option>
 							{#each sources as src (src.source_id)}
@@ -365,57 +367,46 @@
 							{/each}
 						</select>
 						<FieldErrors field={create_manual_article.fields.source_id} />
-					</div>
+					</FormField>
 
-					<div class="field">
-						<label class="field-label" for="manual-url">URL</label>
+					<FormField label="URL" for="manual-url">
 						<input
 							{...create_manual_article.fields.canonical_url.as('url')}
 							id="manual-url"
 							placeholder="https://example.com/article"
 						/>
 						<FieldErrors field={create_manual_article.fields.canonical_url} />
-					</div>
+					</FormField>
 
-					<div class="field">
-						<label class="field-label" for="manual-title">Title</label>
+					<FormField label="Title" for="manual-title">
 						<input
 							{...create_manual_article.fields.title.as('text')}
 							id="manual-title"
 							placeholder="Article title"
 						/>
 						<FieldErrors field={create_manual_article.fields.title} />
-					</div>
+					</FormField>
 
-					<div class="field">
-						<label class="field-label" for="manual-category"
-							>Category <span class="optional">(optional)</span></label
-						>
+					<FormField label="Category" for="manual-category" optional>
 						<input
 							{...create_manual_article.fields.category.as('text')}
 							id="manual-category"
 							placeholder="e.g. Technology, Politics"
 						/>
 						<FieldErrors field={create_manual_article.fields.category} />
-					</div>
+					</FormField>
 
-					<div class="field">
-						<label class="field-label" for="manual-published"
-							>Published At <span class="optional">(optional)</span></label
-						>
+					<FormField label="Published At" for="manual-published" optional>
 						<input
 							{...create_manual_article.fields.published_at.as('text')}
 							type="datetime-local"
 							id="manual-published"
 						/>
 						<FieldErrors field={create_manual_article.fields.published_at} />
-					</div>
+					</FormField>
 				</div>
 
-				<div class="field field-full">
-					<label class="field-label" for="manual-summary"
-						>Summary <span class="optional">(optional)</span></label
-					>
+				<FormField label="Summary" for="manual-summary" optional full>
 					<textarea
 						{...create_manual_article.fields.summary.as('text')}
 						id="manual-summary"
@@ -423,11 +414,11 @@
 						placeholder="Brief summary"
 					></textarea>
 					<FieldErrors field={create_manual_article.fields.summary} />
-				</div>
+				</FormField>
 
-				<div class="manual-actions">
+				<FormActions>
 					<Button variant="primary" type="submit">Create Article</Button>
-				</div>
+				</FormActions>
 			</form>
 		</details>
 
@@ -587,49 +578,44 @@
 									<input {...edit.fields.edition_id.as('hidden', edition.id)} />
 
 									<div class="edit-fields">
-										<div class="field">
-											<label class="field-label" for="ct-{article.id}">Title</label>
+										<FormField label="Title" for="ct-{article.id}">
 											<input
 												{...edit.fields.custom_title.as('text', article.custom_title ?? '')}
 												id="ct-{article.id}"
 												placeholder={article.title ?? 'Title'}
 											/>
 											<FieldErrors field={edit.fields.custom_title} />
-										</div>
+										</FormField>
 
-										<div class="field">
-											<label class="field-label" for="cc-{article.id}">Category</label>
+										<FormField label="Category" for="cc-{article.id}">
 											<input
 												{...edit.fields.custom_category.as('text', article.custom_category ?? '')}
 												id="cc-{article.id}"
 												placeholder={article.category ?? 'Category'}
 											/>
 											<FieldErrors field={edit.fields.custom_category} />
-										</div>
+										</FormField>
 
-										<div class="field">
-											<label class="field-label" for="sec-{article.id}">Section</label>
+										<FormField label="Section" for="sec-{article.id}">
 											<input
 												{...edit.fields.section.as('text', article.section ?? '')}
 												id="sec-{article.id}"
 												placeholder="e.g. Front Page, Opinion"
 											/>
 											<FieldErrors field={edit.fields.section} />
-										</div>
+										</FormField>
 
-										<div class="field">
-											<label class="field-label" for="rsn-{article.id}">Reason</label>
+										<FormField label="Reason" for="rsn-{article.id}">
 											<input
 												{...edit.fields.reason.as('text', article.reason ?? '')}
 												id="rsn-{article.id}"
 												placeholder="Why this article?"
 											/>
 											<FieldErrors field={edit.fields.reason} />
-										</div>
+										</FormField>
 									</div>
 
-									<div class="field field-full">
-										<label class="field-label" for="cs-{article.id}">Summary</label>
+									<FormField label="Summary" for="cs-{article.id}" full>
 										<textarea
 											{...edit.fields.custom_summary.as('text', article.custom_summary ?? '')}
 											id="cs-{article.id}"
@@ -637,7 +623,7 @@
 											placeholder={article.summary ?? 'Summary'}
 										></textarea>
 										<FieldErrors field={edit.fields.custom_summary} />
-									</div>
+									</FormField>
 
 									<div class="edit-actions">
 										<!-- eslint-disable-next-line svelte/no-unused-svelte-ignore -->
@@ -724,13 +710,7 @@
 		letter-spacing: var(--tracking-3);
 	}
 
-	/* --- Fields (shared) --- */
-	.field {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.field-label {
+	.date-label {
 		display: block;
 		font-size: var(--text-xs);
 		font-weight: 500;
@@ -738,49 +718,6 @@
 		text-transform: uppercase;
 		color: var(--muted);
 		margin-bottom: var(--s-1);
-	}
-
-	.optional {
-		text-transform: none;
-		letter-spacing: normal;
-		font-weight: 400;
-	}
-
-	.field input:not([type='hidden']):not([type='checkbox']),
-	.field textarea,
-	.field select {
-		width: 100%;
-		padding: var(--s-3) 0;
-		background: transparent;
-		color: var(--fg);
-		border: 0;
-		border-bottom: var(--s-2px) solid var(--rule-strong);
-		border-radius: 0;
-		font-family: var(--font-body);
-		font-size: var(--text-base);
-		transition: border-color 0.2s var(--ease-out-expo);
-	}
-
-	.field textarea {
-		resize: vertical;
-	}
-
-	.field select {
-		appearance: none;
-		cursor: pointer;
-	}
-
-	.field input::placeholder,
-	.field textarea::placeholder {
-		color: var(--muted);
-		opacity: 0.5;
-	}
-
-	.field input:focus,
-	.field textarea:focus,
-	.field select:focus {
-		outline: none;
-		border-bottom-color: var(--accent);
 	}
 
 	.empty-state {
@@ -844,18 +781,6 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 		gap: var(--s-4);
-	}
-
-	.field-full {
-		margin-top: var(--s-4);
-	}
-
-	.meta-actions {
-		margin-top: var(--s-4);
-		& :global(button) {
-			display: block;
-			margin-left: auto;
-		}
 	}
 
 	/* --- 2. Article Search --- */
@@ -995,14 +920,6 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 		gap: var(--s-4);
-	}
-
-	.manual-actions {
-		margin-top: var(--s-4);
-		& :global(button) {
-			display: block;
-			margin-left: auto;
-		}
 	}
 
 	/* --- 4. Current Articles --- */

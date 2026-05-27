@@ -2,6 +2,7 @@
 	import { get_user, login_or_register, sign_in_google } from '$lib/auth.remote';
 	import Button from '$lib/components/Button.svelte';
 	import FieldErrors from '$lib/components/FieldErrors.svelte';
+	import FormField from '$lib/components/FormField.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
 
 	await get_user(true);
@@ -22,33 +23,28 @@
 	<div class="form-section">
 		<p class="form-kicker">Sign in or register</p>
 		<form {...login_or_register}>
-			<div class="field">
-				<label class="field-label" for="email">Email Address</label>
+			<FormField label="Email Address" for="email">
 				<input
 					{...login_or_register.fields.email.as('email')}
 					id="email"
 					placeholder="reader@example.com"
 				/>
 				<FieldErrors field={login_or_register.fields.email} />
-			</div>
+			</FormField>
 
-			<div class="field">
-				<label class="field-label" for="password">Password</label>
+			<FormField label="Password" for="password">
 				<input
 					{...login_or_register.fields._password.as('password')}
 					id="password"
 					placeholder="••••••••"
 				/>
 				<FieldErrors field={login_or_register.fields._password} />
-			</div>
+			</FormField>
 
-			<div class="field">
-				<label class="field-label" for="name"
-					>Name <span class="optional">(for registration)</span></label
-				>
+			<FormField label="Name" for="name" label_note="(for registration)">
 				<input {...login_or_register.fields.name.as('text')} id="name" placeholder="Jane Doe" />
 				<FieldErrors field={login_or_register.fields.name} />
-			</div>
+			</FormField>
 
 			{#if login_or_register.result?.error}
 				<p class="error-message">{login_or_register.result.error}</p>
@@ -139,47 +135,8 @@
 		color: var(--accent);
 	}
 
-	.field {
+	form :global(.form-field) {
 		margin-bottom: var(--s-4);
-	}
-
-	.field-label {
-		display: block;
-		font-size: var(--text-xs);
-		font-weight: 500;
-		letter-spacing: var(--tracking-5);
-		text-transform: uppercase;
-		color: var(--muted);
-		margin-bottom: var(--s-1);
-	}
-
-	.optional {
-		text-transform: none;
-		letter-spacing: normal;
-		font-weight: 400;
-	}
-
-	.field input {
-		width: 100%;
-		padding: var(--s-3) 0;
-		background: transparent;
-		color: var(--fg);
-		border: 0;
-		border-bottom: var(--s-2px) solid var(--rule-strong);
-		border-radius: 0;
-		font-family: var(--font-body);
-		font-size: var(--text-base);
-		transition: border-color 0.2s var(--ease-out-expo);
-	}
-
-	.field input::placeholder {
-		color: var(--muted);
-		opacity: 0.5;
-	}
-
-	.field input:focus {
-		outline: none;
-		border-bottom-color: var(--accent);
 	}
 
 	.error-message {

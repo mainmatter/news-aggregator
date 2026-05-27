@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Button from '$lib/components/Button.svelte';
 	import FieldErrors from '$lib/components/FieldErrors.svelte';
+	import FormActions from '$lib/components/FormActions.svelte';
+	import FormField from '$lib/components/FormField.svelte';
 	import Masthead from '$lib/components/Masthead.svelte';
 	import NavLink from '$lib/components/NavLink.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
@@ -70,7 +72,8 @@
 
 <Masthead>
 	{#snippet top_left()}Editions{/snippet}
-	{#snippet top_center()}{editions.length} {editions.length === 1 ? 'Edition' : 'Editions'}{/snippet}
+	{#snippet top_center()}{editions.length}
+		{editions.length === 1 ? 'Edition' : 'Editions'}{/snippet}
 	{#snippet top_right()}Manage{/snippet}
 	{#snippet title()}Your Editions{/snippet}
 
@@ -189,42 +192,34 @@
 			})}
 		>
 			<div class="add-form-fields">
-				<div class="field">
-					<label class="field-label" for="new-date">Edition Date</label>
+				<FormField label="Edition Date" for="new-date">
 					<input
 						{...create_edition.fields.edition_date.as('date')}
 						id="new-date"
 						value={get_today()}
 					/>
 					<FieldErrors field={create_edition.fields.edition_date} />
-				</div>
+				</FormField>
 
-				<div class="field">
-					<label class="field-label" for="new-title"
-						>Title <span class="optional">(optional)</span></label
-					>
+				<FormField label="Title" for="new-title" optional>
 					<input
 						{...create_edition.fields.title.as('text')}
 						id="new-title"
 						placeholder="Morning Briefing"
 					/>
 					<FieldErrors field={create_edition.fields.title} />
-				</div>
+				</FormField>
 
-				<div class="field">
-					<label class="field-label" for="new-status">Status</label>
+				<FormField label="Status" for="new-status">
 					<select {...create_edition.fields.status.as('select')} id="new-status">
 						<option value="draft">Draft</option>
 						<option value="published">Published</option>
 					</select>
 					<FieldErrors field={create_edition.fields.status} />
-				</div>
+				</FormField>
 			</div>
 
-			<div class="field field-full">
-				<label class="field-label" for="new-summary"
-					>Summary <span class="optional">(optional)</span></label
-				>
+			<FormField label="Summary" for="new-summary" optional full>
 				<textarea
 					{...create_edition.fields.summary.as('text')}
 					id="new-summary"
@@ -232,11 +227,11 @@
 					rows="3"
 				></textarea>
 				<FieldErrors field={create_edition.fields.summary} />
-			</div>
+			</FormField>
 
-			<div class="add-form-actions">
+			<FormActions>
 				<Button variant="primary" type="submit">Create Edition</Button>
-			</div>
+			</FormActions>
 		</form>
 	</section>
 </main>
@@ -284,73 +279,6 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 		gap: var(--s-4);
-	}
-
-	.add-form-actions {
-		margin-top: var(--s-4);
-
-		& :global(button) {
-			display: block;
-			margin-left: auto;
-		}
-	}
-
-	/* --- Fields --- */
-	.field {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.field-full {
-		margin-top: var(--s-4);
-	}
-
-	.field-label {
-		display: block;
-		font-size: var(--text-xs);
-		font-weight: 500;
-		letter-spacing: var(--tracking-5);
-		text-transform: uppercase;
-		color: var(--muted);
-		margin-bottom: var(--s-1);
-	}
-
-	.optional {
-		text-transform: none;
-		letter-spacing: normal;
-		font-weight: 400;
-	}
-
-	.field input:not([type='hidden']),
-	.field select,
-	.field textarea {
-		width: 100%;
-		padding: var(--s-3) 0;
-		background: transparent;
-		color: var(--fg);
-		border: 0;
-		border-bottom: var(--s-2px) solid var(--rule-strong);
-		border-radius: 0;
-		font-family: var(--font-body);
-		font-size: var(--text-base);
-		transition: border-color 0.2s var(--ease-out-expo);
-	}
-
-	.field textarea {
-		resize: vertical;
-	}
-
-	.field input::placeholder,
-	.field textarea::placeholder {
-		color: var(--muted);
-		opacity: 0.5;
-	}
-
-	.field input:focus,
-	.field select:focus,
-	.field textarea:focus {
-		outline: none;
-		border-bottom-color: var(--accent);
 	}
 
 	/* --- Edition list --- */

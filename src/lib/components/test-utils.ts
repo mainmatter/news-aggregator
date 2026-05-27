@@ -5,3 +5,9 @@ export function text_snippet(txt: string) {
 		render: () => `<span>${txt}</span>`
 	}));
 }
+
+export function html_snippet(html: string) {
+	return createRawSnippet(() => ({
+		render: () => html
+	}));
+}
