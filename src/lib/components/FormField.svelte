@@ -82,7 +82,7 @@
 		border: 0;
 		border-bottom: var(--s-2px) solid var(--rule-strong);
 		border-radius: 0;
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-base);
 		transition: border-color 0.2s var(--ease-out-expo);
 	}

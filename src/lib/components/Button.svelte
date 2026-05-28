@@ -68,7 +68,7 @@
 		justify-content: center;
 		gap: var(--s-1);
 		position: relative;
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-xs);
 		font-weight: 750;
 		letter-spacing: var(--tracking-4);

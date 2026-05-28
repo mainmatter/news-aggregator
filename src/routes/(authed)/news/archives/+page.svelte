@@ -189,7 +189,7 @@
 	}
 
 	.edition-day-number {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-2xl);
 		font-weight: 850;
 		line-height: 1;
@@ -198,7 +198,7 @@
 	}
 
 	.edition-weekday {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-sm);
 		font-weight: 400;
 		letter-spacing: var(--tracking-2);
@@ -206,7 +206,7 @@
 	}
 
 	.today-indicator {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-xs);
 		font-weight: 600;
 		letter-spacing: var(--tracking-5);
@@ -231,7 +231,7 @@
 	}
 
 	.edition-summary {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-sm);
 		font-weight: 400;
 		color: var(--muted);
@@ -249,7 +249,7 @@
 	}
 
 	.edition-stories {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-xs);
 		font-weight: 400;
 		letter-spacing: var(--tracking-3);

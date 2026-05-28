@@ -70,7 +70,7 @@
 		display: flex;
 		align-items: flex-start;
 		justify-content: flex-end;
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-2xl);
 		font-weight: 850;
 		line-height: 1;

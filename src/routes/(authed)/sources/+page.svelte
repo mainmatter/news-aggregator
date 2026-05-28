@@ -284,7 +284,7 @@
 	}
 
 	.empty-state {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-base);
 		color: var(--muted);
 		font-weight: 650;

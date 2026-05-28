@@ -13,42 +13,9 @@ importers:
 
   .:
     dependencies:
-      '@fontsource-variable/crimson-pro':
-        specifier: ^5.2.8
-        version: 5.2.8
-      '@fontsource-variable/dm-sans':
-        specifier: ^5.2.8
-        version: 5.2.8
-      '@fontsource-variable/fraunces':
-        specifier: ^5.2.9
-        version: 5.2.9
-      '@fontsource-variable/jetbrains-mono':
-        specifier: ^5.2.8
-        version: 5.2.8
-      '@fontsource-variable/nunito':
-        specifier: ^5.2.7
-        version: 5.2.7
-      '@fontsource-variable/outfit':
-        specifier: ^5.2.8
-        version: 5.2.8
-      '@fontsource-variable/playfair-display':
-        specifier: ^5.2.8
-        version: 5.2.8
-      '@fontsource-variable/sora':
-        specifier: ^5.2.8
-        version: 5.2.8
       '@fontsource-variable/source-sans-3':
         specifier: ^5.2.9
         version: 5.2.9
-      '@fontsource-variable/space-grotesk':
-        specifier: ^5.2.10
-        version: 5.2.10
-      '@fontsource/bodoni-moda':
-        specifier: ^5.2.7
-        version: 5.2.7
-      '@fontsource/courier-prime':
-        specifier: ^5.2.8
-        version: 5.2.8
       '@sentry/sveltekit':
         specifier: ^10.51.0
         version: 10.51.0(patch_hash=e13548c03fd18cc9070a08440bae664146f6243541a238dfdd1cece07f9d310e)(@sveltejs/kit@2.60.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.55.9(@typescript-eslint/types@8.56.1))(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(svelte@5.55.9(@typescript-eslint/types@8.56.1))(typescript@5.9.3)(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1)))(rollup@4.59.0)(svelte@5.55.9(@typescript-eslint/types@8.56.1))(vite@7.3.1(@types/node@24.11.0)(jiti@2.6.1))
@@ -999,41 +966,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.9.0
 
-  '@fontsource-variable/crimson-pro@5.2.8':
-    resolution: {integrity: sha512-En4uvz5Wb9gZFi/EVPA9jfC7Bh5NLYwOGc2KhUIT5mPSKrOSCaI1IyvQ3SbUXeHJ04MhWJiRLJSuU9CmyDcOIA==}
-
-  '@fontsource-variable/dm-sans@5.2.8':
-    resolution: {integrity: sha512-AxkvMTvNWgfrmlyjiV05vlHYJa+nRQCf1EfvIrQAPBpFJW0O9VTz7oAFr9S3lvbWdmnFoBk7yFqQL86u64nl2g==}
-
-  '@fontsource-variable/fraunces@5.2.9':
-    resolution: {integrity: sha512-Y6IjunlN9Ni723np+GIgAaKzCDBrPRrqNi01TZxHs5wtHYROWFM9W6yiT+/gGwSjWIRD18oX17kD/BRWekc/Lw==}
-
-  '@fontsource-variable/jetbrains-mono@5.2.8':
-    resolution: {integrity: sha512-WBA9elru6Jdp5df2mES55wuOO0WIrn3kpXnI4+W2ek5u3ZgLS9XS4gmIlcQhiZOWEKl95meYdvK7xI+ETLCq/Q==}
-
-  '@fontsource-variable/nunito@5.2.7':
-    resolution: {integrity: sha512-2N8QhatkyKgSUbAGZO2FYLioxA32+RyI1EplVLawbpkGjUeui9Qg9VMrpkCaik1ydjFjfLV+kzQ0cGEsMrMenQ==}
-
-  '@fontsource-variable/outfit@5.2.8':
-    resolution: {integrity: sha512-4oUDCZx/Tcz6HZP423w/niqEH31Gks5IsqHV2ZZz1qKHaVIZdj2f0/S1IK2n8jl6Xo0o3N+3RjNHlV9R73ozQA==}
-
-  '@fontsource-variable/playfair-display@5.2.8':
-    resolution: {integrity: sha512-ZzVIXPOrL85yyOvZYoBzUszIJM+xKkHqni4IYn2CVLaGQQdJR8sBeC8yFNgjxSJ7ludTwta8qpULeOFuk5X75A==}
-
-  '@fontsource-variable/sora@5.2.8':
-    resolution: {integrity: sha512-sP+ILTfi5r3cqmMBntI4ooQNxFI+LyHyD5hcPbWwwL4uh4kKFAkOz0w2veCXjz18fKRdva6OG0dY+5yQ02f30w==}
-
   '@fontsource-variable/source-sans-3@5.2.9':
     resolution: {integrity: sha512-K9fkQbb0BNnRmmaU+Gpr6U4IaYKpNzA8t07J6aam2i+6v84RT72MVpar8OBr3yYAEznj4riKivPQ2nAF2fPKsw==}
-
-  '@fontsource-variable/space-grotesk@5.2.10':
-    resolution: {integrity: sha512-yJQO/o35/hAP3CFnpdFTwQku2yzJOae2HIpBmqkOVoxhhXJaQP3g+b6Jrz7u+eI7A5ZdCIf88uMWpBJdFiGr5w==}
-
-  '@fontsource/bodoni-moda@5.2.7':
-    resolution: {integrity: sha512-lsOtgDTdfmoenXOskQ63tbzbVJh05qlc1xLaImG2qayaF88kiVvLAk1nM37eoYRMZTrDZlN5zlu6zG8TnXgn4w==}
-
-  '@fontsource/courier-prime@5.2.8':
-    resolution: {integrity: sha512-M3xOCcXnGuFi9TcGCrz4hm5yeWg4Sn35MALRLPnqNoHhawTFvhyi2KSI2+5RyFtDNJrb58bPh8LLipgiI9KA0w==}
 
   '@grpc/grpc-js@1.14.3':
     resolution: {integrity: sha512-Iq8QQQ/7X3Sac15oB6p0FmUg/klxQvXLeileoqrTRGJYLV+/9tubbr9ipz0GKHjmXVsgFPo/+W+2cA8eNcR+XA==}
@@ -6117,29 +6051,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@fontsource-variable/crimson-pro@5.2.8': {}
-
-  '@fontsource-variable/dm-sans@5.2.8': {}
-
-  '@fontsource-variable/fraunces@5.2.9': {}
-
-  '@fontsource-variable/jetbrains-mono@5.2.8': {}
-
-  '@fontsource-variable/nunito@5.2.7': {}
-
-  '@fontsource-variable/outfit@5.2.8': {}
-
-  '@fontsource-variable/playfair-display@5.2.8': {}
-
-  '@fontsource-variable/sora@5.2.8': {}
-
   '@fontsource-variable/source-sans-3@5.2.9': {}
-
-  '@fontsource-variable/space-grotesk@5.2.10': {}
-
-  '@fontsource/bodoni-moda@5.2.7': {}
-
-  '@fontsource/courier-prime@5.2.8': {}
 
   '@grpc/grpc-js@1.14.3':
     dependencies:

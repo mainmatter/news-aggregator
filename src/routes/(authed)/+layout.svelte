@@ -102,7 +102,7 @@
 	}
 
 	.sign-out-btn {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-base);
 		font-weight: 500;
 		line-height: 1.6;

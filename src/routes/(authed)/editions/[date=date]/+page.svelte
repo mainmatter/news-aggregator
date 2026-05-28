@@ -703,7 +703,7 @@
 	}
 
 	.article-count {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-sm);
 		font-style: normal;
 		color: var(--muted);
@@ -721,7 +721,7 @@
 	}
 
 	.empty-state {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-base);
 		color: var(--muted);
 		font-weight: 650;
@@ -771,7 +771,7 @@
 	}
 
 	.date-display {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-md);
 		font-weight: 800;
 		color: var(--fg);
@@ -965,7 +965,7 @@
 	}
 
 	.position-number {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-md);
 		font-weight: 850;
 		color: var(--muted);

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '@fontsource-variable/source-sans-3';
-	import '@fontsource-variable/dm-sans';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { setupViewTransition } from 'sveltekit-view-transition';

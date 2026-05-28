@@ -157,7 +157,7 @@
 	}
 
 	.editions-label {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-xs);
 		font-weight: 800;
 		letter-spacing: var(--tracking-6);
@@ -200,7 +200,7 @@
 		align-items: center;
 		gap: var(--s-1);
 		padding: var(--s-2) var(--s-3);
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-sm);
 		font-weight: 700;
 		letter-spacing: var(--tracking-2);
@@ -264,7 +264,7 @@
 	}
 
 	.view-all {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-xs);
 		font-weight: 800;
 		color: var(--fg);

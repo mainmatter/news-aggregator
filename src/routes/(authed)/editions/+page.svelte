@@ -294,7 +294,7 @@
 	}
 
 	.empty-state {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-base);
 		color: var(--muted);
 		font-weight: 650;
@@ -420,7 +420,7 @@
 	}
 
 	.edition-summary {
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-sm);
 		color: var(--muted);
 		margin-top: var(--s-1);

@@ -299,7 +299,7 @@
 
 	.edition-state-panel h2 {
 		font-family: var(--font-display);
-		font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
+		font-size: var(--text-3xl);
 		font-weight: 850;
 		line-height: 1;
 		letter-spacing: -0.04em;
@@ -323,7 +323,7 @@
 		border: var(--s-px) solid var(--accent);
 		background: var(--accent);
 		color: var(--accent-contrast);
-		font-family: var(--font-body);
+		font-family: var(--font-display);
 		font-size: var(--text-xs);
 		font-weight: 800;
 		letter-spacing: var(--tracking-5);

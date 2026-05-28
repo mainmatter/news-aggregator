@@ -92,7 +92,7 @@
 
 	@media (max-width: 640px) {
 		.masthead h1 {
-			font-size: clamp(var(--text-5xl), 18vw, var(--text-7xl));
+			font-size: var(--text-6xl);
 		}
 	}
 </style>
