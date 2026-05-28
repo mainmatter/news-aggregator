@@ -1,5 +1,14 @@
 allowBuilds:
+  '@nestjs/core': false
+  '@prisma/client': false
+  '@sentry/cli': false
+  '@swc/core': false
+  better-sqlite3: false
+  cbor-extract: false
+  cpu-features: false
   esbuild: true
+  protobufjs: false
+  ssh2: false
 
 patchedDependencies:
-  '@sentry/sveltekit@10.51.0': patches/@sentry__sveltekit@10.51.0.patch
+  '@sentry/sveltekit@10.54.0': patches/@sentry__sveltekit@10.51.0.patch
