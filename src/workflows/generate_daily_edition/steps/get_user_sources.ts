@@ -8,6 +8,7 @@ export async function get_user_sources(user_id: string) {
 
 	const rows = await db
 		.select({
+			user_source_id: user_source.id,
 			source_id: user_source.source_id,
 			display_name: user_source.display_name,
 			canonical_url: source.canonical_url,

@@ -16,6 +16,23 @@
 
 	const user_sources = $derived(await get_user_sources());
 
+	function format_status(status: string) {
+		switch (status) {
+			case 'success':
+				return 'Succeeded';
+			case 'error':
+				return 'Failed';
+			case 'skipped':
+				return 'Skipped';
+			case 'running':
+				return 'Running';
+			case 'queued':
+				return 'Queued';
+			default:
+				return status;
+		}
+	}
+
 	let source_save_buttons: Record<string, Button | undefined> = {};
 
 	const forms = $derived.by(() => {
@@ -65,7 +82,8 @@
 					label: data.label ?? null,
 					is_active: true,
 					created_at: new Date(),
-					updated_at: new Date()
+					updated_at: new Date(),
+					recent_runs: []
 				};
 
 				await submit().updates(
@@ -123,6 +141,7 @@
 					<li class="source-card">
 						<form
 							class="source-edit-form"
+							id="edit-{source.user_source_id}"
 							{...edit.enhance(async ({ data, submit }) => {
 								try {
 									const updated_display_name = data.display_name ?? source.display_name;
@@ -198,27 +217,61 @@
 									<FieldErrors field={edit.fields.label} />
 								</FormField>
 							</div>
+						</form>
 
-							<div class="source-actions">
-								<Button bind:this={source_save_buttons[source.user_source_id]} type="submit">
-									Save
-								</Button>
+						<div class="source-actions">
+							<form
+								class="delete-form"
+								{...remove.enhance(async ({ submit }) => {
+									await submit().updates(
+										get_user_sources().withOverride((sources) =>
+											sources.filter((s) => s.user_source_id !== source.user_source_id)
+										)
+									);
+								})}
+							>
+								<input {...remove.fields.user_source_id.as('hidden', source.user_source_id)} />
+								<Button variant="ghost" type="submit">Delete</Button>
+							</form>
+							<Button
+								bind:this={source_save_buttons[source.user_source_id]}
+								type="submit"
+								form="edit-{source.user_source_id}"
+							>
+								Save
+							</Button>
+						</div>
+
+						<details class="generation-history">
+							<summary>Generation History</summary>
+							<div class="history-body">
+								{#if source.recent_runs && source.recent_runs.length > 0}
+									<ul class="history-list">
+										{#each source.recent_runs as run (run.id)}
+											<li class="history-row">
+												<div class="history-meta">
+													<span class="history-date">{run.edition_date}</span>
+													<span
+														class="history-status"
+														data-status={run.status}>{format_status(run.status)}</span
+													>
+													<span class="history-count">
+														{run.selected_article_count}
+														{run.selected_article_count === 1 ? 'article' : 'articles'}
+													</span>
+												</div>
+												{#if run.reason}
+													<p class="history-reason">{run.reason}</p>
+												{/if}
+											</li>
+										{/each}
+									</ul>
+								{:else}
+									<p class="history-empty">No runs yet.</p>
+								{/if}
+								<a class="view-all" href="/sources/{source.user_source_id}/runs">View all runs &rarr;</a>
 							</div>
-						</form>
-
-						<form
-							class="delete-form"
-							{...remove.enhance(async ({ submit }) => {
-								await submit().updates(
-									get_user_sources().withOverride((sources) =>
-										sources.filter((s) => s.user_source_id !== source.user_source_id)
-									)
-								);
-							})}
-						>
-							<input {...remove.fields.user_source_id.as('hidden', source.user_source_id)} />
-							<Button variant="ghost" type="submit">Delete</Button>
-						</form>
+						</details>
 					</li>
 				{/each}
 			</ul>
@@ -382,13 +435,12 @@
 		display: flex;
 		gap: var(--s-2);
 		margin-top: var(--s-3);
-		justify-content: flex-end;
+		justify-content: space-between;
+		align-items: center;
 	}
 
 	.delete-form {
-		position: absolute;
-		bottom: var(--s-4);
-		left: var(--s-4);
+		display: flex;
 	}
 
 	.delete-form :global(.btn-ghost) {
@@ -399,6 +451,140 @@
 
 	.delete-form :global(.btn-ghost:hover) {
 		color: var(--accent);
+	}
+
+	/* --- Generation history --- */
+	.generation-history {
+		margin-top: var(--s-5);
+		padding-top: var(--s-4);
+		border-top: var(--s-px) solid var(--rule);
+	}
+
+	.generation-history > summary {
+		cursor: pointer;
+		font-family: var(--font-display);
+		font-size: var(--text-xs);
+		font-weight: 650;
+		letter-spacing: var(--tracking-3);
+		text-transform: uppercase;
+		color: var(--muted);
+		list-style: none;
+		display: flex;
+		align-items: center;
+		gap: var(--s-2);
+		transition: color 0.2s var(--ease-out-expo);
+	}
+
+	.generation-history > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.generation-history > summary::before {
+		content: '+';
+		font-size: var(--text-base);
+		line-height: 1;
+		display: inline-block;
+		width: var(--s-3);
+	}
+
+	.generation-history[open] > summary::before {
+		content: '−';
+	}
+
+	.generation-history > summary:hover {
+		color: var(--fg);
+	}
+
+	.history-body {
+		margin-top: var(--s-3);
+		display: flex;
+		flex-direction: column;
+		gap: var(--s-3);
+	}
+
+	.history-list {
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: var(--s-2);
+		margin: 0;
+		padding: 0;
+	}
+
+	.history-row {
+		padding: var(--s-2) 0;
+		border-bottom: var(--s-px) dashed var(--rule);
+	}
+
+	.history-row:last-child {
+		border-bottom: none;
+	}
+
+	.history-meta {
+		display: flex;
+		gap: var(--s-3);
+		align-items: baseline;
+		flex-wrap: wrap;
+		font-size: var(--text-xs);
+		letter-spacing: var(--tracking-2);
+	}
+
+	.history-date {
+		font-family: var(--font-display);
+		font-weight: 650;
+		color: var(--fg);
+	}
+
+	.history-status {
+		text-transform: uppercase;
+		letter-spacing: var(--tracking-3);
+		font-weight: 650;
+		color: var(--muted);
+	}
+
+	.history-status[data-status='success'] {
+		color: var(--status-success);
+	}
+
+	.history-status[data-status='error'] {
+		color: var(--status-error);
+	}
+
+	.history-status[data-status='running'],
+	.history-status[data-status='queued'] {
+		color: var(--status-warning);
+	}
+
+	.history-count {
+		color: var(--muted);
+	}
+
+	.history-reason {
+		margin-top: var(--s-1);
+		font-size: var(--text-sm);
+		color: var(--fg);
+		line-height: 1.5;
+	}
+
+	.history-empty {
+		font-size: var(--text-sm);
+		color: var(--muted);
+		font-style: italic;
+	}
+
+	.view-all {
+		align-self: flex-start;
+		font-size: var(--text-xs);
+		font-weight: 650;
+		letter-spacing: var(--tracking-3);
+		text-transform: uppercase;
+		color: var(--accent);
+		text-decoration: none;
+		transition: color 0.2s var(--ease-out-expo);
+	}
+
+	.view-all:hover {
+		color: var(--fg);
 	}
 
 	/* --- Responsive --- */

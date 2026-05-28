@@ -29,7 +29,6 @@ export function resolve_webhook_url(webhook_url: string, tunnel_base_url?: strin
 	const tunnel = new URL(tunnel_base_url);
 	parsed.protocol = tunnel.protocol;
 	parsed.host = tunnel.host;
-	parsed.port = '';
 	return parsed.toString();
 }
 

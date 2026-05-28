@@ -11,9 +11,41 @@ vi.mock('workflow/api', () => ({
 }));
 
 import { start_daily_edition_generation } from './edition_generation';
+import { eq } from 'drizzle-orm';
 
-describe('start_daily_edition_generation', () => {
-	it('rejects when the user has no active sources and does not start a workflow', async () => {
+	describe('start_daily_edition_generation', () => {
+	it('rejects when the user has no sources and does not create participation logs', async () => {
+		workflow_api_mocks.start.mockReset();
+		const { database, cleanup } = await create_test_database();
+
+		try {
+			const user_id = crypto.randomUUID();
+
+			await database.insert(schema.user).values({
+				id: user_id,
+				name: 'Empty User',
+				email: `${user_id}@example.com`,
+				emailVerified: true
+			});
+
+			await expect(
+				start_daily_edition_generation({
+					user_id,
+					edition_date: '2026-04-14'
+				})
+			).rejects.toThrow('Add at least one active source before starting generation.');
+
+			expect(workflow_api_mocks.start).not.toHaveBeenCalled();
+
+			const logs = await database.select().from(schema.source_participation_log);
+			expect(logs).toHaveLength(0);
+		} finally {
+			await cleanup();
+		}
+	});
+
+	it('short-circuits when all sources are inactive: creates skipped logs for the edition, does not start workflow', async () => {
+		workflow_api_mocks.start.mockReset();
 		const { database, cleanup } = await create_test_database();
 
 		try {
@@ -22,7 +54,7 @@ describe('start_daily_edition_generation', () => {
 
 			await database.insert(schema.user).values({
 				id: user_id,
-				name: 'No Sources User',
+				name: 'Inactive Sources User',
 				email: `${user_id}@example.com`,
 				emailVerified: true
 			});
@@ -39,14 +71,27 @@ describe('start_daily_edition_generation', () => {
 				is_active: false
 			});
 
-			await expect(
-				start_daily_edition_generation({
-					user_id,
-					edition_date: '2026-04-14'
-				})
-			).rejects.toThrow('Add at least one active source before starting generation.');
+			await start_daily_edition_generation({
+				user_id,
+				edition_date: '2026-04-14'
+			});
 
 			expect(workflow_api_mocks.start).not.toHaveBeenCalled();
+
+			const editions = await database
+				.select()
+				.from(schema.daily_edition)
+				.where(eq(schema.daily_edition.user_id, user_id));
+			expect(editions).toHaveLength(1);
+			expect(editions[0].status).toBe('published');
+
+			const logs = await database
+				.select()
+				.from(schema.source_participation_log)
+				.where(eq(schema.source_participation_log.daily_edition_id, editions[0].id));
+			expect(logs).toHaveLength(1);
+			expect(logs[0].status).toBe('skipped');
+			expect(logs[0].reason).toBe('Source inactive when generation started.');
 		} finally {
 			await cleanup();
 		}

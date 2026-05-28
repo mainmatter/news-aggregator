@@ -28,6 +28,7 @@ export const source_callback_payload_schema = v.object({
 	status: v.picklist(['success', 'error']),
 	articles: v.optional(v.array(source_article_result_schema), []),
 	error: v.optional(v.string()),
+	reason: v.optional(v.nullable(v.string())),
 	generated_at: v.optional(v.string())
 });
 
@@ -39,6 +40,7 @@ export type SourceArticleResult = v.InferOutput<typeof source_article_result_sch
 export type SourceGenerationResult = v.InferOutput<typeof source_callback_payload_schema>;
 
 export type WorkflowUserSource = {
+	user_source_id: string;
 	source_id: string;
 	display_name: string;
 	canonical_url: string;
@@ -54,6 +56,15 @@ export type SourceSandboxRuntime = {
 	command_id: string;
 };
 
+export type SourceSnapshotEntry = {
+	user_source_id: string;
+	source_id: string;
+	display_name: string;
+	canonical_url: string;
+	is_active: boolean;
+	label: string | null;
+};
+
 export type PreparedGenerationState = {
 	edition_id: string;
 	edition_date: string;
@@ -64,6 +75,7 @@ export type PreparedGenerationState = {
 	previous_generated_at: Date | null;
 	previous_article_count: number;
 	replace_existing: boolean;
+	source_snapshot: SourceSnapshotEntry[];
 };
 
 export type PersistEditionResult = {

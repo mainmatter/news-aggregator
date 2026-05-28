@@ -252,7 +252,8 @@ async function choose_links(client, session_id) {
 		'If the provided source is not a newsletter archive, do not force this workflow and just extract links directly from the fetched source content.',
 		'From the relevant fetched source page, identify links that point to individual news/article pages.',
 		'Exclude navigation links, category pages, login pages, video pages, archive index pages, and newsletter signup pages.',
-		`Choose at most ${article_limit} URLs and prefer the most relevant recent journalism. If you cannot verify any article URLs as directly linked from the actual source workflow, return an empty list.`
+		`Choose at most ${article_limit} URLs and prefer the most relevant recent journalism. If you cannot verify any article URLs as directly linked from the actual source workflow, return an empty list.`,
+		'When (and only when) the returned "urls" list is empty, you MUST provide a concise free-text "reason" (target 140-220 characters) explaining why no articles were selected. When "urls" is non-empty, set "reason" to null.'
 	].join('\n');
 
 	const schema = {
@@ -261,13 +262,20 @@ async function choose_links(client, session_id) {
 			urls: {
 				type: 'array',
 				items: { type: 'string' }
-			}
+			},
+			reason: { type: ['string', 'null'] }
 		},
-		required: ['urls']
+		required: ['urls', 'reason']
 	};
 
 	const result = await prompt_structured(client, session_id, prompt, schema);
-	return (result.urls || []).slice(0, article_limit);
+	const urls = (result.urls || []).slice(0, article_limit);
+	const reason =
+		urls.length === 0 && typeof result.reason === 'string' && result.reason.trim()
+			? result.reason.trim()
+			: null;
+
+	return { urls, reason };
 }
 
 async function summarize_article(client, session_id, article_url) {
@@ -357,12 +365,13 @@ async function main() {
 			title: `Choose links for ${source_name}`
 		});
 		console.log('Link session ID:', link_session.id, 'choosing links...');
-		const chosen_links = await run_ai_stage_span(
+		const link_selection = await run_ai_stage_span(
 			'choose_links',
 			{ stage_type: 'link_selection' },
 			() => choose_links(client, link_session.id)
 		);
-		console.log({ chosen_links_count: chosen_links.length });
+		const chosen_links = link_selection.urls;
+		const selection_reason = link_selection.reason;
 		const summaries = [];
 
 		const promises = chosen_links.map(async (article_url) => {
@@ -395,6 +404,7 @@ async function main() {
 				correlation_id: generation_correlation_id || undefined,
 				status: 'success',
 				articles: summaries,
+				reason: selection_reason,
 				generated_at: new Date().toISOString()
 			});
 		});
@@ -409,6 +419,8 @@ async function main() {
 			});
 		}
 
+		const raw_error_message = error instanceof Error ? error.message : 'Unknown sandbox failure';
+
 		await run_ai_stage_span('post_callback', { stage_type: 'webhook_callback' }, async () => {
 			await post_callback({
 				source_id,
@@ -417,7 +429,8 @@ async function main() {
 				correlation_id: generation_correlation_id || undefined,
 				status: 'error',
 				articles: [],
-				error: error instanceof Error ? error.message : 'Unknown sandbox failure',
+				error: raw_error_message,
+				reason: raw_error_message,
 				generated_at: new Date().toISOString()
 			});
 		});

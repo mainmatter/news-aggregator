@@ -154,4 +154,42 @@ export const daily_edition_article = sqliteTable(
 	]
 );
 
+export const source_participation_log = sqliteTable(
+	'source_participation_log',
+	{
+		id: create_id(),
+		user_id: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		daily_edition_id: text('daily_edition_id')
+			.notNull()
+			.references(() => daily_edition.id, { onDelete: 'cascade' }),
+		edition_date: text('edition_date').notNull(),
+		user_source_id: text('user_source_id').references(() => user_source.id, {
+			onDelete: 'set null'
+		}),
+		source_id: text('source_id').references(() => source.id, { onDelete: 'set null' }),
+		source_display_name_snapshot: text('source_display_name_snapshot').notNull(),
+		source_canonical_url_snapshot: text('source_canonical_url_snapshot').notNull(),
+		status: text('status').notNull(),
+		selected_article_count: integer('selected_article_count').notNull().default(0),
+		reason: text('reason'),
+		error_message: text('error_message'),
+		started_at: integer('started_at', { mode: 'timestamp_ms' }).default(now).notNull(),
+		finished_at: integer('finished_at', { mode: 'timestamp_ms' }),
+		...create_timestamps()
+	},
+	(table) => [
+		uniqueIndex('source_participation_log_edition_user_source_unique').on(
+			table.daily_edition_id,
+			table.user_source_id
+		),
+		index('source_participation_log_user_source_finished_idx').on(
+			table.user_source_id,
+			table.finished_at
+		),
+		index('source_participation_log_daily_edition_idx').on(table.daily_edition_id)
+	]
+);
+
 export * from './auth.schema';
