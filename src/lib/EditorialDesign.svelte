@@ -149,8 +149,8 @@
 {#snippet generation_form_snippet()}
 	<form
 		class="generation-form"
-		{...start_daily_edition_generation.enhance(async ({ data, submit }) => {
-			const edition_date = data.edition_date;
+		{...start_daily_edition_generation.enhance(async ({ submit }) => {
+			const edition_date = start_daily_edition_generation.fields.edition_date.value()!;
 			const current_edition = edition;
 
 			await submit().updates(

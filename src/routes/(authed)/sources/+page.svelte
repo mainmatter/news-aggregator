@@ -72,14 +72,14 @@
 
 		<form
 			class="add-form"
-			{...create_user_source.enhance(async ({ form, data, submit }) => {
+			{...create_user_source.enhance(async ({ element, submit }) => {
 				const optimistic_entry = {
 					user_source_id: crypto.randomUUID(),
 					source_id: crypto.randomUUID(),
-					canonical_url: data.canonical_url,
-					display_name: data.display_name,
+					canonical_url: create_user_source.fields.canonical_url.value()!,
+					display_name: create_user_source.fields.display_name.value()!,
 					source_kind: 'rss',
-					label: data.label ?? null,
+					label: create_user_source.fields.label.value() ?? null,
 					is_active: true,
 					created_at: new Date(),
 					updated_at: new Date(),
@@ -90,7 +90,7 @@
 					get_user_sources().withOverride((sources) => [...sources, optimistic_entry])
 				);
 
-				form.reset();
+				element.reset();
 			})}
 		>
 			<div class="add-form-fields">
@@ -142,12 +142,13 @@
 						<form
 							class="source-edit-form"
 							id="edit-{source.user_source_id}"
-							{...edit.enhance(async ({ data, submit }) => {
+							{...edit.enhance(async ({ submit }) => {
 								try {
-									const updated_display_name = data.display_name ?? source.display_name;
-									const updated_label = data.label ?? null;
-									const updated_url = data.canonical_url ?? source.canonical_url;
-									const updated_active = data.is_active ?? false;
+									const updated_display_name =
+										edit.fields.display_name.value() ?? source.display_name;
+									const updated_label = edit.fields.label.value() ?? null;
+									const updated_url = edit.fields.canonical_url.value() ?? source.canonical_url;
+									const updated_active = edit.fields.is_active.value() ?? false;
 
 									await submit().updates(
 										get_user_sources().withOverride((sources) =>
@@ -251,9 +252,8 @@
 											<li class="history-row">
 												<div class="history-meta">
 													<span class="history-date">{run.edition_date}</span>
-													<span
-														class="history-status"
-														data-status={run.status}>{format_status(run.status)}</span
+													<span class="history-status" data-status={run.status}
+														>{format_status(run.status)}</span
 													>
 													<span class="history-count">
 														{run.selected_article_count}
@@ -269,7 +269,9 @@
 								{:else}
 									<p class="history-empty">No runs yet.</p>
 								{/if}
-								<a class="view-all" href="/sources/{source.user_source_id}/runs">View all runs &rarr;</a>
+								<a class="view-all" href="/sources/{source.user_source_id}/runs"
+									>View all runs &rarr;</a
+								>
 							</div>
 						</details>
 					</li>

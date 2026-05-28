@@ -36,9 +36,10 @@
 
 		<form
 			class="settings-form"
-			{...settings_form.enhance(async ({ data, submit }) => {
+			{...settings_form.enhance(async ({ submit }) => {
 				try {
-					const article_selection_prompt = data.article_selection_prompt?.trim() || null;
+					const article_selection_prompt =
+						settings_form.fields.article_selection_prompt.value()?.trim() || null;
 
 					await submit().updates(
 						get_user_settings().withOverride((settings) => ({

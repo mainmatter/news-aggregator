@@ -170,16 +170,16 @@
 			{#if meta_form}
 				<form
 					class="meta-form"
-					{...meta_form.enhance(async ({ data, submit }) => {
+					{...meta_form.enhance(async ({ submit }) => {
 						try {
 							await submit().updates(
 								get_edition_editor(date_param).withOverride((prev) => {
 									if (!prev) return prev;
 									return {
 										...prev,
-										title: data.title ?? prev.title,
-										summary: data.summary ?? prev.summary,
-										status: data.status ?? prev.status
+										title: meta_form.fields.title.value() ?? prev.title,
+										summary: meta_form.fields.summary.value() ?? prev.summary,
+										status: meta_form.fields.status.value() ?? prev.status
 									};
 								})
 							);
@@ -345,7 +345,7 @@
 
 			<form
 				class="manual-form"
-				{...create_manual_article.enhance(async ({ form, submit }) => {
+				{...create_manual_article.enhance(async ({ element, submit }) => {
 					await submit().updates(
 						get_edition_editor(date_param),
 						search_editable_articles({
@@ -353,7 +353,7 @@
 							search_term: search_term || undefined
 						})
 					);
-					form.reset();
+					element.reset();
 				})}
 			>
 				<input {...create_manual_article.fields.edition_id.as('hidden', edition.id)} />
@@ -544,7 +544,7 @@
 
 								<form
 									class="article-edit-form"
-									{...edit.enhance(async ({ data, submit }) => {
+									{...edit.enhance(async ({ submit }) => {
 										try {
 											await submit().updates(
 												get_edition_editor(date_param).withOverride((prev) => {
@@ -555,11 +555,14 @@
 															a.id === article.id
 																? {
 																		...a,
-																		custom_title: data.custom_title ?? a.custom_title,
-																		custom_summary: data.custom_summary ?? a.custom_summary,
-																		custom_category: data.custom_category ?? a.custom_category,
-																		section: data.section ?? a.section,
-																		reason: data.reason ?? a.reason
+																		custom_title:
+																			edit.fields.custom_title.value() ?? a.custom_title,
+																		custom_summary:
+																			edit.fields.custom_summary.value() ?? a.custom_summary,
+																		custom_category:
+																			edit.fields.custom_category.value() ?? a.custom_category,
+																		section: edit.fields.section.value() ?? a.section,
+																		reason: edit.fields.reason.value() ?? a.reason
 																	}
 																: a
 														)

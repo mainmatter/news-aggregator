@@ -171,13 +171,13 @@
 
 		<form
 			class="add-form"
-			{...create_edition.enhance(async ({ form, data, submit }) => {
+			{...create_edition.enhance(async ({ submit, element }) => {
 				const optimistic_entry = {
 					id: crypto.randomUUID(),
-					edition_date: data.edition_date,
-					status: data.status ?? 'draft',
-					title: data.title ?? null,
-					summary: data.summary ?? null,
+					edition_date: create_edition.fields.edition_date.value()!,
+					status: create_edition.fields.status.value() ?? 'draft',
+					title: create_edition.fields.title.value() ?? null,
+					summary: create_edition.fields.summary.value() ?? null,
 					article_count: 0,
 					generated_at: null,
 					created_at: new Date(),
@@ -188,7 +188,7 @@
 					get_editions().withOverride((current) => [optimistic_entry, ...current])
 				);
 
-				form.reset();
+				element.reset();
 			})}
 		>
 			<div class="add-form-fields">
