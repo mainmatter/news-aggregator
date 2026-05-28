@@ -327,6 +327,7 @@ async function create_docker_sandbox(config: sandbox_create_config) {
 			WorkingDir: docker_sandbox_workspace,
 			Env: to_env_list(config.env),
 			HostConfig: {
+				ExtraHosts: ['host.docker.internal:host-gateway'],
 				...(env.DOCKER_SANDBOX_NETWORK ? { NetworkMode: env.DOCKER_SANDBOX_NETWORK } : {})
 			}
 		});

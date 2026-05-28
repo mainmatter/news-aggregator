@@ -20,9 +20,7 @@ import type {
 
 async function get_tunnel_base_url() {
 	if (!dev) return undefined;
-
-	const { getTunnelUrl } = await import('virtual:vite-plugin-cloudflare-tunnel');
-	return getTunnelUrl();
+	return 'http://host.docker.internal:5173';
 }
 
 export async function prepare_generation(input: PreparationGenerationInput) {

@@ -64,7 +64,6 @@
 		"sveltekit-view-transition": "^0.5.3",
 		"tar-stream": "^3.1.8",
 		"valibot": "^1.2.0",
-		"vite-plugin-cloudflare-tunnel": "^1.0.12",
 		"workflow": "4.2.0"
 	}
 }

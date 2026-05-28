@@ -4,7 +4,6 @@ import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { workflowPlugin } from 'workflow/sveltekit';
-import cloudflare from 'vite-plugin-cloudflare-tunnel';
 
 const sentry_org = process.env.SENTRY_ORG;
 const sentry_project = process.env.SENTRY_PROJECT;
@@ -24,9 +23,12 @@ export default defineConfig({
 		...(sentry_plugin ? [sentry_plugin] : []),
 		sveltekit(),
 		workflowPlugin(),
-		devtoolsJson(),
-		cloudflare()
+		devtoolsJson()
 	],
+	server: {
+		host: true,
+		allowedHosts: ['host.docker.internal']
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
