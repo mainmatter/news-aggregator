@@ -1,5 +1,19 @@
 <script lang="ts">
-	import EditorialDesign from '$lib/EditorialDesign.svelte';
+	import Article from '$lib/components/Article.svelte';
+	import FeaturedArticle from '$lib/components/FeaturedArticle.svelte';
+	import PageFooter from '$lib/components/PageFooter.svelte';
+	import {
+		get_edition_editor,
+		get_editions,
+		start_daily_edition_generation,
+		type EditionArticleRow,
+		type EditionEditor,
+		type EditionSummary
+	} from '$lib/editions.remote';
+	import { format_edition_date } from '$lib/date_format';
+	import type { Article as ArticleType } from '$lib/schemas';
+	import EditionsList from '$lib/components/EditionsList.svelte';
+	import Masthead from '$lib/components/Masthead.svelte';
 	import { get_user_sources } from '$lib/sources.remote';
 
 	function get_default_edition_date() {
@@ -9,12 +23,334 @@
 	let { params } = $props();
 
 	const sources = $derived(await get_user_sources());
-	const selected_date = $derived(params.date || get_default_edition_date());
+	const date = $derived(params.date || get_default_edition_date());
 	const has_available_sources = $derived(sources.some((source) => source.is_active === true));
+
+	function format_published_at(value: Date | string | null | undefined) {
+		if (!value) {
+			return '';
+		}
+
+		const published_at = value instanceof Date ? value : new Date(value);
+
+		if (Number.isNaN(published_at.getTime())) {
+			return '';
+		}
+
+		return published_at.toLocaleDateString('en-US', {
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric'
+		});
+	}
+
+	function get_source_name(url: string | null | undefined) {
+		if (!url) {
+			return 'Unknown source';
+		}
+
+		try {
+			return new URL(url).hostname.replace(/^www\./, '');
+		} catch {
+			return 'Unknown source';
+		}
+	}
+
+	function map_edition_article(article: EditionArticleRow): ArticleType {
+		const url = article.canonical_url || '#';
+
+		return {
+			id: article.id,
+			article_id: article.article_id,
+			canonical_url: url,
+			url,
+			title: article.custom_title || article.title || 'Untitled article',
+			source: get_source_name(article.canonical_url),
+			published_at: format_published_at(article.published_at),
+			summary:
+				article.custom_summary || article.summary || article.reason || 'Summary unavailable.',
+			category: article.custom_category || article.category || article.section || 'General',
+			position: article.position,
+			section: article.section,
+			reason: article.reason,
+			custom_title: article.custom_title,
+			custom_summary: article.custom_summary,
+			custom_category: article.custom_category
+		};
+	}
+
+	function upsert_generating_edition(
+		current: EditionSummary[],
+		edition_date: string,
+		current_edition: EditionEditor | null
+	) {
+		const optimistic_entry: EditionSummary = {
+			id: current_edition?.id ?? crypto.randomUUID(),
+			edition_date,
+			status: 'generating',
+			title: current_edition?.title ?? null,
+			summary: current_edition?.summary ?? null,
+			article_count: 0,
+			generated_at: current_edition?.generated_at ?? null,
+			created_at: new Date(),
+			updated_at: new Date()
+		};
+
+		const next = current.some((item) => item.edition_date === edition_date)
+			? current.map((item) =>
+					item.edition_date === edition_date ? { ...item, ...optimistic_entry } : item
+				)
+			: [...current, optimistic_entry];
+
+		return next.toSorted((a, b) => b.edition_date.localeCompare(a.edition_date));
+	}
+
+	function get_generation_button_label(edition_state: string) {
+		if (edition_state === 'failed') {
+			return 'Retry generation';
+		}
+
+		return 'Start generation';
+	}
+
+	const editions = $derived(await get_editions());
+	const edition = $derived(await get_edition_editor(date));
+	const articles = $derived(edition?.articles.map(map_edition_article) ?? []);
+	const edition_state = $derived.by(() => {
+		if (!edition) {
+			return 'missing';
+		}
+
+		if (edition.status === 'generating') {
+			return 'generating';
+		}
+
+		if (edition.status === 'failed') {
+			return 'failed';
+		}
+
+		if (edition.status === 'published' && articles.length === 0) {
+			return 'published-empty';
+		}
+
+		if (articles.length === 0) {
+			return 'empty';
+		}
+
+		return 'ready';
+	});
+
+	let display_date = $derived(format_edition_date(date));
+
+	const is_today_or_future = $derived.by(() => {
+		const today = new Date().toISOString().slice(0, 10);
+		return date >= today;
+	});
+
+	const show_generation_cta = $derived(
+		has_available_sources &&
+			is_today_or_future &&
+			(edition_state === 'missing' || edition_state === 'failed' || edition_state === 'empty')
+	);
 </script>
 
 <svelte:head>
 	<title>Your News — Editorial</title>
 </svelte:head>
 
-<EditorialDesign date={selected_date} {has_available_sources} />
+{#snippet generation_form_snippet()}
+	<form
+		class="generation-form"
+		{...start_daily_edition_generation.enhance(async ({ submit }) => {
+			const edition_date = start_daily_edition_generation.fields.edition_date.value()!;
+			const current_edition = edition;
+
+			await submit().updates(
+				get_editions().withOverride((current) =>
+					upsert_generating_edition(current, edition_date, current_edition)
+				),
+				get_edition_editor(edition_date).withOverride((current) => ({
+					id: current?.id ?? current_edition?.id ?? crypto.randomUUID(),
+					edition_date,
+					status: 'generating',
+					title: current?.title ?? current_edition?.title ?? null,
+					summary: current?.summary ?? current_edition?.summary ?? null,
+					generated_at: current?.generated_at ?? current_edition?.generated_at ?? null,
+					articles: []
+				}))
+			);
+		})}
+	>
+		<input {...start_daily_edition_generation.fields.edition_date.as('hidden', date)} />
+		<button type="submit" class="generation-button">
+			{get_generation_button_label(edition_state)}
+		</button>
+	</form>
+{/snippet}
+
+<Masthead>
+	{#snippet top_left()}Daily Edition{/snippet}
+	{#snippet top_center()}{articles.length} Stories{/snippet}
+	{#snippet top_right()}
+		<span class="date-long">{display_date.long}</span>
+		<span class="date-short">{display_date.short}</span>
+	{/snippet}
+	{#snippet title()}Your News{/snippet}
+
+	<EditionsList {editions} />
+</Masthead>
+
+<main class="content">
+	{#if edition_state === 'missing'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Edition unavailable</p>
+			{#if has_available_sources}
+				<h2>No edition has been created for this date yet.</h2>
+				<p>Choose another date or start a generation run to prepare this edition.</p>
+			{:else}
+				<h2>No edition can be generated yet.</h2>
+				<p>Generation needs at least one active source.</p>
+			{/if}
+			{#if show_generation_cta}
+				{@render generation_form_snippet()}
+			{:else if !has_available_sources}
+				<div class="generation-form">
+					<a href="/sources" class="generation-button">Manage sources</a>
+				</div>
+			{/if}
+		</section>
+	{:else if edition_state === 'generating'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Edition in progress</p>
+			<h2>Today&apos;s edition is being assembled.</h2>
+			<p>
+				We&apos;re reviewing your saved sources and drafting the article lineup now. If the page
+				doesn't refresh automatically try to refresh manually in a few minutes.
+			</p>
+		</section>
+	{:else if edition_state === 'failed'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Generation incomplete</p>
+			<h2>This edition could not be generated.</h2>
+			<p>Start a new generation run to try again, or return later after adjusting your sources.</p>
+			{#if show_generation_cta}
+				{@render generation_form_snippet()}
+			{/if}
+		</section>
+	{:else if edition_state === 'published-empty'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Published edition</p>
+			<h2>No new articles made it into this edition.</h2>
+			<p>The edition has been published, but there were no stories to include for this date.</p>
+		</section>
+	{:else if edition_state === 'empty'}
+		<section class="edition-state-panel">
+			<p class="state-eyebrow">Edition ready for curation</p>
+			<h2>No articles have been added yet.</h2>
+			<p>
+				This edition exists, but it still needs stories before it can read like a finished front
+				page.
+			</p>
+			{#if show_generation_cta}
+				{@render generation_form_snippet()}
+			{/if}
+		</section>
+	{:else}
+		{#if articles[0]}
+			<FeaturedArticle article={articles[0]} index={0} />
+		{/if}
+
+		<div class="grid">
+			{#each articles.slice(1) as article, i (article.id)}
+				<Article {article} index={i + 1} />
+			{/each}
+		</div>
+	{/if}
+</main>
+
+<PageFooter
+	tagline="Carefully curated. Elegantly delivered."
+	subtitle="No algorithms, no noise — just the stories that matter."
+/>
+
+<style>
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+		gap: 0;
+	}
+
+	.date-short {
+		display: none;
+	}
+
+	@media (max-width: 640px) {
+		.date-long {
+			display: none;
+		}
+
+		.date-short {
+			display: inline;
+		}
+	}
+
+	.edition-state-panel {
+		display: grid;
+		gap: var(--s-4);
+		max-width: var(--measure);
+		padding: clamp(var(--s-6), 6vw, var(--s-10)) 0;
+	}
+
+	.state-eyebrow {
+		font-size: var(--text-xs);
+		font-weight: 800;
+		letter-spacing: var(--tracking-5);
+		text-transform: uppercase;
+		color: var(--accent);
+	}
+
+	.edition-state-panel h2 {
+		font-family: var(--font-display);
+		font-size: var(--text-3xl);
+		font-weight: 850;
+		line-height: 1;
+		letter-spacing: -0.04em;
+		text-wrap: balance;
+	}
+
+	.edition-state-panel p:last-child {
+		font-size: var(--text-md);
+		color: var(--muted);
+	}
+
+	.generation-form {
+		margin-top: var(--s-4);
+	}
+
+	.generation-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--s-3) var(--s-5);
+		border: var(--s-px) solid var(--accent);
+		background: var(--accent);
+		color: var(--accent-contrast);
+		font-family: var(--font-display);
+		font-size: var(--text-xs);
+		font-weight: 800;
+		letter-spacing: var(--tracking-5);
+		text-transform: uppercase;
+		text-decoration: none;
+		cursor: pointer;
+		transition:
+			background 0.2s var(--ease-out-expo),
+			color 0.2s var(--ease-out-expo),
+			border-color 0.2s var(--ease-out-expo);
+	}
+
+	.generation-button:hover {
+		background: var(--fg);
+		border-color: var(--fg);
+		color: var(--bg);
+	}
+</style>
