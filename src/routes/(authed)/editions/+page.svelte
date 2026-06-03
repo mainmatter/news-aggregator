@@ -236,10 +236,7 @@
 	</section>
 </main>
 
-<PageFooter
-	tagline="Shape the narrative."
-	subtitle="Create, organize, and publish your daily editions."
-/>
+<PageFooter />
 
 <style>
 	.page-header {

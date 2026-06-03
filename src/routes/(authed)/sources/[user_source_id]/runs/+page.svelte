@@ -135,10 +135,7 @@
 		{/if}
 	</main>
 
-	<PageFooter
-		tagline="Trace the trail."
-		subtitle="Every run from this source, kept on the record."
-	/>
+	<PageFooter />
 {/if}
 
 <style>

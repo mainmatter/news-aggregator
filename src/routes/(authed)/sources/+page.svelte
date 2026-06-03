@@ -281,10 +281,7 @@
 	</section>
 </main>
 
-<PageFooter
-	tagline="Curate your world."
-	subtitle="Add, edit, and manage the sources that power your daily edition."
-/>
+<PageFooter />
 
 <style>
 	.page-header {

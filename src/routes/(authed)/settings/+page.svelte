@@ -94,10 +94,7 @@
 	</section>
 </main>
 
-<PageFooter
-	tagline="Tune the relay."
-	subtitle="Set editorial preferences and manage the data behind your editions."
-/>
+<PageFooter />
 
 <style>
 	.page-header {

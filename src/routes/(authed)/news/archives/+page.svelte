@@ -119,10 +119,7 @@
 	{/each}
 </main>
 
-<PageFooter
-	tagline="Every edition, preserved."
-	subtitle="Browse through your curated news history."
-/>
+<PageFooter />
 
 <style>
 	.content {

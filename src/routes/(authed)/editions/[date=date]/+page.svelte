@@ -667,10 +667,7 @@
 	</main>
 {/if}
 
-<PageFooter
-	tagline="Shape the narrative."
-	subtitle="Curate, order, and refine the articles that define this edition."
-/>
+<PageFooter />
 
 <style>
 	.page-header {

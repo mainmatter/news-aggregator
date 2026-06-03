@@ -268,10 +268,7 @@
 	{/if}
 </main>
 
-<PageFooter
-	tagline="Carefully curated. Elegantly delivered."
-	subtitle="No algorithms, no noise — just the stories that matter."
-/>
+<PageFooter />
 
 <style>
 	.grid {
