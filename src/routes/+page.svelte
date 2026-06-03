@@ -3,6 +3,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import FieldErrors from '$lib/components/FieldErrors.svelte';
 	import FormField from '$lib/components/FormField.svelte';
+	import PageFooter from '$lib/components/PageFooter.svelte';
 	import SectionRule from '$lib/components/SectionRule.svelte';
 
 	await get_user(true);
@@ -66,7 +67,7 @@
 			<Button class="google" type="submit">Continue with Google</Button>
 		</form>
 
-		<p class="footer-tagline">Reading first. Controls second.</p>
+		<PageFooter />
 	</div>
 </div>
 
@@ -149,12 +150,6 @@
 		display: flex;
 		gap: var(--s-3);
 		margin-top: var(--s-2);
-	}
-
-	.footer-tagline {
-		font-size: var(--text-sm);
-		color: var(--muted);
-		margin-top: var(--s-6);
 	}
 
 	@media (max-width: 840px) {
