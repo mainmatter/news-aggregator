@@ -123,7 +123,9 @@
 			</div>
 
 			<FormActions>
-				<Button variant="primary" type="submit">Add Source</Button>
+				<Button variant="primary" type="submit" loading={!!create_user_source.pending}
+					>Add Source</Button
+				>
 			</FormActions>
 		</form>
 	</section>
@@ -232,12 +234,13 @@
 								})}
 							>
 								<input {...remove.fields.user_source_id.as('hidden', source.user_source_id)} />
-								<Button variant="ghost" type="submit">Delete</Button>
+								<Button variant="ghost" type="submit" loading={!!remove.pending}>Delete</Button>
 							</form>
 							<Button
 								bind:this={source_save_buttons[source.user_source_id]}
 								type="submit"
 								form="edit-{source.user_source_id}"
+								loading={!!edit.pending}
 							>
 								Save
 							</Button>

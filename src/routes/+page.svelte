@@ -51,10 +51,18 @@
 			{/if}
 
 			<div class="button-row">
-				<Button variant="primary" {...login_or_register.fields.action.as('submit', 'login')}>
+				<Button
+					variant="primary"
+					loading={!!login_or_register.pending}
+					{...login_or_register.fields.action.as('submit', 'login')}
+				>
 					Sign In
 				</Button>
-				<Button variant="secondary" {...login_or_register.fields.action.as('submit', 'register')}>
+				<Button
+					variant="secondary"
+					loading={!!login_or_register.pending}
+					{...login_or_register.fields.action.as('submit', 'register')}
+				>
 					Create Account
 				</Button>
 			</div>
@@ -63,7 +71,9 @@
 		<SectionRule />
 
 		<form {...sign_in_google}>
-			<Button class="google" type="submit">Continue with Google</Button>
+			<Button class="google" type="submit" loading={!!sign_in_google.pending}
+				>Continue with Google</Button
+			>
 		</form>
 
 		<p class="footer-tagline">Reading first. Controls second.</p>

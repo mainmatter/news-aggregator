@@ -1,16 +1,19 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
+	import type { TransitionConfig } from 'svelte/transition';
 
 	type FeedbackStatus = 'success' | 'error';
 	type FeedbackState = 'idle' | FeedbackStatus;
+	const MIN_LOADING_MS = 300;
 
 	type Props = {
 		children: Snippet;
+		loading?: boolean;
 		variant?: 'default' | 'ghost' | 'primary' | 'secondary';
 	} & HTMLButtonAttributes;
 
-	let { children, variant = 'default', ...rest }: Props = $props();
+	let { children, loading = false, variant = 'default', ...rest }: Props = $props();
 
 	let feedback_state: FeedbackState = $state('idle');
 	let feedback_timeout_id: ReturnType<typeof setTimeout> | undefined;
@@ -32,11 +35,36 @@
 		}, duration_ms);
 	}
 
+	let started_loading: number;
+
+	// we use this as an outro transition to keep the loading spinner for at least MIN_LOADING_MS
+	function keep_loading_overlay(_node: Element): TransitionConfig {
+		return { delay: Math.max(0, MIN_LOADING_MS - (Date.now() - started_loading)), duration: 0 };
+	}
+
 	$effect(() => clear_feedback_timeout);
+
+	$effect(() => {
+		if (loading) {
+			started_loading = Date.now();
+		}
+	});
 </script>
 
-<button class={['btn', `btn-${variant}`]} data-feedback={feedback_state} {...rest}>
-	{@render children()}
+<button
+	class={['btn', `btn-${variant}`]}
+	data-feedback={feedback_state}
+	aria-busy={loading ? 'true' : undefined}
+	{...rest}
+>
+	<span class="btn-content">
+		{@render children()}
+	</span>
+	{#if loading}
+		<span class="loading-overlay" aria-hidden="true" out:keep_loading_overlay>
+			<span class="loading-spinner"></span>
+		</span>
+	{/if}
 </button>
 
 <style>
@@ -79,6 +107,7 @@
 		border: var(--s-px) solid var(--btn-border-color);
 		border-radius: 0;
 		cursor: pointer;
+		overflow: hidden;
 		transition:
 			--feedback-angle 0.5s var(--ease-out-expo),
 			--feedback-color 0.5s var(--ease-out-expo),
@@ -86,6 +115,39 @@
 			color 0.2s var(--ease-out-expo),
 			border-color 0.2s var(--ease-out-expo),
 			transform 0.2s var(--ease-out-expo);
+	}
+
+	.btn-content {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: inherit;
+	}
+
+	.loading-overlay {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: color-mix(in oklch, var(--btn-bg) 78%, var(--bg));
+		color: var(--btn-color);
+		pointer-events: none;
+	}
+
+	.loading-spinner {
+		width: var(--s-4);
+		aspect-ratio: 1;
+		border: var(--s-2px) solid color-mix(in oklch, currentColor 28%, transparent);
+		border-top-color: currentColor;
+		border-radius: 50%;
+		animation: btn-spin 0.8s linear infinite;
+	}
+
+	@keyframes btn-spin {
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	button:focus-visible {
