@@ -14,21 +14,23 @@
 
 <style>
 	footer {
-		padding: var(--s-4) 0;
-		border-top: var(--s-2px) solid var(--fg);
+		display: flex;
+		justify-content: center;
+		padding: var(--s-6) 0 var(--s-4);
+		border-top: var(--s-px) solid var(--rule);
 		animation: fade-up 0.45s var(--ease-out-expo) both;
 		animation-delay: 0.15s;
 	}
 
 	p {
 		display: inline-flex;
-		align-items: center;
+		align-items: flex-end;
 		gap: var(--s-2);
 		color: var(--muted);
 		font-size: var(--text-xs);
 		font-weight: 700;
 		letter-spacing: var(--tracking-4);
-		line-height: 1;
+		line-height: 0.85;
 		text-transform: uppercase;
 	}
 
@@ -40,7 +42,7 @@
 
 	.logo :global(svg) {
 		width: auto;
-		height: var(--s-4);
+		height: var(--s-3);
 	}
 
 	.sr-only {
