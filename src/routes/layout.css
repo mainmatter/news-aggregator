@@ -9,7 +9,7 @@
 	/* --- Colors --- */
 	--bg: oklch(97.2% 0.008 286);
 	--fg: oklch(16.5% 0.012 286);
-	--accent: oklch(48.5% 0.235 310);
+	--accent: oklch(48.141% 0.27855 286.55);
 	--accent-contrast: oklch(98% 0.006 286);
 	--accent-soft: color-mix(in oklch, var(--accent) 8%, transparent);
 	--accent-wash: color-mix(in oklch, var(--accent) 11%, var(--bg));
