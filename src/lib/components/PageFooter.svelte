@@ -24,7 +24,7 @@
 
 	p {
 		display: inline-flex;
-		align-items: flex-end;
+		align-items: baseline;
 		gap: var(--s-2);
 		color: var(--muted);
 		font-size: var(--text-xs);
