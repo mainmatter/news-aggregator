@@ -78,7 +78,7 @@
 	:root:not(.light) {
 		--bg: oklch(18% 0.012 286);
 		--fg: oklch(94.8% 0.008 286);
-		--accent: oklch(72% 0.2 310);
+		--accent: #07ceba;
 		--accent-contrast: oklch(17% 0.012 286);
 		--accent-soft: color-mix(in oklch, var(--accent) 11%, transparent);
 		--accent-wash: color-mix(in oklch, var(--accent) 15%, var(--bg));
@@ -103,7 +103,7 @@
 :root.dark {
 	--bg: oklch(18% 0.012 286);
 	--fg: oklch(94.8% 0.008 286);
-	--accent: oklch(72% 0.2 310);
+	--accent: #07ceba;
 	--accent-contrast: oklch(17% 0.012 286);
 	--accent-soft: color-mix(in oklch, var(--accent) 11%, transparent);
 	--accent-wash: color-mix(in oklch, var(--accent) 15%, var(--bg));
