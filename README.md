@@ -28,3 +28,7 @@ DayRelay is a SvelteKit application backed by a SQLite-compatible database throu
 - Source runners execute in sandbox backends under `src/workflows/generate_daily_edition/sandbox`, with support for local Docker and Vercel Sandbox execution.
 - Observability is wired through Sentry on both client and server paths.
 - Tests cover components, server behavior, workflows, and end-to-end flows with Vitest and Playwright.
+
+## Copyright
+
+Copyright &copy; 2026 Mainmatter GmbH (https://mainmatter.com).
