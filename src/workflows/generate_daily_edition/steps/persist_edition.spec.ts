@@ -43,6 +43,7 @@ describe('persist_edition', () => {
 				previous_generated_at: null,
 				previous_article_count: 0,
 				replace_existing: false,
+				story_window_start: new Date('2026-04-07T23:59:59.999Z'),
 				source_snapshot: []
 			};
 

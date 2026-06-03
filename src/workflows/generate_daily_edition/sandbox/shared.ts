@@ -37,12 +37,11 @@ export function derive_callback_secret(webhook_token: string) {
 	return createHmac('sha256', env.WEBHOOK_SECRET).update(webhook_token).digest('hex');
 }
 
-export function get_window_bounds(edition_date: string) {
+export function get_window_bounds(edition_date: string, story_window_start: Date) {
 	const window_end = new Date(`${edition_date}T23:59:59.999Z`);
-	const window_start = new Date(window_end.getTime() - 48 * 60 * 60 * 1000);
 
 	return {
-		window_start_iso: window_start.toISOString(),
+		window_start_iso: story_window_start.toISOString(),
 		window_end_iso: window_end.toISOString()
 	};
 }
@@ -67,7 +66,10 @@ export function create_source_sandbox_env({
 	correlation_id: string;
 }) {
 	const callback_secret = derive_callback_secret(webhook_token);
-	const { window_start_iso, window_end_iso } = get_window_bounds(input.edition_date);
+	const { window_start_iso, window_end_iso } = get_window_bounds(
+		input.edition_date,
+		input.preparation.story_window_start
+	);
 	const resolved_url = resolve_webhook_url(webhook_url, input.tunnel_base_url);
 
 	const sandbox_env: Record<string, string> = {
