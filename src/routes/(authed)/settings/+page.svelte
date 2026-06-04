@@ -38,16 +38,7 @@
 			class="settings-form"
 			{...settings_form.enhance(async ({ submit }) => {
 				try {
-					const article_selection_prompt =
-						settings_form.fields.article_selection_prompt.value()?.trim() || null;
-
-					await submit().updates(
-						get_user_settings().withOverride((settings) => ({
-							...settings,
-							article_selection_prompt
-						}))
-					);
-
+					await submit();
 					settings_save_button?.show_feedback('success');
 				} catch (error) {
 					settings_save_button?.show_feedback('error');
