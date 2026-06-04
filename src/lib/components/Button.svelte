@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
-	import type { TransitionConfig } from 'svelte/transition';
 
 	type FeedbackStatus = 'success' | 'error';
 	type FeedbackState = 'idle' | FeedbackStatus;
@@ -13,7 +12,7 @@
 		variant?: 'default' | 'ghost' | 'primary' | 'secondary';
 	} & HTMLButtonAttributes;
 
-	let { children, loading = false, variant = 'default', ...rest }: Props = $props();
+	let { children, loading = false, variant = 'default', onclick, ...rest }: Props = $props();
 
 	let feedback_state: FeedbackState = $state('idle');
 	let feedback_timeout_id: ReturnType<typeof setTimeout> | undefined;
@@ -35,33 +34,42 @@
 		}, duration_ms);
 	}
 
-	let started_loading: number;
-
-	// we use this as an outro transition to keep the loading spinner for at least MIN_LOADING_MS
-	function keep_loading_overlay(_node: Element): TransitionConfig {
-		return { delay: Math.max(0, MIN_LOADING_MS - (Date.now() - started_loading)), duration: 0 };
-	}
-
 	$effect(() => clear_feedback_timeout);
 
-	$effect(() => {
+	let start: number;
+	async function delayed(loading: boolean) {
 		if (loading) {
-			started_loading = Date.now();
+			start = Date.now();
+			return Promise.resolve(loading);
 		}
-	});
+		return new Promise((r) =>
+			setTimeout(r, Date.now() - start < MIN_LOADING_MS ? MIN_LOADING_MS : 0, loading)
+		);
+	}
+
+	const delayed_loading = $derived(await delayed(loading));
 </script>
 
 <button
 	class={['btn', `btn-${variant}`]}
 	data-feedback={feedback_state}
-	aria-busy={loading ? 'true' : undefined}
+	aria-disabled={delayed_loading ? 'true' : undefined}
+	aria-busy={delayed_loading ? 'true' : undefined}
+	onclick={(e) => {
+		if (delayed_loading) {
+			e.preventDefault();
+			e.stopPropagation();
+			return;
+		}
+		onclick?.(e);
+	}}
 	{...rest}
 >
 	<span class="btn-content">
 		{@render children()}
 	</span>
-	{#if loading}
-		<span class="loading-overlay" aria-hidden="true" out:keep_loading_overlay>
+	{#if delayed_loading}
+		<span class="loading-overlay" aria-hidden="true">
 			<span class="loading-spinner"></span>
 		</span>
 	{/if}
@@ -130,7 +138,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: color-mix(in oklch, var(--btn-bg) 78%, var(--bg));
 		color: var(--btn-color);
 		pointer-events: none;
 	}
@@ -207,5 +214,13 @@
 		--feedback-angle: 360deg;
 		color: var(--status-error);
 		border-color: var(--status-error);
+	}
+
+	[aria-disabled='true'] {
+		cursor: not-allowed;
+		opacity: 0.6;
+		.btn-content {
+			opacity: 0;
+		}
 	}
 </style>
