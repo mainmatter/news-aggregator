@@ -14,7 +14,7 @@ import {
 	finalize_pending_participation_as_error
 } from '$lib/server/source_participation';
 import * as Sentry from '@sentry/sveltekit';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, lt, sql } from 'drizzle-orm';
 import { start } from 'workflow/api';
 import { generate_daily_edition_workflow } from '../../workflows/generate_daily_edition';
 import { persist_edition } from '../../workflows/generate_daily_edition/steps/persist_edition';
@@ -69,11 +69,40 @@ async function load_source_snapshot(user_id: string): Promise<SourceSnapshotEntr
 	return rows;
 }
 
+async function load_story_window_start(user_id: string, edition_date: string) {
+	const [latest_generated_edition] = await db
+		.select({ edition_date: daily_edition.edition_date })
+		.from(daily_edition)
+		.where(
+			and(
+				eq(daily_edition.user_id, user_id),
+				lt(daily_edition.edition_date, edition_date),
+				isNotNull(daily_edition.generated_at)
+			)
+		)
+		.orderBy(desc(daily_edition.edition_date))
+		.limit(1);
+
+	if (latest_generated_edition) {
+		return {
+			story_window_start: new Date(`${latest_generated_edition.edition_date}T00:00:00.000Z`)
+		};
+	}
+
+	const edition_window_end = new Date(`${edition_date}T23:59:59.999Z`);
+	const story_window_start = new Date(edition_window_end.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+	return {
+		story_window_start
+	};
+}
+
 type PrepareGenerationArgs = PreparationGenerationInput & {
 	source_snapshot: SourceSnapshotEntry[];
 };
 
 export async function prepare_generation(input: PrepareGenerationArgs) {
+	const story_window = await load_story_window_start(input.user_id, input.edition_date);
 	const [existing] = await db
 		.select({
 			id: daily_edition.id,
@@ -106,7 +135,10 @@ export async function prepare_generation(input: PrepareGenerationArgs) {
 
 	let edition_id: string;
 	let edition_date: string;
-	let prepared_base: Omit<PreparedGenerationState, 'source_snapshot'>;
+	let prepared_base: Omit<
+		PreparedGenerationState,
+		'source_snapshot' | 'story_window_start'
+	>;
 
 	if (existing) {
 		await db
@@ -163,6 +195,7 @@ export async function prepare_generation(input: PrepareGenerationArgs) {
 
 	return {
 		...prepared_base,
+		...story_window,
 		source_snapshot: input.source_snapshot
 	} satisfies PreparedGenerationState;
 }

@@ -75,6 +75,7 @@ export type PreparedGenerationState = {
 	previous_generated_at: Date | null;
 	previous_article_count: number;
 	replace_existing: boolean;
+	story_window_start: Date;
 	source_snapshot: SourceSnapshotEntry[];
 };
 
