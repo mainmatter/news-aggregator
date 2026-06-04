@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Article from '$lib/components/Article.svelte';
+	import Button from '$lib/components/Button.svelte';
 	import FeaturedArticle from '$lib/components/FeaturedArticle.svelte';
 	import PageFooter from '$lib/components/PageFooter.svelte';
 	import {
@@ -182,9 +183,13 @@
 		})}
 	>
 		<input {...start_daily_edition_generation.fields.edition_date.as('hidden', date)} />
-		<button type="submit" class="generation-button">
+		<Button
+			type="submit"
+			class="generation-button"
+			loading={!!start_daily_edition_generation.pending}
+		>
 			{get_generation_button_label(edition_state)}
-		</button>
+		</Button>
 	</form>
 {/snippet}
 
@@ -324,7 +329,8 @@
 		margin-top: var(--s-4);
 	}
 
-	.generation-button {
+	.generation-button,
+	:global(button.generation-button) {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -345,7 +351,8 @@
 			border-color 0.2s var(--ease-out-expo);
 	}
 
-	.generation-button:hover {
+	.generation-button:hover,
+	:global(button.generation-button:hover) {
 		background: var(--fg);
 		border-color: var(--fg);
 		color: var(--bg);

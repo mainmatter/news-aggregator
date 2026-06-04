@@ -126,6 +126,7 @@
 									<Button
 										variant="ghost"
 										type="submit"
+										loading={!!delete_form.pending}
 										class="delete-button"
 										aria-label={`Delete edition for ${edition_date.long}`}
 									>
@@ -230,7 +231,9 @@
 			</FormField>
 
 			<FormActions>
-				<Button variant="primary" type="submit">Create Edition</Button>
+				<Button variant="primary" type="submit" loading={!!create_edition.pending}
+					>Create Edition</Button
+				>
 			</FormActions>
 		</form>
 	</section>

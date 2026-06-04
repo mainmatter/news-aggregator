@@ -233,7 +233,9 @@
 					</FormField>
 
 					<FormActions>
-						<Button bind:this={meta_save_button} type="submit">Save</Button>
+						<Button bind:this={meta_save_button} type="submit" loading={!!meta_form.pending}
+							>Save</Button
+						>
 					</FormActions>
 				</form>
 			{/if}
@@ -324,7 +326,7 @@
 							>
 								<input {...add_form.fields.edition_id.as('hidden', edition.id)} />
 								<input {...add_form.fields.article_id.as('hidden', candidate.id)} />
-								<Button type="submit">Add</Button>
+								<Button type="submit" loading={!!add_form.pending}>Add</Button>
 							</form>
 						</li>
 					{/each}
@@ -417,7 +419,9 @@
 				</FormField>
 
 				<FormActions>
-					<Button variant="primary" type="submit">Create Article</Button>
+					<Button variant="primary" type="submit" loading={!!create_manual_article.pending}
+						>Create Article</Button
+					>
 				</FormActions>
 			</form>
 		</details>
@@ -472,7 +476,12 @@
 											type="hidden"
 											value={rendered_index - 1}
 										/>
-										<Button variant="ghost" type="submit" disabled={rendered_index <= 0}>Up</Button>
+										<Button
+											variant="ghost"
+											type="submit"
+											disabled={rendered_index <= 0}
+											loading={!!move_up.pending}>Up</Button
+										>
 									</form>
 									<form
 										{...move_down.enhance(async ({ submit }) => {
@@ -504,6 +513,7 @@
 											variant="ghost"
 											type="submit"
 											disabled={rendered_index >= edition.articles.length - 1}
+											loading={!!move_down.pending}
 										>
 											Down
 										</Button>
@@ -631,7 +641,10 @@
 									<div class="edit-actions">
 										<!-- eslint-disable-next-line svelte/no-unused-svelte-ignore -->
 										<!-- svelte-ignore binding_property_non_reactive -->
-										<Button bind:this={override_save_buttons[article.id]} type="submit">Save</Button
+										<Button
+											bind:this={override_save_buttons[article.id]}
+											type="submit"
+											loading={!!edit.pending}>Save</Button
 										>
 									</div>
 								</form>
@@ -657,7 +670,8 @@
 							>
 								<input {...remove_form.fields.edition_article_id.as('hidden', article.id)} />
 								<input {...remove_form.fields.edition_id.as('hidden', edition.id)} />
-								<Button variant="ghost" type="submit">Remove</Button>
+								<Button variant="ghost" type="submit" loading={!!remove_form.pending}>Remove</Button
+								>
 							</form>
 						</li>
 					{/each}

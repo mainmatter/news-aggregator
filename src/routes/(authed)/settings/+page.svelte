@@ -72,7 +72,9 @@
 			</FormField>
 
 			<FormActions>
-				<Button bind:this={settings_save_button} type="submit">Save</Button>
+				<Button bind:this={settings_save_button} type="submit" loading={!!settings_form.pending}
+					>Save</Button
+				>
 			</FormActions>
 		</form>
 	</section>
