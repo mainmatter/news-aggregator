@@ -4,11 +4,13 @@
 
 <footer>
 	<p>
-		<span aria-hidden="true">Built by</span>
-		<span class="sr-only">Built by Mainmatter</span>
-		<span class="logo" aria-hidden="true">
-			<Mainmatter />
-		</span>
+		<a href="https://mainmatter.com/svelte" target="_blank">
+			<span aria-hidden="true">Built by</span>
+			<span class="sr-only">Built by Mainmatter</span>
+			<span class="logo" aria-hidden="true">
+				<Mainmatter />
+			</span>
+		</a>
 	</p>
 </footer>
 
@@ -32,6 +34,10 @@
 		letter-spacing: var(--tracking-4);
 		line-height: 0.85;
 		text-transform: uppercase;
+	}
+	a {
+		color: inherit;
+		text-decoration: none;
 	}
 
 	.logo {
