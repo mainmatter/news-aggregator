@@ -60,6 +60,7 @@
 	"dependencies": {
 		"@fontsource-variable/source-sans-3": "^5.2.9",
 		"@sentry/sveltekit": "^10.51.0",
+		"@upstash/redis": "^1.38.0",
 		"@vercel/sandbox": "^1.9.0",
 		"dockerode": "^4.0.10",
 		"sveltekit-view-transition": "^0.5.3",

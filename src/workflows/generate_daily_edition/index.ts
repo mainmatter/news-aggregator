@@ -12,6 +12,8 @@ import {
 	step_finalize_edition_participation_failed,
 	step_finalize_source_participation,
 	step_mark_participation_running,
+	step_notify_generation_finished,
+	step_notify_generation_progress,
 	stop_sandbox
 } from './steps';
 import type { EditionGenerationInput, SourceGenerationResult, WorkflowUserSource } from './types';
@@ -62,6 +64,10 @@ async function run_source_generation(
 
 	try {
 		using webhook = createWebhook();
+		step_notify_generation_progress({
+			edition_id: input.preparation.edition_id,
+			message: `Taking a look at ${source.display_name}...`
+		});
 
 		await step_mark_participation_running({
 			daily_edition_id: input.preparation.edition_id,
@@ -177,19 +183,35 @@ export async function generate_daily_edition_workflow(input: EditionGenerationIn
 				preparation: input.preparation,
 				source_results: []
 			});
+			await step_notify_generation_finished({
+				edition_id: input.preparation.edition_id,
+				status: persist_result.status
+			});
 
 			return persist_result;
 		}
 
 		const settings = await get_user_generation_settings(input.user_id);
+		step_notify_generation_progress({
+			edition_id: input.preparation.edition_id,
+			message: `Checking ${active_sources.length} active ${active_sources.length === 1 ? 'source' : 'sources'} for today's edition...`
+		});
 
 		const source_results = await Promise.all(
 			active_sources.map((source) => run_source_generation(source, input, settings))
 		);
+		step_notify_generation_progress({
+			edition_id: input.preparation.edition_id,
+			message: 'Wrapping things up...'
+		});
 
 		const persist_result = await persist_edition({
 			preparation: input.preparation,
 			source_results
+		});
+		await step_notify_generation_finished({
+			edition_id: input.preparation.edition_id,
+			status: persist_result.status
 		});
 
 		return persist_result;
@@ -214,6 +236,10 @@ export async function generate_daily_edition_workflow(input: EditionGenerationIn
 		await step_finalize_edition_participation_failed({
 			daily_edition_id: input.preparation.edition_id,
 			error_message
+		});
+		await step_notify_generation_finished({
+			edition_id: input.preparation.edition_id,
+			status: input.preparation.had_existing_edition ? 'restored' : 'failed'
 		});
 
 		throw error;

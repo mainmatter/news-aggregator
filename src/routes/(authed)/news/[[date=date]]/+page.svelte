@@ -6,6 +6,7 @@
 	import {
 		get_edition_editor,
 		get_editions,
+		get_generation_progress_messages,
 		start_daily_edition_generation,
 		type EditionArticleRow,
 		type EditionEditor,
@@ -153,6 +154,66 @@
 			is_today_or_future &&
 			(edition_state === 'missing' || edition_state === 'failed' || edition_state === 'empty')
 	);
+
+	const generation_event_source_url = $derived(
+		edition_state === 'generating' && edition?.id
+			? `/news/generation-events/${encodeURIComponent(edition.id)}`
+			: null
+	);
+
+	let generation_progress_messages = $derived(
+		edition?.id ? await get_generation_progress_messages(edition.id) : []
+	);
+
+	function parse_generation_progress(event: MessageEvent) {
+		try {
+			const payload = JSON.parse(event.data) as unknown;
+
+			if (
+				typeof payload === 'object' &&
+				payload !== null &&
+				'type' in payload &&
+				payload.type === 'progress' &&
+				'message' in payload &&
+				typeof payload.message === 'string'
+			) {
+				if (!edition?.id) {
+					return;
+				}
+
+				generation_progress_messages = [
+					...generation_progress_messages,
+					{
+						id: `live:${crypto.randomUUID()}`,
+						message: payload.message
+					}
+				];
+			}
+		} catch {
+			// Ignore malformed progress events.
+		}
+	}
+
+	$effect(() => {
+		if (!generation_event_source_url) {
+			return;
+		}
+
+		const events = new EventSource(generation_event_source_url);
+		const refresh_edition = () => {
+			void Promise.all([get_editions().refresh(), get_edition_editor(date).refresh()]);
+			events.close();
+		};
+
+		events.addEventListener('generation-finished', refresh_edition);
+		events.addEventListener('generation-progress', parse_generation_progress);
+
+		return () => {
+			events.removeEventListener('generation-finished', refresh_edition);
+			events.removeEventListener('generation-progress', parse_generation_progress);
+			events.close();
+		};
+	});
 </script>
 
 <svelte:head>
@@ -228,10 +289,19 @@
 		<section class="edition-state-panel">
 			<p class="state-eyebrow">Edition in progress</p>
 			<h2>Today&apos;s edition is being assembled.</h2>
-			<p>
+			<p class="state-description">
 				We&apos;re reviewing your saved sources and drafting the article lineup now. If the page
 				doesn't refresh automatically try to refresh manually in a few minutes.
 			</p>
+			{#if generation_progress_messages.length > 0}
+				<ul class="generation-progress" aria-label="Generation progress">
+					{#each generation_progress_messages as progress_message, i (progress_message.id)}
+						<li style:--i="'{i.toString().padStart(2, '0')}'">
+							{progress_message.message}
+						</li>
+					{/each}
+				</ul>
+			{/if}
 		</section>
 	{:else if edition_state === 'failed'}
 		<section class="edition-state-panel">
@@ -323,6 +393,124 @@
 	.edition-state-panel p:last-child {
 		font-size: var(--text-md);
 		color: var(--muted);
+	}
+
+	.state-description {
+		font-size: var(--text-md);
+		color: var(--muted);
+	}
+
+	.generation-progress {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: end;
+		gap: var(--s-2);
+		height: calc(var(--s-12) + var(--s-6));
+		overflow: hidden;
+		padding: var(--s-5) 0;
+		border-block: var(--s-px) solid var(--rule);
+		color: var(--fg);
+		font-size: var(--text-sm);
+		line-height: 1.45;
+		list-style: none;
+		-webkit-mask-image: linear-gradient(
+			to bottom,
+			transparent,
+			black var(--s-5),
+			black calc(100% - var(--s-5)),
+			transparent
+		);
+		mask-image: linear-gradient(
+			to bottom,
+			transparent,
+			black var(--s-5),
+			black calc(100% - var(--s-5)),
+			transparent
+		);
+	}
+
+	.generation-progress li {
+		position: relative;
+		display: grid;
+		grid-template-columns: var(--s-6) 1fr;
+		gap: var(--s-3);
+		align-items: baseline;
+		padding-block: var(--s-1);
+		border-top: var(--s-px) solid color-mix(in oklch, var(--rule) 65%, transparent);
+		color: var(--muted);
+	}
+
+	.generation-progress li::before {
+		content: var(--i);
+		color: var(--rule-strong);
+		font-size: var(--text-xs);
+		font-weight: 800;
+		letter-spacing: var(--tracking-4);
+	}
+
+	.generation-progress li:nth-last-child(3) {
+		opacity: 0.82;
+	}
+
+	.generation-progress li:nth-last-child(2) {
+		opacity: 0.92;
+	}
+
+	.generation-progress li:last-child {
+		color: var(--fg);
+		opacity: 1;
+	}
+
+	.generation-progress li:last-child::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			100deg,
+			transparent,
+			color-mix(in oklch, var(--support) 22%, transparent),
+			transparent
+		);
+		transform: translateX(-100%);
+		animation: progress-shimmer 1.8s var(--ease-out-expo) infinite;
+		pointer-events: none;
+	}
+
+	.generation-progress li:last-child::before {
+		color: var(--accent);
+	}
+
+	@keyframes progress-shimmer {
+		to {
+			transform: translateX(100%);
+		}
+	}
+
+	@supports not (
+		(mask-image: linear-gradient(black, transparent)) or
+			(-webkit-mask-image: linear-gradient(black, transparent))
+	) {
+		.generation-progress::before,
+		.generation-progress::after {
+			content: '';
+			position: absolute;
+			right: 0;
+			left: 0;
+			z-index: 1;
+			height: var(--s-5);
+			pointer-events: none;
+		}
+
+		.generation-progress::before {
+			top: 0;
+			background: linear-gradient(to bottom, var(--bg), transparent);
+		}
+
+		.generation-progress::after {
+			bottom: 0;
+			background: linear-gradient(to top, var(--bg), transparent);
+		}
 	}
 
 	.generation-form {

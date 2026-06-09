@@ -14,6 +14,8 @@ function require_env(name) {
 
 const callback_url = require_env('CALLBACK_URL');
 const callback_secret = require_env('CALLBACK_SECRET');
+const progress_url = require_env('PROGRESS_URL');
+const progress_secret = require_env('PROGRESS_SECRET');
 const source_id = require_env('SOURCE_ID');
 const source_name = require_env('SOURCE_NAME');
 const source_url = require_env('SOURCE_URL');
@@ -340,6 +342,32 @@ async function post_callback(payload) {
 	}
 }
 
+async function post_progress(message) {
+	const raw_body = JSON.stringify({
+		source_id,
+		correlation_id: generation_correlation_id,
+		message
+	});
+	const timestamp = Date.now().toString();
+	const signature = createHmac('sha256', progress_secret)
+		.update(`${timestamp}.${raw_body}`)
+		.digest('hex');
+
+	try {
+		await fetch(progress_url, {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+				'x-news-progress-timestamp': timestamp,
+				'x-news-progress-signature': signature
+			},
+			body: raw_body
+		});
+	} catch {
+		// Progress updates are best-effort; the final callback still drives completion.
+	}
+}
+
 async function main() {
 	let opencode_server = null;
 	let client = null;
@@ -360,11 +388,13 @@ async function main() {
 			directory: process.cwd(),
 			responseStyle: 'data'
 		});
+		post_progress(`Opening ${source_name}...`);
 
 		const link_session = await client.session.create({
 			title: `Choose links for ${source_name}`
 		});
 		console.log('Link session ID:', link_session.id, 'choosing links...');
+		post_progress(`Visiting ${source_name} to look for today's stories...`);
 		const link_selection = await run_ai_stage_span(
 			'choose_links',
 			{ stage_type: 'link_selection' },
@@ -377,6 +407,9 @@ async function main() {
 		const promises = chosen_links.map(async (article_url) => {
 			try {
 				console.log(`--- Processing article: ${article_url} ---`);
+				post_progress(
+					`Summarizing story ${article_url.substring(0, 50)}${article_url.length > 50 ? '...' : ''} from ${source_name}...`
+				);
 				const article_session = await client.session.create({
 					title: `Summarize: ${article_url}`
 				});
