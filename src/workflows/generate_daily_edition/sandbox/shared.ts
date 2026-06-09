@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { SENTRY_ENVIRONMENT, SENTRY_RELEASE } from '$env/static/private';
 import { PUBLIC_SENTRY_DSN } from '$env/static/public';
+import { derive_progress_secret } from '$lib/server/generation_progress';
 import { build_sandbox_observability_env } from '$lib/server/observability/sentry';
 import { createHmac } from 'node:crypto';
 import type {
@@ -29,6 +30,15 @@ export function resolve_webhook_url(webhook_url: string, tunnel_base_url?: strin
 	const tunnel = new URL(tunnel_base_url);
 	parsed.protocol = tunnel.protocol;
 	parsed.host = tunnel.host;
+	return parsed.toString();
+}
+
+export function resolve_progress_url(webhook_url: string, input: EditionGenerationInput) {
+	const resolved_webhook_url = resolve_webhook_url(webhook_url, input.tunnel_base_url);
+	const parsed = new URL(resolved_webhook_url);
+	parsed.pathname = `/news/generation-events/${input.preparation.edition_id}/progress`;
+	parsed.search = '';
+	parsed.hash = '';
 	return parsed.toString();
 }
 
@@ -71,10 +81,17 @@ export function create_source_sandbox_env({
 		input.preparation.story_window_start
 	);
 	const resolved_url = resolve_webhook_url(webhook_url, input.tunnel_base_url);
+	const progress_secret = derive_progress_secret({
+		edition_id: input.preparation.edition_id,
+		source_id: source.source_id,
+		correlation_id
+	});
 
 	const sandbox_env: Record<string, string> = {
 		CALLBACK_URL: resolved_url,
 		CALLBACK_SECRET: callback_secret,
+		PROGRESS_URL: resolve_progress_url(webhook_url, input),
+		PROGRESS_SECRET: progress_secret,
 		SOURCE_ID: source.source_id,
 		SOURCE_NAME: source.display_name,
 		SOURCE_URL: source.canonical_url,

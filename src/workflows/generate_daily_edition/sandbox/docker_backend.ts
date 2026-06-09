@@ -115,7 +115,7 @@ function add_tar_entry(archive: Pack, header: Headers, content?: Buffer) {
 	});
 }
 
-async function create_tar_archive(files: sandbox_file[]) {
+export function create_tar_archive(files: sandbox_file[]) {
 	const archive = pack();
 	const directory_paths = new Set<string>();
 	const normalized_files = files.map((file) => {
@@ -135,6 +135,20 @@ async function create_tar_archive(files: sandbox_file[]) {
 		};
 	});
 
+	setImmediate(() => {
+		void write_tar_archive(archive, directory_paths, normalized_files).catch((error: unknown) => {
+			archive.destroy(error instanceof Error ? error : new Error(String(error)));
+		});
+	});
+
+	return archive;
+}
+
+async function write_tar_archive(
+	archive: Pack,
+	directory_paths: Set<string>,
+	files: { path: string; content: Buffer; mode: number }[]
+) {
 	for (const directory_path of [...directory_paths].sort(compare_directory_paths)) {
 		await add_tar_entry(archive, {
 			name: directory_path,
@@ -143,7 +157,7 @@ async function create_tar_archive(files: sandbox_file[]) {
 		});
 	}
 
-	for (const file of normalized_files) {
+	for (const file of files) {
 		await add_tar_entry(
 			archive,
 			{
@@ -157,7 +171,6 @@ async function create_tar_archive(files: sandbox_file[]) {
 	}
 
 	archive.finalize();
-	return archive;
 }
 
 async function follow_progress(docker: Dockerode, stream: NodeJS.ReadableStream) {
@@ -299,7 +312,8 @@ function wrap_container(container: Dockerode.Container): workflow_sandbox {
 	return {
 		id: container.id,
 		async writeFiles(files) {
-			await container.putArchive(await create_tar_archive(files), {
+			const archive = create_tar_archive(files);
+			await container.putArchive(archive, {
 				path: docker_sandbox_workspace
 			});
 		},

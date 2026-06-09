@@ -9,6 +9,7 @@ import {
 	user_source
 } from '$lib/server/db/schema';
 import { start_daily_edition_generation as start_daily_edition_generation_workflow } from '$lib/server/edition_generation';
+import { get_recent_generation_progress } from '$lib/server/generation_events';
 import {
 	calculate_position_for_index,
 	get_edition_articles,
@@ -124,6 +125,24 @@ export const get_edition_editor = query(v.string(), async (edition_date) => {
 		articles
 	} satisfies EditionEditor;
 });
+
+export const get_generation_progress_messages = query(
+	v.pipe(v.string(), v.nonEmpty()),
+	async (edition_id) => {
+		const user = await get_user();
+		const edition = await get_owned_edition(edition_id, user.id);
+
+		if (!edition || edition.status !== 'generating') {
+			return [];
+		}
+
+		const events = await get_recent_generation_progress(edition_id);
+		return events.map((event, index) => ({
+			id: `persisted:${index}:${event.message}`,
+			message: event.message
+		}));
+	}
+);
 
 export const start_daily_edition_generation = form(
 	v.object({

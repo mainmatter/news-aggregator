@@ -13,6 +13,10 @@ import {
 	create_participation_logs,
 	finalize_pending_participation_as_error
 } from '$lib/server/source_participation';
+import {
+	notify_generation_finished,
+	notify_generation_progress
+} from '$lib/server/generation_events';
 import * as Sentry from '@sentry/sveltekit';
 import { and, desc, eq, isNotNull, lt, sql } from 'drizzle-orm';
 import { start } from 'workflow/api';
@@ -135,10 +139,7 @@ export async function prepare_generation(input: PrepareGenerationArgs) {
 
 	let edition_id: string;
 	let edition_date: string;
-	let prepared_base: Omit<
-		PreparedGenerationState,
-		'source_snapshot' | 'story_window_start'
-	>;
+	let prepared_base: Omit<PreparedGenerationState, 'source_snapshot' | 'story_window_start'>;
 
 	if (existing) {
 		await db
@@ -253,10 +254,18 @@ export async function start_daily_edition_generation({
 				const active_count = source_snapshot.filter((row) => row.is_active).length;
 
 				if (active_count === 0) {
+					await notify_generation_progress({
+						edition_id: preparation.edition_id,
+						message: 'No active sources were available for this edition.'
+					});
 					// All sources inactive: short-circuit. Apply persist_edition([]) semantics inline.
 					const persist_result = await persist_edition({
 						preparation,
 						source_results: []
+					});
+					await notify_generation_finished({
+						edition_id: preparation.edition_id,
+						status: persist_result.status
 					});
 
 					return persist_result;
